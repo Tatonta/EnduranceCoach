@@ -36,7 +36,7 @@ Il client iPhone nativo SwiftUI è ora presente in `ios/AdaptiveCoach.xcodeproj`
 
 Scheda dei migliori tempi: **http://127.0.0.1:8000/performances**.
 
-Mappa dei layer, delle chiamate e delle API: [architettura illustrata](docs/architecture/README.md). Include XML draw.io modificabile con sei viste, disegni SVG/PNG, catalogo delle route estratto dal sorgente e una proposta di refactoring separata dall'architettura attuale.
+Mappa dei layer, delle chiamate e delle API: [architettura illustrata](docs/architecture/README.md). Include XML draw.io modificabile con otto viste, disegni SVG/PNG, catalogo delle route estratto dal sorgente e una proposta di refactoring separata dall'architettura attuale.
 
 Salite in bici: **http://127.0.0.1:8000/climbs**.
 

@@ -63,3 +63,5 @@ Locally verified on Windows: all 10 Swift files parse with the tree-sitter Swift
 - Official provider approvals, OAuth callbacks/token lifecycle, durable jobs and verified data coverage before any vendor is advertised as connected. The original personal Garmin adapter is not part of this iOS app or the platform API.
 
 Nothing has been submitted or published to the App Store.
+
+La review canonica estesa e i relativi DTO hanno passato build e 13 test nativi in [questa verifica macOS](https://github.com/Tatonta/EnduranceCoach/actions/runs/37845089683). La prova è nel simulatore, senza firma o verifica su dispositivo reale.

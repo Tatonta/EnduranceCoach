@@ -2,7 +2,7 @@
 
 Fotografia del codice ispezionato l'8 ottobre 2026, compresi i file di deploy predisposti nel working tree. Hosting pubblico e dominio non sono configurati. Il diagramma descrive ciò che esiste; la pagina **Refactoring proposto** è una proposta, non un refactoring già eseguito.
 
-Apri [endurance-coach.drawio](endurance-coach.drawio) con diagrams.net/draw.io: **File → Apri da → Dispositivo**. È XML non compresso, modificabile, con sei pagine. I disegni vettoriali si possono aprire direttamente e ingrandire:
+Apri [endurance-coach.drawio](endurance-coach.drawio) con diagrams.net/draw.io: **File → Apri da → Dispositivo**. È XML non compresso, modificabile, con otto pagine. I disegni vettoriali si possono aprire direttamente e ingrandire:
 
 1. [Sistema attuale](01-sistema-attuale.svg): client, due applicazioni, regole condivise, archivi e vendor.
 2. [Layer backend](02-layer-backend.svg): presentazione, trasporto, identità, servizi, dominio e persistenza.
@@ -10,6 +10,8 @@ Apri [endurance-coach.drawio](endurance-coach.drawio) con diagrams.net/draw.io: 
 4. [API HTTP](04-api-http.svg): endpoint, dati scambiati e confini di autenticazione.
 5. [Refactoring proposto](05-refactoring-proposto.svg): porte, repository, UnitOfWork e adapter.
 6. [Deploy e isolamento](06-deploy-e-isolamento.svg): processi/worker, database, segreti e ingresso HTTPS da configurare.
+7. [Dettagli canonici](07-dettagli-canonici.svg): adapter, contratto di lap/campioni, API per fonte, storage separato, analisi comune e review nativa.
+8. [Redis e job proposti](08-redis-proposto.svg): PostgreSQL autorevole, outbox/dispatcher, broker/cache e worker vendor futuri.
 
 Le versioni PNG con gli stessi nomi sono anteprime. Il [catalogo delle API](api-catalog.json) è estratto dal codice Python, non scritto a memoria. Rigenera XML, SVG e catalogo con `python -m scripts.create_architecture_diagrams`.
 
@@ -22,6 +24,8 @@ Le versioni PNG con gli stessi nomi sono anteprime. Il [catalogo delle API](api-
 I due percorsi **condividono codice di regole**, non database, sessioni o uno stato globale comune. La UI web personale non è ancora un frontend della piattaforma `/v1`. Il blocco “Regole condivise” rappresenta una libreria importata in ciascuna applicazione, non un terzo servizio HTTP.
 
 Aggiornamento: il percorso personale locale include ora analisi misurata di lap/campioni e un adapter **ChatGPTService**. Dopo Sign in with ChatGPT e consenso all’uso del piano, ChatGPT formula la review su seduta e storico. Le regole condivise nei disegni restano deterministiche e non fanno chiamate LLM; il modello non modifica direttamente il programma. Vedi [review dettagliata e collegamento account](../DETAILED_REVIEW.md). Questo adapter locale non è ancora un servizio ChatGPT multi-atleta ospitato né un’abilitazione App Store.
+
+La home personale parte dal questionario e dall'assistente; il client iOS include Coach e feedback manuali. La piattaforma usa lo schema 3, con profili e dettagli delle attività separati dai riepiloghi. La vista 7 approfondisce i nuovi layer. La vista 8 è una proposta: nessun Redis, dispatcher o worker vendor è attualmente implementato. Vedi [contratto dei dettagli](../CANONICAL_DETAILS.md) e [decisione Redis](../REDIS_DECISION.md).
 
 ## Layer attuali e responsabilità
 

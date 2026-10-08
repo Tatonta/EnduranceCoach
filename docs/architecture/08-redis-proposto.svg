@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1070" viewBox="0 0 1400 1070" role="img" aria-label="Redis e job: proposta per il servizio scalabile">
+  <title>Redis e job: proposta per il servizio scalabile</title>
+  <desc>Architettura futura: Redis, dispatcher e worker vendor non sono implementati. PostgreSQL resta la fonte autorevole.</desc>
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#526071" />
+    </marker>
+  </defs>
+  <text x="60" y="47" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="500">Redis e job: proposta per il servizio scalabile</text>
+  <text x="60" y="76" fill="#536173" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Architettura futura: Redis, dispatcher e worker vendor non sono implementati. PostgreSQL resta la fonte autorevole.</text>
+  <polyline points="405,215 520,215" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="700,295 700,455" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="885,530 1175,530 1175,295" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="1000,215 945,215 945,705 230,705 230,805" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="405,880 520,880" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="700,960 700,1005 230,1005 230,960" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="55,880 25,880 25,355 700,355 700,295" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="800,295 800,335 1375,335 1375,755 1175,755 1175,805" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <rect x="55" y="140" width="350" height="155" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="71" y="191" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">API della piattaforma</text>
+  <text x="71" y="215" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Richieste utenti e webhook futuri</text>
+  <text x="71" y="236" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Autenticazione e owner dell'atleta</text>
+  <text x="71" y="257" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Accoda lavori; risponde rapidamente</text>
+  <rect x="520" y="140" width="365" height="155" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="536" y="191" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">PostgreSQL</text>
+  <text x="536" y="215" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Piani, attività e audit già presenti</text>
+  <text x="536" y="236" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Job/outbox: da implementare</text>
+  <text x="536" y="257" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Stato e idempotenza persistenti</text>
+  <rect x="1000" y="140" width="350" height="155" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="1016" y="191" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Redis: broker e cache</text>
+  <text x="1016" y="215" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Coda worker; nessun token in chiaro</text>
+  <text x="1016" y="236" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Cache review con owner/hash e TTL</text>
+  <text x="1016" y="257" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Persistenza/eviction da configurare</text>
+  <rect x="520" y="455" width="365" height="155" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="536" y="506" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Dispatcher dell'outbox</text>
+  <text x="536" y="530" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Pubblica job committati nel DB</text>
+  <text x="536" y="551" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Recupera consegne interrotte</text>
+  <text x="536" y="572" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Invia ID, non dati sanitari</text>
+  <rect x="55" y="805" width="350" height="155" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="71" y="856" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Worker separati</text>
+  <text x="71" y="880" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Refresh e backfill</text>
+  <text x="71" y="901" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Retry/backoff e quote per vendor</text>
+  <text x="71" y="922" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Idempotenza; stato aggiornato in SQL</text>
+  <rect x="520" y="805" width="365" height="155" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="536" y="856" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">API vendor approvate</text>
+  <text x="536" y="880" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Garmin / COROS / Suunto / altri</text>
+  <text x="536" y="901" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Token per atleta gestiti dal server</text>
+  <text x="536" y="922" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Adapter → ActivityRecord/SessionDetails</text>
+  <rect x="1000" y="805" width="350" height="155" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="1016" y="856" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Review e stato del lavoro</text>
+  <text x="1016" y="880" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Dati definitivi nel database</text>
+  <text x="1016" y="901" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Notifiche e aggiornamenti del client</text>
+  <text x="1016" y="922" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Cache ricostruibile dopo perdita Redis</text>
+  <text x="710" y="375.0" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">job pending</text>
+  <text x="979.0" y="521" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">pubblica ID job</text>
+  <text x="526.3" y="696" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">consegna ai worker</text>
+  <text x="414.0" y="996" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">dati restituiti</text>
+  <text x="301.3" y="346" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">salva dati e stato</text>
+  <text x="1036.5" y="326" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">legge risultati</text>
+</svg>

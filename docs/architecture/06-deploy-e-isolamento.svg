@@ -46,8 +46,8 @@
   <rect x="65" y="710" width="380" height="165" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
   <text x="81" y="766" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Inizializzatore separato</text>
   <text x="81" y="790" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">app.platform.cli init-db</text>
-  <text x="81" y="811" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Schema revision 1; nessun upgrade implicito</text>
-  <text x="81" y="832" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Prima dell'avvio dei worker</text>
+  <text x="81" y="811" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Schema 3; upgrade esplicito da 1/2</text>
+  <text x="81" y="832" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">L'avvio API verifica soltanto lo schema</text>
   <rect x="1030" y="710" width="305" height="165" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
   <text x="1046" y="745" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Da completare per produzione</text>
   <text x="1046" y="769" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Hosting/TLS; migrazioni evolutive</text>

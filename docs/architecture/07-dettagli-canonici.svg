@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1060" viewBox="0 0 1400 1060" role="img" aria-label="Dettagli della seduta: dati e layer">
+  <title>Dettagli della seduta: dati e layer</title>
+  <desc>Dati normalizzati e owner-bound; nessuna connessione cloud vendor approvata. HealthKit importa ancora riepiloghi.</desc>
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#526071" />
+    </marker>
+  </defs>
+  <text x="60" y="47" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="500">Dettagli della seduta: dati e layer</text>
+  <text x="60" y="76" fill="#536173" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Dati normalizzati e owner-bound; nessuna connessione cloud vendor approvata. HealthKit importa ancora riepiloghi.</text>
+  <polyline points="405,215 515,215" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="880,215 1000,215" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="1175,315 1175,455" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="1000,530 880,530" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="405,530 515,530" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="697,610 697,805" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="230,805 230,700 515,700 515,610" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <rect x="55" y="140" width="350" height="155" rx="10" fill="#edf3ff" stroke="#5972ae" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="71" y="191" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Fonte / adapter autorizzato</text>
+  <text x="71" y="215" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Garmin locale: normalizer senza rete</text>
+  <text x="71" y="236" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Altri client: dati importati</text>
+  <text x="71" y="257" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Unità vendor convertite prima dell'API</text>
+  <rect x="515" y="140" width="365" height="175" rx="10" fill="#f3effb" stroke="#8063aa" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="531" y="190" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">SessionDetails canonico</text>
+  <text x="531" y="214" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Lap, campioni e segmenti GPS</text>
+  <text x="531" y="235" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Metri / secondi / bpm / watt</text>
+  <text x="531" y="256" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Indici di step senza marker repeat FIT</text>
+  <text x="531" y="277" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Dati incompleti restano espliciti</text>
+  <rect x="1000" y="140" width="350" height="175" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="1016" y="190" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">API dettagli per atleta e fonte</text>
+  <text x="1016" y="214" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">GET/PUT</text>
+  <text x="1016" y="235" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">/v1/activities/{source}/{id}/details</text>
+  <text x="1016" y="256" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Bearer; versioni e hash del riepilogo</text>
+  <text x="1016" y="277" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Rifiuta tempi/distanze incoerenti</text>
+  <rect x="55" y="455" width="350" height="155" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="71" y="506" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Riferimento al piano storico</text>
+  <text x="71" y="530" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">PlanVersion + workout dichiarato</text>
+  <text x="71" y="551" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Solo versioni dello stesso atleta</text>
+  <text x="71" y="572" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Cambio piano conserva i target passati</text>
+  <rect x="515" y="455" width="365" height="155" rx="10" fill="#f3effb" stroke="#8063aa" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="531" y="506" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Analisi comune delle fasi</text>
+  <text x="531" y="530" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">evaluate_measured_session</text>
+  <text x="531" y="551" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Ordine, durata, passo e FC dei lap</text>
+  <text x="531" y="572" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Metriche e limiti; nessuna chiamata AI</text>
+  <rect x="1000" y="455" width="350" height="175" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="1016" y="505" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Storage separato</text>
+  <text x="1016" y="529" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">ac_activities: riepiloghi leggeri</text>
+  <text x="1016" y="550" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">ac_activity_details: dati per fonte</text>
+  <text x="1016" y="571" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">FK owner/fonte/ID; cascade delete</text>
+  <text x="1016" y="592" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Hash cambiato: dettagli obsoleti</text>
+  <rect x="55" y="805" width="350" height="155" rx="10" fill="#edf3ff" stroke="#5972ae" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="71" y="856" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Review personale Garmin</text>
+  <text x="71" y="880" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Parser Garmin + analisi comune</text>
+  <text x="71" y="901" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Target dal piano locale corrente</text>
+  <text x="71" y="922" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Originale remoto non verificato</text>
+  <rect x="515" y="805" width="365" height="155" rx="10" fill="#edf3ff" stroke="#5972ae" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="531" y="856" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Review nativa SwiftUI</text>
+  <text x="531" y="880" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Fasi, lap e dinamiche</text>
+  <text x="531" y="901" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Grafici FC/passo in unità separate</text>
+  <text x="531" y="922" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">MapKit: segmenti GPS distinti</text>
+  <rect x="1000" y="805" width="350" height="155" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="1016" y="856" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Integrazioni da completare</text>
+  <text x="1016" y="880" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Accessi vendor approvati</text>
+  <text x="1016" y="901" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">HealthKit dettagli e test device</text>
+  <text x="1016" y="922" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">AI remoto e release firmata</text>
+  <text x="426.0" y="206" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">normalizza</text>
+  <text x="926.4" y="206" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">JSON</text>
+  <text x="1185" y="385.0" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">scrittura versionata</text>
+  <text x="707" y="707.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">detailed_review JSON</text>
+  <text x="324.9" y="691" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">stesso calcolo</text>
+</svg>
