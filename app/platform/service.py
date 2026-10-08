@@ -9,6 +9,7 @@ from app.errors import CoachError
 from app.models import Plan
 from app.platform.tables import (
     Activity,
+    ActivityDetails,
     AdjustmentProposal,
     Athlete,
     AthleteProfile,
@@ -354,7 +355,7 @@ class AthleteService:
             session.delete(row)
             self.audit(session, athlete_id, "activity_removed", {"provider": provider})
 
-    def build_review(self, session, athlete):
+    def build_review(self, session, athlete, include_details=False):
         plan = self.current_plan(session, athlete)
         now = self.settings.now().astimezone(ZoneInfo(athlete.timezone))
         earliest_day = min(plan.start, now.date() - timedelta(days=42))
@@ -373,6 +374,14 @@ class AthleteService:
             plan, activities, now, snapshot, athlete.activities_updated_at, athlete.last_adjustment
         )
         review["plan_version"] = athlete.plan_version
+        if include_details and review["last_workout"]:
+            from app.platform.detailed_review import ActivityDetailService
+
+            review["detailed_review"] = ActivityDetailService(self.store).for_canonical(session, athlete.id, review["last_workout"]["activity_id"])
+            if review["detailed_review"] and review["detailed_review"]["status"] == "ready":
+                analysis = review["detailed_review"]["analysis"]
+                review["verdict"] = analysis["verdict"]
+                review["advice"] = list(dict.fromkeys(review["advice"] + analysis["actions"]))
         review["limitations"].append(
             "Imported data is supplied by the signed-in athlete; it is not verified against a vendor API."
         )
@@ -380,7 +389,7 @@ class AthleteService:
 
     def review(self, athlete_id):
         with self.store.read_session() as session:
-            return self.build_review(session, session.get(Athlete, athlete_id))
+            return self.build_review(session, session.get(Athlete, athlete_id), include_details=True)
 
     def preview(self, athlete_id):
         with self.store.transaction() as session:
@@ -499,6 +508,9 @@ class AthleteService:
                     "created_at": athlete.created_at,
                 },
                 "current_plan_version": athlete.plan_version,
+                "activity_details": [{"source": row.provider, "source_activity_id": row.provider_id,
+                    "version": row.version, "summary_hash": row.summary_hash, "details": row.payload}
+                    for row in session.scalars(select(ActivityDetails).where(ActivityDetails.athlete_id == athlete_id))],
                 "training_profile": ({"version": profile.version, "profile": profile.payload,
                                       "updated_at": profile.updated_at}
                                      if (profile := session.get(AthleteProfile, athlete_id)) else None),

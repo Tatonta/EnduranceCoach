@@ -10,7 +10,9 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from app.errors import CoachError
 from app.integrations.activities import integration_catalog
+from app.integrations.session_details import DetailWrite
 from app.platform.config import PlatformSettings
+from app.platform.detailed_review import ActivityDetailService
 from app.platform.schemas import (
     AccountDeletion,
     ActivityImport,
@@ -50,6 +52,7 @@ def create_platform_app(settings=None, store=None):
     app.state.store = store
     app.state.accounts = accounts
     app.state.athletes = athletes
+    detailed = ActivityDetailService(store)
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=list(settings.allowed_hosts))
 
     @app.middleware("http")
@@ -202,6 +205,14 @@ def create_platform_app(settings=None, store=None):
     @app.get("/v1/review/workout")
     def workout_review(user: authenticated):
         return athletes.review(user["id"])
+
+    @app.get("/v1/activities/{provider}/{provider_id}/details")
+    def get_details(provider: str, provider_id: str, user: authenticated):
+        return detailed.view(user["id"], provider, provider_id)
+
+    @app.put("/v1/activities/{provider}/{provider_id}/details")
+    def put_details(provider: str, provider_id: str, body: DetailWrite, user: authenticated):
+        return detailed.write(user["id"], provider, provider_id, body)
 
     @app.post("/v1/review/adjustments/preview")
     def preview(user: authenticated):

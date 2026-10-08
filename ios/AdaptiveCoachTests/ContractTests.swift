@@ -113,6 +113,31 @@ final class ContractTests: XCTestCase {
         XCTAssertNil(body["avg_hr"])
         XCTAssertNil(body["source"])
     }
+    func testDetailedAPIPhasesUnitsAndRouteDecode() throws {
+        let review = try Wire.decoder().decode(WorkoutReview.self, from: data("review-detailed"))
+        let detail = try XCTUnwrap(review.detailedReview)
+        let analysis = try XCTUnwrap(detail.analysis)
+        XCTAssertEqual(detail.status, "ready")
+        XCTAssertEqual(detail.planReference?.version, 1)
+        XCTAssertEqual(detail.source, "coros")
+        XCTAssertEqual(analysis.phases.count, 6)
+        XCTAssertEqual(analysis.phases[1].verdict, "troppo veloce")
+        XCTAssertEqual(analysis.phases[3].verdict, "in target")
+        XCTAssertEqual(analysis.phases[1].target?.fast, "5:00")
+        XCTAssertEqual(try XCTUnwrap(analysis.dynamics.strideM), 1.23, accuracy: 0.001)
+        XCTAssertEqual(try XCTUnwrap(analysis.dynamics.gctMs), 279, accuracy: 0.001)
+        XCTAssertEqual(analysis.routeSegments[0].count, 2)
+        XCTAssertEqual(analysis.coverage.sampleCount, 2)
+        XCTAssertEqual(analysis.coverage.reportedSampleCount, 1320)
+        XCTAssertFalse(review.program.eligible)
+    }
+    func testStaleDetailsDecodeWithoutShowingPreviousAnalysis() throws {
+        var body = try XCTUnwrap(JSONSerialization.jsonObject(with: data("review-detailed")) as? [String: Any])
+        body["detailed_review"] = ["status": "stale", "version": 1, "source": "coros"]
+        let review = try Wire.decoder().decode(WorkoutReview.self, from: JSONSerialization.data(withJSONObject: body))
+        XCTAssertEqual(review.detailedReview?.status, "stale")
+        XCTAssertNil(review.detailedReview?.analysis)
+    }
     func testActivityQueryUsesQueryParametersRatherThanEscapedPath() async throws {
         let api = APIClient(endpoint: try Endpoint.validate("https://coach.example.test"), token: "synthetic-test-only-token", protocolClasses: [FixtureProtocol.self])
         let list: ActivityList = try await api.request("v1/activities", query: [URLQueryItem(name: "limit", value: "50")])

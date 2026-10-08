@@ -4,6 +4,8 @@ SwiftUI iPhone app, iOS 17+, no third-party SDKs. Open **AdaptiveCoach.xcodeproj
 
 ## Implemented flows
 
+- Detailed native review when the backend has canonical evidence: phase targets from a referenced plan version, lap metrics, running dynamics, separate pace/HR charts and GPS segments in MapKit. Missing/stale details remain explicit. The HealthKit importer currently supplies summaries; this does not establish live detail access from every vendor. See [canonical detailed-evidence contract](../docs/CANONICAL_DETAILS.md).
+
 - Manual session recording from Coach, including optional distance/exertion, feelings, discomfort and notes. It requires no HealthKit permission and labels the evidence as self-reported. The same request identity is retained after a failed save. Recent manual feedback appears in Coach and Review; missing distance is shown as unknown. See [manual feedback contract](../docs/MANUAL_FEEDBACK.md).
 
 - First authenticated access opens a five-step coaching questionnaire. Goal/deadline, device or no device, optional age/weight/height, running/cycling history, recent volume, best performances, gym and weekly availability are saved to the authenticated athlete profile. Coach is the first tab; the profile can be edited later. Questionnaire submission does not change an existing plan or request HealthKit access. The remote ChatGPT integration remains an external availability gate; the personal local version implements the conversation and initial draft.

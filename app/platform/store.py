@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.errors import CoachError
-from app.platform.tables import Athlete, AthleteProfile, Base, SchemaRevision
+from app.platform.tables import ActivityDetails, Athlete, AthleteProfile, Base, SchemaRevision
 
 
 class PlatformStore:
@@ -55,17 +55,21 @@ class PlatformStore:
             Path(self.engine.url.database).parent.mkdir(parents=True, exist_ok=True)
         existing = inspect(self.engine).get_table_names()
         if existing:
-            if "ac_schema_revision" in existing and self.settings.schema_version == 2:
+            if "ac_schema_revision" in existing and self.settings.schema_version == 3:
                 with self.transaction() as session:
                     if self.engine.dialect.name == "sqlite":
                         session.connection().exec_driver_sql("BEGIN IMMEDIATE")
                     revision = session.scalar(select(SchemaRevision).where(SchemaRevision.id == 1).with_for_update())
-                    if revision and revision.version == 1:
-                        required = set(Base.metadata.tables) - {AthleteProfile.__tablename__}
+                    if revision and revision.version in {1, 2}:
+                        required = set(Base.metadata.tables) - {ActivityDetails.__tablename__}
+                        if revision.version == 1:
+                            required.discard(AthleteProfile.__tablename__)
                         if not required.issubset(existing):
                             raise RuntimeError("Platform database schema is incomplete")
-                        AthleteProfile.__table__.create(session.connection(), checkfirst=True)
-                        revision.version = 2
+                        if revision.version == 1:
+                            AthleteProfile.__table__.create(session.connection(), checkfirst=True)
+                        ActivityDetails.__table__.create(session.connection(), checkfirst=True)
+                        revision.version = 3
             self.check_schema()
             return
         Base.metadata.create_all(self.engine)

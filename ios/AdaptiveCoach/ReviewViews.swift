@@ -32,6 +32,9 @@ struct ReviewView: View {
                             if let note = match.note { Text(note) }
                         }
                     }
+                    if let detailed = review.detailedReview, review.lastWorkout?.source != "manual" {
+                        DetailedReviewSections(detail: detailed, sport: review.lastWorkout?.sport ?? "running")
+                    }
                     Section("Programma") { Text(review.program.reason) }
                     Section("Dati della review") {
                         Text("Versione piano \(review.planVersion)")

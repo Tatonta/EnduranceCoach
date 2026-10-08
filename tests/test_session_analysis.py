@@ -49,3 +49,9 @@ def test_descriptor_units_and_full_cadence_are_preserved():
 
 def test_timestamp_preserves_an_existing_timezone():
     assert timestamp("2026-10-06T18:00:00+02:00") == datetime(2026, 10, 6, 16, tzinfo=UTC).timestamp()
+
+
+def test_trailing_cooldown_autolap_keeps_the_same_phase():
+    rows=[lap(4,180,500,"COOLDOWN",1),lap(None,120,300,"COOLDOWN",2)]
+    result=analyze_session({"activity_id":"synthetic"},{"splits":{"lapDTOs":rows}},fixture_plan().workouts[0])
+    assert len(result["phases"])==1 and result["phases"][0]["lap_numbers"]==[1,2]

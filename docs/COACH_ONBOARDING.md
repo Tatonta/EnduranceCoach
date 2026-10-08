@@ -43,7 +43,7 @@ Il collegamento ChatGPT e la conversazione sono implementati nella versione pers
 
 Il backend autenticato espone `GET/PUT /v1/profile`. Il profilo appartiene all'identità autenticata: il body non può scegliere un atleta. Viene salvato separatamente dal piano e dalle attività, compare nell'export dell'account e viene eliminato con l'account. L'audit registra la versione, non le risposte.
 
-Il database piattaforma usa ora la revisione 2. Prima di aggiornare un database esistente, conserva un backup appropriato e avvia esplicitamente `python -m app.platform.cli init-db`: la migrazione 1→2 aggiunge `ac_athlete_profiles` senza cancellare account, piani o attività. Il server non migra durante l'avvio e rifiuta revisioni sconosciute o schemi incompleti. La migrazione è coperta da test SQLite/PostgreSQL in CI.
+Il database piattaforma usa ora la revisione 3. Prima di aggiornare un database esistente, conserva un backup appropriato e avvia esplicitamente `python -m app.platform.cli init-db`: la migrazione 1→3 aggiunge `ac_athlete_profiles` e `ac_activity_details` senza cancellare account, piani o attività. Il server non migra durante l'avvio e rifiuta revisioni sconosciute o schemi incompleti. La migrazione è coperta da test SQLite/PostgreSQL in CI.
 
 ## Evidenze e limiti
 

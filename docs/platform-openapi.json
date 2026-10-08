@@ -531,6 +531,116 @@
         ]
       }
     },
+    "/v1/activities/{provider}/{provider_id}/details": {
+      "get": {
+        "summary": "Get Details",
+        "operationId": "get_details_v1_activities__provider___provider_id__details_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider"
+            }
+          },
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Put Details",
+        "operationId": "put_details_v1_activities__provider___provider_id__details_put",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "provider",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider"
+            }
+          },
+          {
+            "name": "provider_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Provider Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DetailWrite"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/v1/review/adjustments/preview": {
       "post": {
         "summary": "Preview",
@@ -927,6 +1037,467 @@
         ],
         "title": "Credentials"
       },
+      "DetailWrite": {
+        "properties": {
+          "expected_details_version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Details Version"
+          },
+          "expected_activity_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "title": "Expected Activity Hash"
+          },
+          "details": {
+            "$ref": "#/components/schemas/SessionDetails"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_details_version",
+          "expected_activity_hash",
+          "details"
+        ],
+        "title": "DetailWrite"
+      },
+      "DetailedLap": {
+        "properties": {
+          "cadence_spm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 300.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cadence Spm"
+          },
+          "cadence_rpm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 250.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cadence Rpm"
+          },
+          "stride_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 5.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stride M"
+          },
+          "ground_contact_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 2.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ground Contact S"
+          },
+          "vertical_oscillation_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 0.5,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertical Oscillation M"
+          },
+          "vertical_ratio_percent": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertical Ratio Percent"
+          },
+          "power_w": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 4000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Power W"
+          },
+          "lap": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Lap"
+          },
+          "phase_type": {
+            "type": "string",
+            "enum": [
+              "warmup",
+              "run",
+              "interval",
+              "recovery",
+              "cooldown",
+              "unknown"
+            ],
+            "title": "Phase Type",
+            "default": "unknown"
+          },
+          "step_index": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 1000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step Index"
+          },
+          "start_elapsed_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Start Elapsed S"
+          },
+          "duration_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Duration S"
+          },
+          "elapsed_s": {
+            "type": "number",
+            "exclusiveMinimum": 0.0,
+            "title": "Elapsed S"
+          },
+          "distance_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance M"
+          },
+          "avg_hr": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 250.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Hr"
+          },
+          "max_hr": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 250.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Hr"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "lap",
+          "start_elapsed_s",
+          "duration_s",
+          "elapsed_s"
+        ],
+        "title": "DetailedLap"
+      },
+      "DetailedSample": {
+        "properties": {
+          "cadence_spm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 300.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cadence Spm"
+          },
+          "cadence_rpm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 250.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cadence Rpm"
+          },
+          "stride_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 5.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stride M"
+          },
+          "ground_contact_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 2.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ground Contact S"
+          },
+          "vertical_oscillation_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 0.5,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertical Oscillation M"
+          },
+          "vertical_ratio_percent": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertical Ratio Percent"
+          },
+          "power_w": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 4000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Power W"
+          },
+          "elapsed_s": {
+            "type": "number",
+            "minimum": 0.0,
+            "title": "Elapsed S"
+          },
+          "distance_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance M"
+          },
+          "speed_m_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 40.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Speed M S"
+          },
+          "hr": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 250.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hr"
+          },
+          "segment": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Segment",
+            "default": 0
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "elapsed_s"
+        ],
+        "title": "DetailedSample"
+      },
+      "Dynamics": {
+        "properties": {
+          "cadence_spm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 300.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cadence Spm"
+          },
+          "cadence_rpm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 250.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cadence Rpm"
+          },
+          "stride_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 5.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stride M"
+          },
+          "ground_contact_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 2.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ground Contact S"
+          },
+          "vertical_oscillation_m": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 0.5,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertical Oscillation M"
+          },
+          "vertical_ratio_percent": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vertical Ratio Percent"
+          },
+          "power_w": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 4000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Power W"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "Dynamics"
+      },
       "HRTarget": {
         "properties": {
           "type": {
@@ -948,6 +1519,54 @@
           "zone"
         ],
         "title": "HRTarget"
+      },
+      "HRZone": {
+        "properties": {
+          "zone": {
+            "type": "integer",
+            "maximum": 5.0,
+            "minimum": 1.0,
+            "title": "Zone"
+          },
+          "low_bpm": {
+            "type": "number",
+            "maximum": 250.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Low Bpm"
+          },
+          "high_bpm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 250.0,
+                "exclusiveMinimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "High Bpm"
+          },
+          "time_s": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Time S"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "zone",
+          "low_bpm"
+        ],
+        "title": "HRZone"
       },
       "HTTPValidationError": {
         "properties": {
@@ -1227,6 +1846,124 @@
           "password"
         ],
         "title": "Registration"
+      },
+      "RoutePoint": {
+        "properties": {
+          "lat": {
+            "type": "number",
+            "maximum": 90.0,
+            "minimum": -90.0,
+            "title": "Lat"
+          },
+          "lon": {
+            "type": "number",
+            "maximum": 180.0,
+            "minimum": -180.0,
+            "title": "Lon"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "lat",
+          "lon"
+        ],
+        "title": "RoutePoint"
+      },
+      "SessionDetails": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "laps": {
+            "items": {
+              "$ref": "#/components/schemas/DetailedLap"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "title": "Laps"
+          },
+          "samples": {
+            "items": {
+              "$ref": "#/components/schemas/DetailedSample"
+            },
+            "type": "array",
+            "maxItems": 4000,
+            "title": "Samples"
+          },
+          "route_segments": {
+            "items": {
+              "items": {
+                "$ref": "#/components/schemas/RoutePoint"
+              },
+              "type": "array"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "title": "Route Segments"
+          },
+          "hr_zones": {
+            "items": {
+              "$ref": "#/components/schemas/HRZone"
+            },
+            "type": "array",
+            "maxItems": 5,
+            "title": "Hr Zones"
+          },
+          "dynamics": {
+            "$ref": "#/components/schemas/Dynamics"
+          },
+          "reported_sample_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000000.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reported Sample Count"
+          },
+          "coverage_note": {
+            "type": "string",
+            "maxLength": 500,
+            "title": "Coverage Note",
+            "default": ""
+          },
+          "plan_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Version"
+          },
+          "plan_workout_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 100,
+                "minLength": 1
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Workout Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SessionDetails"
       },
       "SessionFeedback": {
         "properties": {

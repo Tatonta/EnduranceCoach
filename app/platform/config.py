@@ -63,7 +63,7 @@ class PlatformSettings:
     session_hours: int = field(
         default_factory=lambda: environment_integer("COACH_PLATFORM_SESSION_HOURS", 24)
     )
-    schema_version: int = 2
+    schema_version: int = 3
     pool_size: int = field(default_factory=lambda: environment_integer("COACH_PLATFORM_POOL_SIZE", 5))
     pool_overflow: int = field(
         default_factory=lambda: environment_integer("COACH_PLATFORM_POOL_OVERFLOW", 5)

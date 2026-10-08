@@ -9,8 +9,10 @@ pytest.importorskip("argon2", reason="Install .[platform] to test account securi
 
 from platform_database import isolated_database
 from sqlalchemy import func, select
+from test_detailed_contract import detail_fixture
 from test_intake import profile_fixture
 from test_manual_sessions import manual_body
+from test_session_analysis import fixture_plan
 from test_workout_advice import runs
 
 from app.errors import CoachError
@@ -21,6 +23,7 @@ from app.platform.service import AthleteService
 from app.platform.store import PlatformStore
 from app.platform.tables import (
     Activity,
+    ActivityDetails,
     AdjustmentProposal,
     Athlete,
     AthleteProfile,
@@ -55,7 +58,11 @@ def platform(tmp_path):
                 assert result.status_code == 201, result.text
                 token = client.post("/v1/auth/login", json=credentials).json()["access_token"]
                 users.append(
-                    {**result.json(), "headers": {"Authorization": f"Bearer {token}"}, "token": token}
+                    {
+                        **result.json(),
+                        "headers": {"Authorization": f"Bearer {token}"},
+                        "token": token,
+                    }
                 )
             yield client, app, users, settings
 
@@ -70,7 +77,9 @@ def test_reader_keeps_plan_snapshot_while_another_worker_commits(platform):
             assert original.plan_version == 1
             updated = app.state.athletes.current_plan(reader, original).model_copy(deep=True)
             updated.plan_name = "Concurrent new plan"
-            assert AthleteService(second_store).replace_plan(alice["id"], updated, 1)["version"] == 2
+            assert (
+                AthleteService(second_store).replace_plan(alice["id"], updated, 1)["version"] == 2
+            )
             reader.expire_all()
             assert reader.get(Athlete, alice["id"]).plan_version == 1
             assert reader.get(PlanVersion, (alice["id"], 2)) is None
@@ -564,10 +573,26 @@ def test_profile_is_owner_bound_versioned_exported_and_deleted(platform):
     assert reply.status_code == 200 and reply.json()["version"] == 1
     assert client.get("/v1/profile", headers=bob["headers"]).status_code == 404
     assert client.put("/v1/profile", headers=alice["headers"], json=payload).status_code == 409
-    assert client.get("/v1/me/export", headers=alice["headers"]).json()["training_profile"]["profile"] == payload["profile"]
+    assert (
+        client.get("/v1/me/export", headers=alice["headers"]).json()["training_profile"]["profile"]
+        == payload["profile"]
+    )
     assert client.get("/v1/me/export", headers=bob["headers"]).json()["training_profile"] is None
-    assert client.put("/v1/profile", headers=alice["headers"], json={**payload, "athlete_id": bob["id"]}).status_code == 422
-    assert client.request("DELETE", "/v1/me", headers=alice["headers"], json={"password": PASSWORD, "confirmed": True}).status_code == 204
+    assert (
+        client.put(
+            "/v1/profile", headers=alice["headers"], json={**payload, "athlete_id": bob["id"]}
+        ).status_code
+        == 422
+    )
+    assert (
+        client.request(
+            "DELETE",
+            "/v1/me",
+            headers=alice["headers"],
+            json={"password": PASSWORD, "confirmed": True},
+        ).status_code
+        == 204
+    )
     with app.state.store.read_session() as session:
         assert session.get(AthleteProfile, alice["id"]) is None
 
@@ -576,23 +601,56 @@ def test_manual_sessions_are_owned_idempotent_exported_and_not_merged_with_devic
     client, _, (alice, bob), settings = platform
     body = manual_body(settings.now(), distance_km=5)
     assert client.post("/v1/activities/manual", json=body).status_code == 401
-    assert client.post("/v1/activities/manual", headers=alice["headers"], json=body).json()["code"] == "profile_required"
-    client.put("/v1/profile", headers=alice["headers"], json={"expected_version": 0, "profile": profile_fixture()})
+    assert (
+        client.post("/v1/activities/manual", headers=alice["headers"], json=body).json()["code"]
+        == "profile_required"
+    )
+    client.put(
+        "/v1/profile",
+        headers=alice["headers"],
+        json={"expected_version": 0, "profile": profile_fixture()},
+    )
     for _ in range(2):
         response = client.post("/v1/activities/manual", headers=alice["headers"], json=body)
         assert response.status_code == 200 and response.json()["unique_workouts"] == 1
     assert client.get("/v1/activities", headers=bob["headers"]).json()["total"] == 0
-    future_record = ManualSession.model_validate({**body, "duration_min": 120}).record().model_dump(mode="json")
-    assert client.post("/v1/activities/import", headers=alice["headers"], json={"activities": [future_record]}).status_code == 422
+    future_record = (
+        ManualSession.model_validate({**body, "duration_min": 120}).record().model_dump(mode="json")
+    )
+    assert (
+        client.post(
+            "/v1/activities/import", headers=alice["headers"], json={"activities": [future_record]}
+        ).status_code
+        == 422
+    )
     own = client.get("/v1/activities", headers=alice["headers"]).json()["activities"][0]
     assert own["evidence_kind"] == "self_reported" and own["feedback"]["perceived_exertion"] == 7
-    device = {**ManualSession.model_validate(body).record().model_dump(mode="json"),
-              "source": "apple_health", "source_activity_id": "synthetic-device", "feedback": None}
-    assert client.post("/v1/activities/import", headers=alice["headers"], json={"activities": [device]}).json()["unique_workouts"] == 2
-    assert client.delete("/v1/activities/manual/" + body["request_id"], headers=bob["headers"]).status_code == 404
+    device = {
+        **ManualSession.model_validate(body).record().model_dump(mode="json"),
+        "source": "apple_health",
+        "source_activity_id": "synthetic-device",
+        "feedback": None,
+    }
+    assert (
+        client.post(
+            "/v1/activities/import", headers=alice["headers"], json={"activities": [device]}
+        ).json()["unique_workouts"]
+        == 2
+    )
+    assert (
+        client.delete(
+            "/v1/activities/manual/" + body["request_id"], headers=bob["headers"]
+        ).status_code
+        == 404
+    )
     exported = client.get("/v1/me/export", headers=alice["headers"]).json()["activity_sources"]
     assert any(item["activity"]["feedback"] for item in exported)
-    assert client.delete("/v1/activities/manual/" + body["request_id"], headers=alice["headers"]).status_code == 204
+    assert (
+        client.delete(
+            "/v1/activities/manual/" + body["request_id"], headers=alice["headers"]
+        ).status_code
+        == 204
+    )
     assert client.get("/v1/activities", headers=alice["headers"]).json()["total"] == 1
 
 
@@ -609,6 +667,134 @@ def test_revision_one_migration_preserves_data_and_requires_explicit_initializer
     store.initialize()
     store.check_schema()
     with store.read_session() as session:
-        assert session.get(SchemaRevision, 1).version == 2
+        assert session.get(SchemaRevision, 1).version == 3
         assert session.get(Athlete, alice["id"]).email == alice["email"]
         assert session.get(AthleteProfile, alice["id"]) is None
+
+
+def seed_detailed(platform):
+    client, _, (alice, _), settings = platform
+    plan = fixture_plan().model_dump(mode="json")
+    plan["workouts"][0]["date"] = settings.now().date().isoformat()
+    assert (
+        client.put(
+            "/v1/plan", headers=alice["headers"], json={"expected_version": 0, "plan": plan}
+        ).status_code
+        == 200
+    )
+    activity = {
+        "source": "coros",
+        "source_activity_id": "synthetic-quality",
+        "name": "Threshold",
+        "sport": "running",
+        "activity_type": "running",
+        "start_time": (settings.now() - timedelta(hours=2)).isoformat(),
+        "duration_s": 1320,
+        "elapsed_duration_s": 1320,
+        "distance_m": 3900,
+        "avg_hr": 148,
+    }
+    assert (
+        client.post(
+            "/v1/activities/import", headers=alice["headers"], json={"activities": [activity]}
+        ).status_code
+        == 200
+    )
+    return activity, plan
+
+
+def test_detailed_evidence_is_owned_versioned_and_uses_its_referenced_plan(platform):
+    client, app, (alice, bob), _ = platform
+    activity, plan = seed_detailed(platform)
+    path = "/v1/activities/coros/synthetic-quality/details"
+    assert client.get(path).status_code == 401
+    initial = client.get(path, headers=alice["headers"]).json()
+    assert initial["status"] == "not_loaded"
+    body = {
+        "expected_details_version": 0,
+        "expected_activity_hash": initial["activity_hash"],
+        "details": detail_fixture(),
+    }
+    assert client.put(path, headers=bob["headers"], json=body).status_code == 404
+    reply = client.put(path, headers=alice["headers"], json=body)
+    assert reply.status_code == 200, reply.text
+    assert client.put(path, headers=alice["headers"], json=body).status_code == 409
+    ready = client.get(path, headers=alice["headers"]).json()
+    assert ready["analysis"]["phases"][1]["verdict"] == "troppo veloce"
+    assert ready["analysis"]["dynamics"]["stride_m"] == 1.23
+    assert ready["analysis"]["dynamics"]["gct_ms"] == pytest.approx(279)
+    assert client.get(path, headers=bob["headers"]).status_code == 404
+    review = client.get("/v1/review/workout", headers=alice["headers"]).json()
+    assert review["detailed_review"]["status"] == "ready"
+    assert any("prima ripetuta" in item for item in review["advice"])
+    # Target comparison keeps the explicitly referenced historical version.
+    plan["workouts"][0]["steps"][1]["steps"][0]["target"]["fast"] = "4:30"
+    assert (
+        client.put(
+            "/v1/plan", headers=alice["headers"], json={"expected_version": 1, "plan": plan}
+        ).status_code
+        == 200
+    )
+    after = client.get("/v1/review/workout", headers=alice["headers"]).json()
+    assert after["plan_version"] == 2 and after["detailed_review"]["plan_reference"]["version"] == 1
+    assert after["detailed_review"]["analysis"]["phases"][1]["target"]["fast"] == "5:00"
+    assert client.get("/v1/me/export", headers=bob["headers"]).json()["activity_details"] == []
+    assert (
+        len(client.get("/v1/me/export", headers=alice["headers"]).json()["activity_details"]) == 1
+    )
+    assert (
+        client.delete(
+            "/v1/activities/coros/synthetic-quality", headers=alice["headers"]
+        ).status_code
+        == 204
+    )
+    with app.state.store.read_session() as session:
+        assert (
+            session.get(ActivityDetails, (alice["id"], "coros", activity["source_activity_id"]))
+            is None
+        )
+
+
+def test_changed_summary_invalidates_detail_and_bad_extents_cannot_write(platform):
+    client, _, (alice, _), _ = platform
+    activity, _ = seed_detailed(platform)
+    path = "/v1/activities/coros/synthetic-quality/details"
+    state = client.get(path, headers=alice["headers"]).json()
+    body = {
+        "expected_details_version": 0,
+        "expected_activity_hash": state["activity_hash"],
+        "details": detail_fixture(),
+    }
+    wrong = {**body, "details": {**detail_fixture(), "samples": [{"elapsed_s": 2000, "hr": 140}]}}
+    assert client.put(path, headers=alice["headers"], json=wrong).json()["code"] == "detail_extent"
+    assert client.get(path, headers=alice["headers"]).json()["version"] == 0
+    assert client.put(path, headers=alice["headers"], json=body).status_code == 200
+    activity["name"] = "Threshold edited"
+    client.post("/v1/activities/import", headers=alice["headers"], json={"activities": [activity]})
+    changed = client.get(path, headers=alice["headers"]).json()
+    assert changed["status"] == "stale" and changed["details"]["dynamics"]["stride_m"] == 1.23
+    assert client.put(path, headers=alice["headers"], json=body).status_code == 409
+    updated = {
+        **body,
+        "expected_details_version": 1,
+        "expected_activity_hash": changed["activity_hash"],
+    }
+    assert client.put(path, headers=alice["headers"], json=updated).json()["version"] == 2
+
+
+def test_revision_two_upgrade_preserves_profile_and_activity_sources(platform):
+    client, app, (alice, _), _ = platform
+    seed_detailed(platform)
+    client.put(
+        "/v1/profile",
+        headers=alice["headers"],
+        json={"expected_version": 0, "profile": profile_fixture()},
+    )
+    ActivityDetails.__table__.drop(app.state.store.engine)
+    with app.state.store.transaction() as session:
+        session.get(SchemaRevision, 1).version = 2
+    with pytest.raises(RuntimeError, match="version"):
+        app.state.store.check_schema()
+    app.state.store.initialize()
+    assert client.get("/v1/profile", headers=alice["headers"]).json()["version"] == 1
+    assert client.get("/v1/activities", headers=alice["headers"]).json()["total"] == 1

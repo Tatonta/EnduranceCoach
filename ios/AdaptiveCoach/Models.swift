@@ -117,6 +117,78 @@ struct WorkoutReview: Decodable {
     let program: ProgramAdvice
     let limitations: [String]
     let planVersion: Int
+    let detailedReview: DetailedReview?
+}
+
+struct DetailedReview: Decodable {
+    let status: String
+    let version: Int
+    let source: String
+    let analysis: DetailedAnalysis?
+    let planReference: DetailedPlanReference?
+    let limitations: [String]?
+}
+struct DetailedPlanReference: Decodable { let version: Int?; let workoutId: String?; let verification: String }
+struct DetailedAnalysis: Decodable {
+    let phases: [DetailedPhase]
+    let laps: [DetailedLap]
+    let series: [DetailedSample]
+    let routeSegments: [[[Double]]]
+    let dynamics: DetailedDynamics
+    let positive: [String]
+    let issues: [String]
+    let actions: [String]
+    let verdict: String
+    let coverage: DetailedCoverage
+    let coverageNote: String
+}
+struct DetailedCoverage: Decodable { let lapCount: Int; let sampleCount: Int; let gpsPoints: Int; let reportedSampleCount: Int? }
+struct DetailedDynamics: Decodable {
+    let cadenceSpm: Double?
+    let cadenceRpm: Double?
+    let strideM: Double?
+    let gctMs: Double?
+    let verticalCm: Double?
+    let verticalRatioPercent: Double?
+    let powerW: Double?
+}
+struct DetailedPhase: Decodable, Identifiable {
+    var id: Int { number }
+    let number: Int
+    let name: String
+    let type: String
+    let durationS: Double
+    let distanceM: Double?
+    let paceSKm: Double?
+    let avgHr: Double?
+    let verdict: String
+    let target: PlannedTarget?
+    let plannedDurationS: Double?
+    let durationCompliance: String?
+    let lapNumbers: [Int]
+    let hrMeanDifferenceBpm: Double?
+}
+struct DetailedLap: Decodable, Identifiable {
+    var id: Int { lap }
+    let lap: Int
+    let phase: String
+    let durationS: Double
+    let distanceM: Double?
+    let paceSKm: Double?
+    let avgHr: Double?
+    let maxHr: Double?
+    let strideM: Double?
+    let cadenceSpm: Double?
+    let powerW: Double?
+    let qualityFlags: [String]
+}
+struct DetailedSample: Decodable, Identifiable {
+    var id: Double { elapsedS }
+    let elapsedS: Double
+    let distanceM: Double?
+    let paceSKm: Double?
+    let hr: Double?
+    let segment: Int
 }
 struct StepChange: Decodable {
     let type: String

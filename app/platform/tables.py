@@ -1,4 +1,4 @@
-from sqlalchemy import JSON, Float, ForeignKey, Index, Integer, String
+from sqlalchemy import JSON, Float, ForeignKey, ForeignKeyConstraint, Index, Integer, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -76,6 +76,20 @@ class Activity(Base):
     updated_at: Mapped[str] = mapped_column(String(40))
     ingestion_method: Mapped[str] = mapped_column(String(40))
     start_epoch: Mapped[float] = mapped_column(Float)
+
+
+class ActivityDetails(Base):
+    __tablename__ = "ac_activity_details"
+    __table_args__ = (ForeignKeyConstraint(
+        ["athlete_id", "provider", "provider_id"],
+        ["ac_activities.athlete_id", "ac_activities.provider", "ac_activities.provider_id"], ondelete="CASCADE"),)
+    athlete_id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    provider: Mapped[str] = mapped_column(String(40), primary_key=True)
+    provider_id: Mapped[str] = mapped_column(String(200), primary_key=True)
+    version: Mapped[int] = mapped_column(Integer)
+    summary_hash: Mapped[str] = mapped_column(String(64))
+    payload: Mapped[dict] = mapped_column(JSON)
+    updated_at: Mapped[str] = mapped_column(String(40))
 
 
 class AdjustmentProposal(Base):

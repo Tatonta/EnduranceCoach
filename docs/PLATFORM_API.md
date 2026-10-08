@@ -13,7 +13,7 @@ From the project directory, install the optional dependencies and initialize the
 .venv\Scripts\python.exe -m app.platform.cli init-db
 ```
 
-The default database is `data/platform/coach.sqlite3`, ignored by Git. The initializer refuses the personal `data/coach.sqlite3` database. It creates schema revision 2 or explicitly upgrades revision 1 by adding the athlete-profile table without replacing existing data. Re-running the initializer is harmless on revision 2; unknown revisions and incomplete schemas fail closed. API startup only checks the revision. Back up an existing deployment before running the initializer.
+The default database is `data/platform/coach.sqlite3`, ignored by Git. The initializer refuses the personal `data/coach.sqlite3` database. It creates schema revision 3 or explicitly upgrades revisions 1/2 by adding the athlete-profile and/or activity-detail tables without replacing existing data. Re-running the initializer is harmless on revision 3; unknown revisions and incomplete schemas fail closed. API startup only checks the revision. Back up an existing deployment before running the initializer.
 
 For a **local, loopback-only pilot** you may enable registration and plain HTTP in that terminal:
 
@@ -60,7 +60,8 @@ These are pilot account flows. Public onboarding still needs verified-email enro
 | `POST /v1/activities/manual` | Own concluded, self-reported session and feedback; requires a saved profile; stable request UUID makes repeated saves idempotent |
 | `GET /v1/activities?limit=50&offset=0` | Own canonical workouts with source references, total and next offset; maximum page size 200 |
 | `DELETE /v1/activities/{provider}/{provider_id}` | Remove only that source record from the signed-in athlete |
-| `GET /v1/review/workout` | Shared review/advice engine, current plan version and interpretation limits |
+| `GET /v1/review/workout` | Shared review/advice engine, current plan version, optional source-scoped detailed review and interpretation limits |
+| `GET/PUT /v1/activities/{provider}/{provider_id}/details` | Own canonical lap/sample/dynamics/GPS evidence, source hash and expected detail version; see [detailed contract](CANONICAL_DETAILS.md) |
 | `POST /v1/review/adjustments/preview` | Optional ten-minute proposal, only when the trend is eligible |
 | `POST /v1/review/adjustments/{proposal_id}/apply` | Owner-bound proposal, explicit confirmation and expected version; transactional plan/evidence/audit update |
 | `GET /v1/integrations` | Lists vendor targets truthfully: no live platform connections yet |
