@@ -1,6 +1,6 @@
 # Native Adaptive Coach client
 
-SwiftUI iPhone app, iOS 17+, no third-party SDKs. Open **AdaptiveCoach.xcodeproj** on a Mac with Xcode 16 or newer. This is native source work, not a signed or verified App Store build: the development host is Windows and has neither Swift nor Xcode. The repository has no Git remote; the included macOS CI workflow has not run.
+SwiftUI iPhone app, iOS 17+, no third-party SDKs. Open **AdaptiveCoach.xcodeproj** on a Mac with Xcode 16 or newer. This is native source work, not a signed or verified App Store build: the development host is Windows and has neither Swift nor Xcode. The source is hosted on [Tatonta/EnduranceCoach, develop](https://github.com/Tatonta/EnduranceCoach/tree/develop). Check [GitHub Actions](https://github.com/Tatonta/EnduranceCoach/actions) for the current macOS build status; a successful native build has not yet been verified locally.
 
 ## Implemented flows
 
@@ -33,7 +33,7 @@ xcodebuild test -project ios/AdaptiveCoach.xcodeproj -scheme AdaptiveCoach \
   -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=NO
 ```
 
-The included `.github/workflows/ios.yml` runs this on a macOS runner once the repository is pushed to GitHub. It builds/tests without publishing or signing a release. Its presence is not a passing CI result.
+The included `.github/workflows/ios.yml` runs this on a macOS runner for relevant pushes/pull requests and manual dispatches. It builds/tests without publishing or signing a release. Its presence is not a passing CI result.
 
 ## Fixtures and project regeneration
 
