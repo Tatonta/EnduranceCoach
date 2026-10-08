@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "updated_at": "2026-10-05T20:00:00+02:00",
+  "profile": {
+    "schema_version": 1,
+    "primary_sport": "running",
+    "goal_type": "event",
+    "goal_description": "Correre i miei primi 10 km con continuità e arrivare bene.",
+    "target_date": "2027-03-01",
+    "deadline_flexible": true,
+    "age_years": null,
+    "weight_kg": null,
+    "height_cm": null,
+    "device_vendor": "none",
+    "device_model": "",
+    "heart_rate_sensor": false,
+    "power_meter": false,
+    "running_years": 1,
+    "cycling_years": 0,
+    "recent_running_km_week": 10,
+    "recent_cycling_km_week": 0,
+    "experience_notes": "Dati sintetici per verifica del contratto.",
+    "gym_sessions_week": 1,
+    "gym_notes": "Forza generale",
+    "availability": [{"weekday": 0, "minutes": 45}, {"weekday": 3, "minutes": 60}],
+    "best_performances": [{"sport": "running", "distance_m": 5000, "duration_s": 1800, "date": null, "note": "Prestazione sintetica dichiarata"}],
+    "constraints": "",
+    "coaching_consent": true
+  }
+}

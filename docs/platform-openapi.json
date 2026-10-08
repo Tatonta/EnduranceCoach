@@ -245,6 +245,66 @@
         ]
       }
     },
+    "/v1/profile": {
+      "get": {
+        "summary": "Get Profile",
+        "operationId": "get_profile_v1_profile_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Put Profile",
+        "operationId": "put_profile_v1_profile_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProfileWrite"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/v1/plan/history": {
       "get": {
         "summary": "History",
@@ -741,6 +801,56 @@
         "title": "ActivityRecord",
         "description": "Canonical SI-unit activity, independent of any vendor's response schema."
       },
+      "BestPerformance": {
+        "properties": {
+          "sport": {
+            "type": "string",
+            "enum": [
+              "running",
+              "cycling"
+            ],
+            "title": "Sport"
+          },
+          "distance_m": {
+            "type": "number",
+            "maximum": 500000.0,
+            "minimum": 400.0,
+            "title": "Distance M"
+          },
+          "duration_s": {
+            "type": "number",
+            "maximum": 172800.0,
+            "minimum": 30.0,
+            "title": "Duration S"
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "note": {
+            "type": "string",
+            "maxLength": 300,
+            "title": "Note",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "sport",
+          "distance_m",
+          "duration_s"
+        ],
+        "title": "BestPerformance"
+      },
       "Credentials": {
         "properties": {
           "email": {
@@ -886,6 +996,25 @@
           "plan"
         ],
         "title": "PlanWrite"
+      },
+      "ProfileWrite": {
+        "properties": {
+          "expected_version": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Expected Version"
+          },
+          "profile": {
+            "$ref": "#/components/schemas/TrainingProfile"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "expected_version",
+          "profile"
+        ],
+        "title": "ProfileWrite"
       },
       "ProposalAcceptance": {
         "properties": {
@@ -1040,6 +1169,236 @@
           "type"
         ],
         "title": "Step"
+      },
+      "TrainingDay": {
+        "properties": {
+          "weekday": {
+            "type": "integer",
+            "maximum": 6.0,
+            "minimum": 0.0,
+            "title": "Weekday"
+          },
+          "minutes": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 15.0,
+            "title": "Minutes"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "weekday",
+          "minutes"
+        ],
+        "title": "TrainingDay"
+      },
+      "TrainingProfile": {
+        "properties": {
+          "schema_version": {
+            "type": "integer",
+            "const": 1,
+            "title": "Schema Version",
+            "default": 1
+          },
+          "primary_sport": {
+            "type": "string",
+            "enum": [
+              "running",
+              "cycling",
+              "both"
+            ],
+            "title": "Primary Sport"
+          },
+          "goal_type": {
+            "type": "string",
+            "enum": [
+              "fitness",
+              "consistency",
+              "event",
+              "personal_best"
+            ],
+            "title": "Goal Type"
+          },
+          "goal_description": {
+            "type": "string",
+            "maxLength": 1500,
+            "minLength": 10,
+            "title": "Goal Description"
+          },
+          "target_date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Date"
+          },
+          "deadline_flexible": {
+            "type": "boolean",
+            "title": "Deadline Flexible",
+            "default": true
+          },
+          "age_years": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 110.0,
+                "minimum": 18.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age Years"
+          },
+          "weight_kg": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 350.0,
+                "minimum": 30.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weight Kg"
+          },
+          "height_cm": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 240.0,
+                "minimum": 120.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Height Cm"
+          },
+          "device_vendor": {
+            "type": "string",
+            "enum": [
+              "none",
+              "garmin",
+              "coros",
+              "suunto",
+              "fitbit",
+              "amazfit",
+              "xiaomi",
+              "apple",
+              "other"
+            ],
+            "title": "Device Vendor"
+          },
+          "device_model": {
+            "type": "string",
+            "maxLength": 120,
+            "title": "Device Model",
+            "default": ""
+          },
+          "heart_rate_sensor": {
+            "type": "boolean",
+            "title": "Heart Rate Sensor",
+            "default": false
+          },
+          "power_meter": {
+            "type": "boolean",
+            "title": "Power Meter",
+            "default": false
+          },
+          "running_years": {
+            "type": "number",
+            "maximum": 80.0,
+            "minimum": 0.0,
+            "title": "Running Years"
+          },
+          "cycling_years": {
+            "type": "number",
+            "maximum": 80.0,
+            "minimum": 0.0,
+            "title": "Cycling Years"
+          },
+          "recent_running_km_week": {
+            "type": "number",
+            "maximum": 500.0,
+            "minimum": 0.0,
+            "title": "Recent Running Km Week"
+          },
+          "recent_cycling_km_week": {
+            "type": "number",
+            "maximum": 3000.0,
+            "minimum": 0.0,
+            "title": "Recent Cycling Km Week"
+          },
+          "experience_notes": {
+            "type": "string",
+            "maxLength": 2000,
+            "title": "Experience Notes",
+            "default": ""
+          },
+          "gym_sessions_week": {
+            "type": "integer",
+            "maximum": 7.0,
+            "minimum": 0.0,
+            "title": "Gym Sessions Week"
+          },
+          "gym_notes": {
+            "type": "string",
+            "maxLength": 1000,
+            "title": "Gym Notes",
+            "default": ""
+          },
+          "availability": {
+            "items": {
+              "$ref": "#/components/schemas/TrainingDay"
+            },
+            "type": "array",
+            "maxItems": 7,
+            "minItems": 1,
+            "title": "Availability"
+          },
+          "best_performances": {
+            "items": {
+              "$ref": "#/components/schemas/BestPerformance"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "title": "Best Performances"
+          },
+          "constraints": {
+            "type": "string",
+            "maxLength": 1500,
+            "title": "Constraints",
+            "default": ""
+          },
+          "coaching_consent": {
+            "type": "boolean",
+            "title": "Coaching Consent"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "primary_sport",
+          "goal_type",
+          "goal_description",
+          "device_vendor",
+          "running_years",
+          "cycling_years",
+          "recent_running_km_week",
+          "recent_cycling_km_week",
+          "gym_sessions_week",
+          "availability",
+          "coaching_consent"
+        ],
+        "title": "TrainingProfile"
       },
       "ValidationError": {
         "properties": {

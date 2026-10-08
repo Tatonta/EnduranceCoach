@@ -68,6 +68,7 @@ class WorkoutDetailsService:
                     "analysis": {k: v for k, v in analysis.items() if k not in {"route", "series", "activity_id"}},
                     "history": history_context,
                     "athlete_context": {k: plan.athlete[k] for k in ("vo2max", "running_days_per_week", "strength_days_per_week", "stress_fracture_history") if k in plan.athlete},
+                    "training_profile": (self.db.get("training_profile") or {}).get("profile"),
                     "program_decision": base["program"],
                     "limitations": ["Contesto del piano corrente; versione originale del workout non verificata.", "Il riferimento Z2 per easy senza target HR esplicito è indicativo; confermare zone individuali.", "Meteo, sensazioni, RPE, sonno e dolore non sono misurati da questi dati."]}
         # Strip names/IDs from program evidence; neither GPS nor account identity goes to ChatGPT.

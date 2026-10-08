@@ -31,12 +31,21 @@ struct RootView: View {
     var body: some View {
         Group {
             if store.signedIn {
-                TabView {
+                if !store.profileChecked {
+                    VStack(spacing: 20) {
+                        Text("Caricamento del tuo profilo…")
+                        Button("Riprova") { Task { await store.run { try await store.refresh() } } }.disabled(store.busy)
+                        Button("Esci") { Task { await store.run { try await store.logout() } } }.disabled(store.busy)
+                    }
+                } else if store.profile == nil {
+                    OnboardingView()
+                } else { TabView {
+                    CoachHomeView().tabItem { Label("Coach", systemImage: "sparkles") }
                     ReviewView().tabItem { Label("Review", systemImage: "chart.bar.doc.horizontal") }
                     AdviceView().tabItem { Label("Consigli", systemImage: "lightbulb") }
                     PlanView().tabItem { Label("Piano", systemImage: "calendar") }
                     SettingsView().tabItem { Label("Account", systemImage: "person.crop.circle") }
-                }
+                } }
             } else { LoginView() }
         }
         .tint(.indigo)
@@ -57,7 +66,7 @@ struct LoginView: View {
             Form {
                 Section {
                     Label("Adaptive Coach", systemImage: "figure.run").font(.title2.bold())
-                    Text("Review dell'ultima seduta e consigli per continuare il tuo piano.")
+                    Text("Il tuo assistente di allenamento: obiettivi, disponibilità, programma e feedback. Al primo accesso prepariamo il profilo insieme.")
                 }
                 Section("Servizio di coaching") {
                     TextField("https://coach.example.com", text: $store.endpointText)

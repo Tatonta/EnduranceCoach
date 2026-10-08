@@ -13,7 +13,7 @@ From the project directory, install the optional dependencies and initialize the
 .venv\Scripts\python.exe -m app.platform.cli init-db
 ```
 
-The default database is `data/platform/coach.sqlite3`, ignored by Git. The initializer refuses the personal `data/coach.sqlite3` database. It records schema revision 1 and checks for all expected tables. Re-running the initializer is harmless on that revision; it does not pretend to migrate unknown future revisions.
+The default database is `data/platform/coach.sqlite3`, ignored by Git. The initializer refuses the personal `data/coach.sqlite3` database. It creates schema revision 2 or explicitly upgrades revision 1 by adding the athlete-profile table without replacing existing data. Re-running the initializer is harmless on revision 2; unknown revisions and incomplete schemas fail closed. API startup only checks the revision. Back up an existing deployment before running the initializer.
 
 For a **local, loopback-only pilot** you may enable registration and plain HTTP in that terminal:
 
@@ -50,6 +50,7 @@ These are pilot account flows. Public onboarding still needs verified-email enro
 | --- | --- |
 | `GET /health` | Schema/readiness status only; no athlete data |
 | `GET /v1/me` | Signed-in athlete identity and timezone |
+| `GET/PUT /v1/profile` | Owner-bound coaching questionnaire, independent of the program; PUT requires `expected_version`, stale writes return 409 |
 | `GET /v1/me/export` | Own account, all plan versions, original imported activity sources, proposals, adjustment evidence and audit history; no password/session secrets |
 | `DELETE /v1/me` | Own account deletion; requires current password and `confirmed: true`; related data and all sessions cascade-delete in the same transaction |
 | `GET /v1/plan` | Current own plan and version, or 404 before creation |

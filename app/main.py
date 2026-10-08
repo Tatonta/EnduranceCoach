@@ -2,13 +2,23 @@ from contextlib import asynccontextmanager
 from urllib.parse import urlsplit
 
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from app.api import activities, calendar, climbs, performances, plan, review, session_review
+from app.api import (
+    activities,
+    assistant,
+    calendar,
+    climbs,
+    performances,
+    plan,
+    review,
+    session_review,
+)
 from app.config import ROOT, Settings
 from app.garmin.client import CoachError
 from app.services.coach import Coach
@@ -20,7 +30,8 @@ def create_app(settings=None, client=None):
 
     @asynccontextmanager
     async def lifespan(app):
-        coach.plan()  # Fail clearly on invalid source-of-truth JSON before starting jobs.
+        if settings.plan_path.exists():
+            coach.plan()  # Invalid existing plans still fail; new athletes start with intake.
         coach.start()
         yield
         coach.stop()
@@ -42,7 +53,7 @@ def create_app(settings=None, client=None):
                     {"detail": "Richiesta da origine esterna bloccata"}, status_code=403
                 )
         response = await call_next(request)
-        if request.url.path.startswith(("/api/session-review", "/api/chatgpt", "/auth/callback")):
+        if request.url.path.startswith(("/api/session-review", "/api/chatgpt", "/auth/callback", "/api/profile", "/api/assistant", "/coach", "/onboarding")):
             response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Content-Security-Policy"] = (
@@ -64,6 +75,12 @@ def create_app(settings=None, client=None):
             status_code=422,
         )
 
+    @app.exception_handler(RequestValidationError)
+    async def invalid_request(request, exc):
+        return JSONResponse({"detail": "Controlla i campi del modulo e i valori inseriti.",
+                             "code": "validation_failed",
+                             "fields": [".".join(map(str, error["loc"])) for error in exc.errors()]}, status_code=422)
+
     for router in (
         activities.router,
         plan.router,
@@ -72,6 +89,7 @@ def create_app(settings=None, client=None):
         performances.router,
         climbs.router,
         session_review.router,
+        assistant.router,
     ):
         app.include_router(router)
     app.mount("/static", StaticFiles(directory=ROOT / "app" / "static"), name="static")
@@ -99,11 +117,31 @@ def create_app(settings=None, client=None):
 
     @app.get("/review")
     def workout_review_page(request: Request):
+        if not settings.plan_path.exists():
+            return RedirectResponse("/coach", status_code=303)
         return templates.TemplateResponse(request=request, name="review.html", context={})
 
     @app.get("/")
     def dashboard(request: Request):
+        if not coach.db.get("training_profile"):
+            return RedirectResponse("/onboarding", status_code=303)
+        return RedirectResponse("/coach", status_code=303)
+
+    @app.get("/dashboard")
+    def legacy_dashboard(request: Request):
+        if not settings.plan_path.exists():
+            return RedirectResponse("/coach", status_code=303)
         return templates.TemplateResponse(request=request, name="dashboard.html", context={})
+
+    @app.get("/onboarding")
+    def intake_page(request: Request):
+        return templates.TemplateResponse(request=request, name="onboarding.html", context={})
+
+    @app.get("/coach")
+    def assistant_page(request: Request):
+        if not coach.db.get("training_profile"):
+            return RedirectResponse("/onboarding", status_code=303)
+        return templates.TemplateResponse(request=request, name="assistant.html", context={})
 
     @app.get("/performances")
     def best_performances(request: Request):

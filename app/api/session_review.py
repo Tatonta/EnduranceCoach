@@ -1,6 +1,7 @@
 """Detailed local workout review and official user-owned ChatGPT connection."""
 
 import logging
+from typing import Literal
 
 from fastapi import APIRouter, Request, Response
 from fastapi.responses import RedirectResponse
@@ -19,6 +20,7 @@ class DetailRequest(StrictModel):
 class ConnectionRequest(StrictModel):
     profile_id: str | None = Field(default=None, max_length=32)
     fresh_registration: bool = Field(default=False, strict=True)
+    return_to: Literal["review", "coach"] = "review"
 
 
 class BrainRequest(DetailRequest):
@@ -91,8 +93,11 @@ def connection_status(request: Request):
 
 @router.post("/api/chatgpt/connect")
 def connect(body: ConnectionRequest, request: Request, response: Response):
+    if not coach(request).db.get("training_profile"):
+        raise CoachError("Completa il questionario prima di collegare il coach ChatGPT.", "profile_required", 409)
     url, state = coach(request).chatgpt.start(body.profile_id, body.fresh_registration)
     response.set_cookie("chatgpt_attempt", state, max_age=600, httponly=True, samesite="lax", path="/")
+    response.set_cookie("chatgpt_return", body.return_to, max_age=600, httponly=True, samesite="lax", path="/")
     response.headers["Cache-Control"] = "no-store"
     return {"authorization_url": url}
 
@@ -105,8 +110,9 @@ def callback(request: Request):
         current.db.set("chatgpt_connection_error", None)
     except CoachError as error:
         current.db.set("chatgpt_connection_error", str(error))
-    response = RedirectResponse("/review#chatgpt", status_code=303)
+    response = RedirectResponse("/coach" if request.cookies.get("chatgpt_return") == "coach" else "/review#chatgpt", status_code=303)
     response.delete_cookie("chatgpt_attempt", path="/")
+    response.delete_cookie("chatgpt_return", path="/")
     response.headers["Cache-Control"] = "no-store"
     response.headers["Referrer-Policy"] = "no-referrer"
     return response

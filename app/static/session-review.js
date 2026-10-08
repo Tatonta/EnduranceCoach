@@ -133,7 +133,7 @@ async function syncChatGPT() {
 }
 $("read-session").onclick=()=>refreshDetailed(true);
 $("session-activity").onchange=()=>refreshDetailed();
-$("connect-chatgpt").onclick=async()=>{detailBusy(true);try{const selected=$("chatgpt-accounts").value;const result=await api("/api/chatgpt/connect","POST",{profile_id:selected&&!['new','retry'].includes(selected)?selected:null,fresh_registration:selected==='new'});location.assign(result.authorization_url);}catch(e){$("brain-status").textContent=e.message;detailBusy(false);}};
+$("connect-chatgpt").onclick=async()=>{detailBusy(true);try{const intake=await api("/api/profile");if(!intake.profile){location.assign("/onboarding");return;}const selected=$("chatgpt-accounts").value;const result=await api("/api/chatgpt/connect","POST",{profile_id:selected&&!['new','retry'].includes(selected)?selected:null,fresh_registration:selected==='new'});location.assign(result.authorization_url);}catch(e){$("brain-status").textContent=e.message;detailBusy(false);}};
 $("chatgpt-accounts").onchange=async()=>{if(['new','retry'].includes($("chatgpt-accounts").value))return;try{await api("/api/chatgpt/select","POST",{profile_id:$("chatgpt-accounts").value});await syncChatGPT();await refreshDetailed();}catch(e){$("brain-status").textContent=e.message;}};
 $("disconnect-chatgpt").onclick=async()=>{try{const result=await api("/api/chatgpt/disconnect","POST");$("brain-status").textContent=result.remote_revoked?"Account scollegato.":"Sessione locale rimossa; revoca remota non confermata. Gestisci il collegamento in ChatGPT.";await syncChatGPT();$("brain-text").hidden=true;}catch(e){$("brain-status").textContent=e.message;}};
 $("ack-chatgpt").onclick=async()=>{await api("/api/chatgpt/welcome","POST");$("chatgpt-welcome").close();};

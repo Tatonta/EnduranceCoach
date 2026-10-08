@@ -75,6 +75,23 @@ final class ContractTests: XCTestCase {
         XCTAssertNotNil(Wire.date("2026-10-05T20:00:00Z"))
         XCTAssertNotNil(Wire.date("2026-10-05T20:00:00.123456+02:00"))
     }
+    func testOnboardingProfileRoundTripsAndNoDeviceRemainsSupported() throws {
+        let reply = try Wire.decoder().decode(ProfileReply.self, from: data("profile"))
+        XCTAssertEqual(reply.profile.deviceVendor, "none")
+        XCTAssertNil(reply.profile.weightKg)
+        XCTAssertEqual(reply.profile.availability.count, 2)
+        XCTAssertEqual(reply.profile.bestPerformances.first?.durationS, 1800)
+        let encoded = try Wire.encoder().encode(ProfileWrite(expectedVersion: reply.version, profile: reply.profile))
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with: encoded) as? [String: Any])
+        XCTAssertEqual(body["expected_version"] as? Int, 1)
+        let profile = try XCTUnwrap(body["profile"] as? [String: Any])
+        XCTAssertEqual(profile["device_vendor"] as? String, "none")
+        XCTAssertEqual(profile["coaching_consent"] as? Bool, true)
+        XCTAssertNil(body["athlete_id"])
+        let uploaded = try Wire.decoder().decode(TrainingProfile.self, from: JSONSerialization.data(withJSONObject: profile))
+        XCTAssertEqual(uploaded.targetDate, "2027-03-01")
+        XCTAssertEqual(uploaded.goalDescription, reply.profile.goalDescription)
+    }
     func testAuthenticatedTransportAndServerConflict() async throws {
         let api = APIClient(endpoint: try Endpoint.validate("https://coach.example.test"), token: "synthetic-test-only-token", protocolClasses: [FixtureProtocol.self])
         let review: WorkoutReview = try await api.request("v1/review/workout")

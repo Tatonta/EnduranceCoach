@@ -7,9 +7,17 @@ from sqlalchemy import delete, func, select
 
 from app.errors import CoachError
 from app.models import Plan
-from app.platform.tables import Activity, AdjustmentProposal, Athlete, AuditEvent, PlanVersion
+from app.platform.tables import (
+    Activity,
+    AdjustmentProposal,
+    Athlete,
+    AthleteProfile,
+    AuditEvent,
+    PlanVersion,
+)
 from app.services.reviewer import review_latest_workouts
 from app.services.workout_review import adjusted_plan, last_workout_review
+from app.training_profile import profile_brief
 
 
 class AthleteService:
@@ -35,6 +43,32 @@ class AthleteService:
         if not version:
             raise CoachError("Plan version unavailable", "plan_unavailable", 409)
         return Plan.model_validate(version.payload)
+
+    def profile(self, athlete_id):
+        with self.store.read_session() as session:
+            row = session.get(AthleteProfile, athlete_id)
+            if not row:
+                raise CoachError("Completa il questionario iniziale.", "profile_required", 404)
+            return {"version": row.version, "profile": row.payload, "updated_at": row.updated_at}
+
+    def save_profile(self, athlete_id, profile, expected_version):
+        with self.store.transaction() as session:
+            athlete = self.store.lock_athlete(session, athlete_id)
+            profile.validate_calendar(self.settings.now().astimezone(ZoneInfo(athlete.timezone)).date())
+            row = session.get(AthleteProfile, athlete_id)
+            version = row.version if row else 0
+            if version != expected_version:
+                raise CoachError("Il profilo è cambiato. Ricaricalo prima di salvare.", "version_conflict", 409)
+            if row is None:
+                row = AthleteProfile(athlete_id=athlete_id)
+                session.add(row)
+            row.version = version + 1
+            row.payload = profile.model_dump(mode="json")
+            row.updated_at = self.settings.now().isoformat()
+            self.audit(session, athlete_id, "profile_saved", {"version": row.version})
+            result = {"version": row.version, "profile": row.payload, "updated_at": row.updated_at,
+                      "brief": profile_brief(profile)}
+        return result
 
     def plan(self, athlete_id):
         with self.store.read_session() as session:
@@ -464,6 +498,9 @@ class AthleteService:
                     "created_at": athlete.created_at,
                 },
                 "current_plan_version": athlete.plan_version,
+                "training_profile": ({"version": profile.version, "profile": profile.payload,
+                                      "updated_at": profile.updated_at}
+                                     if (profile := session.get(AthleteProfile, athlete_id)) else None),
                 "plans": [
                     {
                         "version": p.version,

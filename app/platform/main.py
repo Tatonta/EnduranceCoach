@@ -22,6 +22,7 @@ from app.platform.schemas import (
 from app.platform.security import AccountService
 from app.platform.service import AthleteService
 from app.platform.store import PlatformStore
+from app.training_profile import ProfileWrite
 
 bearer = HTTPBearer(auto_error=False)
 
@@ -157,6 +158,14 @@ def create_platform_app(settings=None, store=None):
     @app.get("/v1/plan")
     def get_plan(user: authenticated):
         return athletes.plan(user["id"])
+
+    @app.get("/v1/profile")
+    def get_profile(user: authenticated):
+        return athletes.profile(user["id"])
+
+    @app.put("/v1/profile")
+    def put_profile(body: ProfileWrite, user: authenticated):
+        return athletes.save_profile(user["id"], body.profile, body.expected_version)
 
     @app.put("/v1/plan")
     def put_plan(body: PlanWrite, user: authenticated):

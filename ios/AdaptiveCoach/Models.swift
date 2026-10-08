@@ -199,6 +199,48 @@ struct ActivityImport: Encodable {
 struct ImportReply: Decodable { let imported: Int; let uniqueWorkouts: Int }
 struct AccountDeletion: Encodable { let password: String; let confirmed: Bool }
 
+struct TrainingDay: Codable, Identifiable {
+    var id: Int { weekday }
+    var weekday: Int
+    var minutes: Int
+}
+struct BestPerformance: Codable, Identifiable {
+    var id: String { "\(sport)-\(distanceM)-\(durationS)-\(date ?? "")" }
+    var sport = "running"
+    var distanceM = 5000.0
+    var durationS = 1800.0
+    var date: String? = nil
+    var note = ""
+}
+struct TrainingProfile: Codable {
+    var schemaVersion = 1
+    var primarySport = "running"
+    var goalType = "fitness"
+    var goalDescription = ""
+    var targetDate: String? = nil
+    var deadlineFlexible = true
+    var ageYears: Int? = nil
+    var weightKg: Double? = nil
+    var heightCm: Double? = nil
+    var deviceVendor = "none"
+    var deviceModel = ""
+    var heartRateSensor = false
+    var powerMeter = false
+    var runningYears = 0.0
+    var cyclingYears = 0.0
+    var recentRunningKmWeek = 0.0
+    var recentCyclingKmWeek = 0.0
+    var experienceNotes = ""
+    var gymSessionsWeek = 0
+    var gymNotes = ""
+    var availability: [TrainingDay] = []
+    var bestPerformances: [BestPerformance] = []
+    var constraints = ""
+    var coachingConsent = false
+}
+struct ProfileReply: Decodable { let version: Int; let profile: TrainingProfile; let updatedAt: String }
+struct ProfileWrite: Encodable { let expectedVersion: Int; let profile: TrainingProfile }
+
 enum Metric {
     static func pace(_ value: Double?) -> String {
         guard let value, value.isFinite, value > 0 else { return "—" }

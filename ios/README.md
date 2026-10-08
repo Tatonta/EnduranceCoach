@@ -4,6 +4,8 @@ SwiftUI iPhone app, iOS 17+, no third-party SDKs. Open **AdaptiveCoach.xcodeproj
 
 ## Implemented flows
 
+- First authenticated access opens a five-step coaching questionnaire. Goal/deadline, device or no device, optional age/weight/height, running/cycling history, recent volume, best performances, gym and weekly availability are saved to the authenticated athlete profile. Coach is the first tab; the profile can be edited later. Questionnaire submission does not change an existing plan or request HealthKit access. The remote ChatGPT integration remains an external availability gate; the personal local version implements the conversation and initial draft.
+
 - Separate Review and Advice tabs, metrics with missing values shown explicitly, server explanations and supporting trend evidence.
 - Optional adjustment sheet appears only when a successful recent review is eligible. Before opening it, the client refreshes evidence and requests a server-owned proposal. The sheet shows every changed work block, duration and repeat count. Acceptance requires a confirmation toggle. Expired previews and stale evidence cannot apply; the API rechecks ownership and versions atomically. Watch export is clearly unavailable.
 - Login/optional registration against a configurable HTTPS origin. Registration is closed unless the operator enables it. Passwords are never persisted. Bearer sessions use Keychain `WhenUnlockedThisDeviceOnly` and are bound to the origin and account. Redirects are rejected. Logout revokes the server session where reachable and clears local state; the app states when remote revocation was not confirmed.

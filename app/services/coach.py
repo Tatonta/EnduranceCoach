@@ -332,6 +332,8 @@ class Coach:
         }
 
     def background_refresh(self):
+        if not self.settings.plan_path.exists():
+            return
         try:
             self.review(refresh=True)
             self.refresh_performances()

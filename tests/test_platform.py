@@ -9,6 +9,7 @@ pytest.importorskip("argon2", reason="Install .[platform] to test account securi
 
 from platform_database import isolated_database
 from sqlalchemy import func, select
+from test_intake import profile_fixture
 from test_workout_advice import runs
 
 from app.errors import CoachError
@@ -21,9 +22,11 @@ from app.platform.tables import (
     Activity,
     AdjustmentProposal,
     Athlete,
+    AthleteProfile,
     AuditEvent,
     AuthSession,
     PlanVersion,
+    SchemaRevision,
 )
 from scripts.create_initial_plan import initial_plan
 
@@ -109,6 +112,7 @@ def seed_trend(client, user, settings):
         "/v1/review/workout",
         "/v1/integrations",
         "/v1/openapi.json",
+        "/v1/profile",
     ],
 )
 def test_every_athlete_read_requires_auth(platform, path):
@@ -547,3 +551,38 @@ def test_schema_migration_is_explicit_and_does_not_touch_personal_store(tmp_path
     with pytest.raises(ValueError, match="personal"):
         PlatformSettings(database_url=f"sqlite:///{(ROOT / 'data/coach.sqlite3').as_posix()}")
     store.close()
+
+
+def test_profile_is_owner_bound_versioned_exported_and_deleted(platform):
+    client, app, (alice, bob), _ = platform
+    assert client.get("/v1/profile", headers=alice["headers"]).json()["code"] == "profile_required"
+    payload = {"expected_version": 0, "profile": profile_fixture()}
+    assert client.put("/v1/profile", json=payload).status_code == 401
+    reply = client.put("/v1/profile", headers=alice["headers"], json=payload)
+    assert reply.status_code == 200 and reply.json()["version"] == 1
+    assert client.get("/v1/profile", headers=bob["headers"]).status_code == 404
+    assert client.put("/v1/profile", headers=alice["headers"], json=payload).status_code == 409
+    assert client.get("/v1/me/export", headers=alice["headers"]).json()["training_profile"]["profile"] == payload["profile"]
+    assert client.get("/v1/me/export", headers=bob["headers"]).json()["training_profile"] is None
+    assert client.put("/v1/profile", headers=alice["headers"], json={**payload, "athlete_id": bob["id"]}).status_code == 422
+    assert client.request("DELETE", "/v1/me", headers=alice["headers"], json={"password": PASSWORD, "confirmed": True}).status_code == 204
+    with app.state.store.read_session() as session:
+        assert session.get(AthleteProfile, alice["id"]) is None
+
+
+def test_revision_one_migration_preserves_data_and_requires_explicit_initializer(platform):
+    _, app, (alice, _), _ = platform
+    store = app.state.store
+    # Build the previous revision from disposable test data, never a real database.
+    AthleteProfile.__table__.drop(store.engine)
+    with store.transaction() as session:
+        session.get(SchemaRevision, 1).version = 1
+    with pytest.raises(RuntimeError, match="version"):
+        store.check_schema()
+    store.initialize()
+    store.initialize()
+    store.check_schema()
+    with store.read_session() as session:
+        assert session.get(SchemaRevision, 1).version == 2
+        assert session.get(Athlete, alice["id"]).email == alice["email"]
+        assert session.get(AthleteProfile, alice["id"]) is None

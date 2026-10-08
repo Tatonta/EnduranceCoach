@@ -6,6 +6,7 @@ struct SettingsView: View {
     @State private var deleting = false
     @State private var deletionPassword = ""
     @State private var deletionConfirmed = false
+    @State private var editingProfile = false
     private var healthPresented: Binding<Bool> {
         Binding(get: { !store.healthPreview.isEmpty }, set: { if !$0 { store.healthPreview = [] } })
     }
@@ -19,6 +20,10 @@ struct SettingsView: View {
                     Text(store.identity?.email ?? "")
                     Text(store.endpointText).font(.footnote).foregroundStyle(.secondary)
                     Button("Esci") { Task { await store.run { try await store.logout() } } }.disabled(store.busy)
+                }
+                Section("Il tuo coach") {
+                    Button("Modifica profilo e obiettivi") { editingProfile = true }.disabled(store.busy)
+                    Text("Obiettivo, scadenza, disponibilità, esperienza e palestra guidano il coaching.").font(.footnote).foregroundStyle(.secondary)
                 }
                 Section("Importazione Apple Health") {
                     Text("Leggi i workout degli ultimi 42 giorni. Puoi controllare l'anteprima prima di inviarli al servizio.")
@@ -41,6 +46,7 @@ struct SettingsView: View {
                 }
                 if store.busy { ProgressView("Operazione in corso…") }
             }.navigationTitle("Account")
+                .sheet(isPresented: $editingProfile) { OnboardingView(editing: true).environmentObject(store) }
                 .sheet(isPresented: healthPresented) { HealthPreviewView().environmentObject(store) }
                 .sheet(isPresented: sharing, onDismiss: { store.removeExport() }) {
                     if let url = store.exportURL { ExportShareView(url: url) { store.removeExport() } }

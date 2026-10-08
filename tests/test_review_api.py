@@ -138,7 +138,8 @@ def test_api_health_dashboard_plan_and_guards(coach, fake):
     app = create_app(coach.settings, fake)
     with TestClient(app) as client:
         assert client.get("/api/health").json()["status"] == "ok"
-        assert "GARMIN ADAPTIVE COACH" in client.get("/").text
+        assert "Partiamo da te" in client.get("/").text
+        assert "GARMIN ADAPTIVE COACH" in client.get("/dashboard").text
         assert client.get("/static/dashboard.js").status_code == 200
         assert len(client.get("/api/plan").json()["workouts"]) == 22
         assert client.post("/api/plan/sync", json={"confirmed": True}).status_code == 409

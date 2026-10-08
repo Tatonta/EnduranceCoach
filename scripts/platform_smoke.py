@@ -48,6 +48,13 @@ def verify(origin):
         identity = request("/v1/auth/register", "POST", credentials)
         token = request("/v1/auth/login", "POST", credentials)["access_token"]
         assert request("/v1/me", token=token)["id"] == identity["id"]
+        profile = {"primary_sport": "running", "goal_type": "fitness",
+                   "goal_description": "Synthetic smoke coaching goal", "device_vendor": "none",
+                   "running_years": 0, "cycling_years": 0, "recent_running_km_week": 0,
+                   "recent_cycling_km_week": 0, "gym_sessions_week": 0,
+                   "availability": [{"weekday": 0, "minutes": 45}], "coaching_consent": True}
+        assert request("/v1/profile", "PUT", {"expected_version": 0, "profile": profile}, token)["version"] == 1
+        assert request("/v1/profile", token=token)["profile"]["device_vendor"] == "none"
         plan = {
             "plan_name": "Synthetic smoke plan", "athlete": {},
             "workouts": [{"id": "smoke-easy", "date": "2026-12-01", "name": "Corsa facile",
@@ -80,6 +87,7 @@ def verify(origin):
             raise AssertionError("One workout must not enable a program adjustment")
         assert request("/v1/integrations", token=token)["live_vendor_connections"] == 0
         assert request("/v1/me/export", token=token)["account"]["id"] == identity["id"]
+        assert request("/v1/me/export", token=token)["training_profile"]["version"] == 1
     finally:
         if token:
             request("/v1/me", "DELETE", {"password": credentials["password"], "confirmed": True}, token)

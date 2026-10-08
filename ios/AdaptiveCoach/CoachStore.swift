@@ -7,6 +7,8 @@ final class CoachStore: ObservableObject {
     @Published private(set) var identity: Identity?
     @Published private(set) var review: WorkoutReview?
     @Published private(set) var plan: PlanReply?
+    @Published private(set) var profile: ProfileReply?
+    @Published private(set) var profileChecked = false
     @Published private(set) var vendors: [Vendor] = []
     @Published private(set) var busy = false
     @Published var errorMessage: String?
@@ -89,6 +91,11 @@ final class CoachStore: ObservableObject {
     func refresh() async throws {
         invalidateReview()
         let api = try api()
+        do { profile = try await api.request("v1/profile"); profileChecked = true }
+        catch let error as ServiceError where error.code == "profile_required" {
+            profile = nil; profileChecked = true
+        }
+        guard profile != nil else { plan = nil; review = nil; return }
         do { plan = try await api.request("v1/plan") }
         catch let error as ServiceError where error.code == "plan_required" {
             plan = nil; review = nil
@@ -100,6 +107,13 @@ final class CoachStore: ObservableObject {
         }
         let integrations: IntegrationsReply = try await api.request("v1/integrations")
         vendors = integrations.vendors
+    }
+    func saveProfile(_ value: TrainingProfile) async throws {
+        let result: ProfileReply = try await api().request("v1/profile", method: "PUT",
+            body: Wire.encoder().encode(ProfileWrite(expectedVersion: profile?.version ?? 0, profile: value)))
+        profile = result
+        profileChecked = true
+        try await refresh()
     }
     func previewAdjustment() async throws {
         // Always retrieve fresh evidence before creating a server-owned proposal.
@@ -191,6 +205,7 @@ final class CoachStore: ObservableObject {
     }
     private func clearMemory() {
         identity = nil; client = nil; review = nil; plan = nil; vendors = []
+        profile = nil; profileChecked = false
         healthPreview = []; pendingPlan = nil; invalidateReview(); removeExport()
     }
 }

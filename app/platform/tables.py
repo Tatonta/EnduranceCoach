@@ -35,6 +35,16 @@ class AuthSession(Base):
     created_at: Mapped[str] = mapped_column(String(40))
 
 
+class AthleteProfile(Base):
+    __tablename__ = "ac_athlete_profiles"
+    athlete_id: Mapped[str] = mapped_column(
+        ForeignKey("ac_athletes.id", ondelete="CASCADE"), primary_key=True
+    )
+    version: Mapped[int] = mapped_column(Integer)
+    payload: Mapped[dict] = mapped_column(JSON)
+    updated_at: Mapped[str] = mapped_column(String(40))
+
+
 class RateLimit(Base):
     __tablename__ = "ac_rate_limits"
     key: Mapped[str] = mapped_column(String(64), primary_key=True)

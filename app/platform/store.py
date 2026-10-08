@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.errors import CoachError
-from app.platform.tables import Athlete, Base, SchemaRevision
+from app.platform.tables import Athlete, AthleteProfile, Base, SchemaRevision
 
 
 class PlatformStore:
@@ -50,11 +50,22 @@ class PlatformStore:
         )
 
     def initialize(self):
-        """Explicit initial migration. Future schema versions require new migrations."""
+        """Explicit initialization or additive migration; never runs on API startup."""
         if self.engine.dialect.name == "sqlite" and self.engine.url.database != ":memory:":
             Path(self.engine.url.database).parent.mkdir(parents=True, exist_ok=True)
         existing = inspect(self.engine).get_table_names()
         if existing:
+            if "ac_schema_revision" in existing and self.settings.schema_version == 2:
+                with self.transaction() as session:
+                    if self.engine.dialect.name == "sqlite":
+                        session.connection().exec_driver_sql("BEGIN IMMEDIATE")
+                    revision = session.scalar(select(SchemaRevision).where(SchemaRevision.id == 1).with_for_update())
+                    if revision and revision.version == 1:
+                        required = set(Base.metadata.tables) - {AthleteProfile.__tablename__}
+                        if not required.issubset(existing):
+                            raise RuntimeError("Platform database schema is incomplete")
+                        AthleteProfile.__table__.create(session.connection(), checkfirst=True)
+                        revision.version = 2
             self.check_schema()
             return
         Base.metadata.create_all(self.engine)

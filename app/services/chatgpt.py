@@ -260,12 +260,6 @@ class ChatGPTService:
         return {"remote_revoked": revoked, "usage_url": USAGE_URL}
 
     def review(self, context, model):
-        token, profile = self.access()
-        catalog = self.models()
-        if model not in {m["id"] for m in catalog}:
-            raise CoachError("Scegli un modello disponibile per il tuo account.", "chatgpt_model", 400)
-        if self.status()["active"] != profile:
-            raise CoachError("Account cambiato prima della richiesta. Seleziona nuovamente il modello.", "chatgpt_stale", 409)
         instructions = (
             "Sei il motore di coaching di EnduranceCoach. Scrivi una review tecnico-atletica professionale in italiano. "
             "Considera piano, fasi reali, split, passo, FC/zone configurate, dinamiche e storico forniti. "
@@ -278,6 +272,15 @@ class ChatGPTService:
             "Non modificare il piano. Scrivi circa 500-800 parole con sezioni: Giudizio, Fasi e intensità, Passo e FC, "
             "Dinamiche, Storico, Prossima seduta. Riferisci chiaramente i limiti effettivi senza ripetere formule generiche."
         )
+        return self.respond(context, model, instructions)
+
+    def respond(self, context, model, instructions):
+        token, profile = self.access()
+        catalog = self.models()
+        if model not in {m["id"] for m in catalog}:
+            raise CoachError("Scegli un modello disponibile per il tuo account.", "chatgpt_model", 400)
+        if self.status()["active"] != profile:
+            raise CoachError("Account cambiato prima della richiesta. Seleziona nuovamente il modello.", "chatgpt_stale", 409)
         output, completed, size = [], False, 0
         started = time.monotonic()
         try:
