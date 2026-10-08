@@ -75,6 +75,21 @@ def test_profile_does_not_rewrite_an_existing_program(coach, fake):
     assert fake.uploads == fake.schedules == 0
 
 
+def test_assistant_context_uses_intake_instead_of_arbitrary_legacy_metadata(coach, fake):
+    from app.api.assistant import context
+
+    plan = coach.plan()
+    plan.athlete["unrelated_private_metadata"] = "synthetic-only-value"
+    coach.replace_plan(plan)
+    app = create_app(coach.settings, fake)
+    with TestClient(app) as client:
+        client.put("/api/profile", json={"expected_version": 0, "profile": profile_fixture()})
+        evidence, _, _ = context(app.state.coach)
+        assert "athlete" not in evidence["current_plan"]
+        assert "synthetic-only-value" not in json.dumps(evidence)
+        assert evidence["training_profile"]["goal_type"] == "event"
+
+
 def test_ai_dialogue_uses_intake_and_bounded_account_owned_memory(settings, fake, monkeypatch):
     app = create_app(settings, fake)
     coach = app.state.coach

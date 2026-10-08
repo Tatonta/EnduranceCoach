@@ -96,7 +96,8 @@ def context(coach):
         "training_profile": saved["profile"],
         "profile_version": saved["version"],
         "recent_activity_summaries": evidence,
-        "current_plan": plan.model_dump(mode="json") if plan else None,
+        # Flexible legacy athlete metadata is not part of the consented intake.
+        "current_plan": plan.model_dump(mode="json", exclude={"athlete"}) if plan else None,
     }
     return value, canonical_hash(value), canonical_hash(plan) if plan else None
 
