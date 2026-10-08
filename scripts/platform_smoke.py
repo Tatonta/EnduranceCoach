@@ -6,6 +6,7 @@ import secrets
 import time
 import urllib.error
 import urllib.request
+from datetime import UTC, datetime, timedelta
 from urllib.parse import urlsplit
 
 
@@ -56,12 +57,33 @@ def verify(origin):
         assert request("/v1/plan", "PUT", {"expected_version": 0, "plan": plan}, token)["version"] == 1
         review = request("/v1/review/workout", token=token)
         assert review["last_workout"] is None and not review["program"]["eligible"]
+        activity = {
+            "source": "apple_health", "source_activity_id": "synthetic-" + secrets.token_hex(12),
+            "name": "Synthetic easy smoke workout", "sport": "running", "activity_type": "running",
+            "start_time": (datetime.now(UTC) - timedelta(hours=1)).isoformat(),
+            "distance_m": 4000, "duration_s": 1800, "elapsed_duration_s": 1800,
+            "avg_pace_s_km": 450, "avg_hr": 140, "max_hr": 150, "elevation_gain_m": 10,
+        }
+        imported = request("/v1/activities/import", "POST", {"activities": [activity], "ingestion_method": "client_import"}, token)
+        assert imported["imported"] == 1 and imported["unique_workouts"] == 1
+        latest = request("/v1/review/workout", token=token)
+        assert latest["last_workout"]["source_activity_id"] == activity["source_activity_id"]
+        assert latest["last_workout"]["avg_hr"] == 140 and latest["advice"]
+        assert not latest["program"]["eligible"] and latest["program"]["decision"] == "keep"
+        try:
+            request("/v1/review/adjustments/preview", "POST", token=token)
+        except urllib.error.HTTPError as error:
+            with error:
+                assert error.code == 409
+                assert json.loads(error.read())["code"] == "adjustment_not_recommended"
+        else:
+            raise AssertionError("One workout must not enable a program adjustment")
         assert request("/v1/integrations", token=token)["live_vendor_connections"] == 0
         assert request("/v1/me/export", token=token)["account"]["id"] == identity["id"]
     finally:
         if token:
             request("/v1/me", "DELETE", {"password": credentials["password"], "confirmed": True}, token)
-    print("Pilot smoke passed: readiness, auth, plan, conservative review, export, deletion; no live vendors")
+    print("Pilot smoke passed: readiness, auth, plan, import, last-workout advice, no premature adjustment, export, deletion; no live vendors")
 
 
 if __name__ == "__main__":

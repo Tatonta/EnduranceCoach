@@ -26,7 +26,7 @@ COACH_PILOT_REGISTRATION=true docker compose -f deploy/compose.yml up --build -d
 python -m scripts.platform_smoke
 ```
 
-In PowerShell set `$env:COACH_PILOT_REGISTRATION = 'true'`, then run the same Compose and smoke commands. The smoke script accepts loopback origins only and creates/deletes a random synthetic account. It checks readiness, login, plan write, empty review, truthful vendor status, export and deletion; it does not test watch connectivity. Restore the registration default after testing. A Debug iPhone simulator reaches localhost on its own Mac; physical devices need a reachable HTTPS service.
+In PowerShell set `$env:COACH_PILOT_REGISTRATION = 'true'`, then run the same Compose and smoke commands. The smoke script accepts loopback origins only and creates/deletes a random synthetic account. It checks readiness, login, plan write, empty review, activity import, last-workout advice and rejection of a premature adjustment, truthful vendor status, export and deletion. The imported workout is synthetic; this does not test watch connectivity. Restore the registration default after testing. A Debug iPhone simulator reaches localhost on its own Mac; physical devices need a reachable HTTPS service.
 
 Stop without removing the database:
 
