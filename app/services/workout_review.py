@@ -7,6 +7,7 @@ from itertools import pairwise
 
 from app.models import HRTarget, Plan, flatten
 from app.services.planner import canonical_hash
+from app.session_feedback import manual_findings
 
 
 def positive(value):
@@ -39,6 +40,8 @@ def easy_name(name):
 
 
 def easy_run(activity, matched_workouts):
+    if activity.get("source") == "manual":
+        return False
     workout = matched_workouts.get(activity["activity_id"])
     if workout:
         steps = list(flatten(workout.steps))
@@ -66,6 +69,9 @@ def performance_trend(activities, now, matched_workouts, flags):
         "change_percent": None,
         "policy": "Ultime 4 corse facili: ogni passaggio ≥1%, miglioramento complessivo ≥6% o rallentamento ≥8%; FC entro 6 bpm, durata entro 25%, terreno pianeggiante simile. Soglie euristiche.",
     }
+    if activities and activities[-1].get("source") == "manual":
+        result["reason"] = "Mantieni il piano: una seduta dichiarata e le sensazioni aiutano il coaching, ma non dimostrano un trend misurato di prestazione."
+        return result
     if not activities or activities[-1]["sport"] != "running":
         result["reason"] = (
             "Mantieni il piano: l'ultima attività non offre un confronto di corsa affidabile. Bici e forza non vengono confrontate con il passo di corsa."
@@ -333,18 +339,22 @@ def last_workout_review(plan, activities, now, snapshot, last_refresh=None, acce
         advice.append(
             "Annota quanto è stata impegnativa la seduta e come ti senti il giorno dopo: questi dati aiutano a distinguere progresso e stanchezza."
         )
+    manual = manual_findings(last) if last and last.get("source") == "manual" else None
+    if manual:
+        advice = manual["actions"]
     return {
         "schema_version": 1,
         "generated_at": now.isoformat(),
         "activities_refreshed_at": last_refresh,
         "last_workout": last,
         "match": match,
-        "verdict": "Nessuna attività disponibile"
+        "verdict": manual["verdict"] if manual else "Nessuna attività disponibile"
         if not last
         else "Lavoro registrato, recupero da valutare"
         if not match
         else "Seduta associata al piano",
         "advice": advice,
+        "feedback_findings": manual,
         "program": trend,
         "evidence_hash": canonical_hash(
             {
@@ -355,6 +365,10 @@ def last_workout_review(plan, activities, now, snapshot, last_refresh=None, acce
             }
         ),
         "limitations": [
+            "Durata, eventuale distanza, sforzo e sensazioni sono dichiarati dall'atleta.",
+            "Senza campioni misurati non si verificano FC, fasi delle ripetute, dinamiche o GPS.",
+            "Il feedback aiuta il coaching, ma non dimostra da solo una variazione misurata di prestazione.",
+        ] if manual else [
             "Le soglie sono euristiche, non una misura clinica di forma o fatica.",
             "FC e terreno simili riducono gli errori, ma caldo, vento, sonno e sensazioni non sono verificati. Conferma il contesto prima di accettare.",
             "Non vengono dedotte prestazioni degli intervalli dal passo medio, né confrontati corsa e ciclismo.",

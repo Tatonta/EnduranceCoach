@@ -8,6 +8,7 @@ import urllib.error
 import urllib.request
 from datetime import UTC, datetime, timedelta
 from urllib.parse import urlsplit
+from uuid import uuid4
 
 
 def wait_for_ready(probe, attempts=45):
@@ -86,6 +87,14 @@ def verify(origin):
         else:
             raise AssertionError("One workout must not enable a program adjustment")
         assert request("/v1/integrations", token=token)["live_vendor_connections"] == 0
+        manual = {"request_id": str(uuid4()), "name": "Synthetic manual smoke", "sport": "running",
+                  "start_time": (datetime.now(UTC) - timedelta(minutes=30)).isoformat(), "duration_min": 15,
+                  "perceived_exertion": 3, "feeling": "good", "discomfort": "none"}
+        assert request("/v1/activities/manual", "POST", manual, token)["unique_workouts"] == 2
+        declared = request("/v1/review/workout", token=token)
+        assert declared["last_workout"]["evidence_kind"] == "self_reported"
+        assert declared["last_workout"]["distance_known"] is False
+        assert not declared["program"]["eligible"]
         assert request("/v1/me/export", token=token)["account"]["id"] == identity["id"]
         assert request("/v1/me/export", token=token)["training_profile"]["version"] == 1
     finally:

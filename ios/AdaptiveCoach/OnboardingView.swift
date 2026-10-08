@@ -178,6 +178,7 @@ struct OnboardingView: View {
 struct CoachHomeView: View {
     @EnvironmentObject private var store: CoachStore
     @State private var editing = false
+    @State private var recording = false
     private let weekdays = ["Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica"]
     var body: some View {
         NavigationStack {
@@ -193,13 +194,29 @@ struct CoachHomeView: View {
                         Text("Palestra/forza: \(profile.gymSessionsWeek) sedute/settimana, da includere nel tempo disponibile.").font(.footnote)
                     }
                     Section("Feedback e assistente") {
+                        Button("Registra una seduta senza orologio") { recording = true }.disabled(store.busy)
                         Text(profile.deviceVendor == "none" ? "Il coach può usare obiettivi, durata e sensazioni anche senza orologio. Le metriche non misurate resteranno assenti." : "Il dispositivo selezionato è \(profile.deviceVendor). Scelta del produttore e collegamento dell'account sono passaggi distinti.")
                         Text("Puoi parlare con ChatGPT nella versione personale locale. Il collegamento AI remoto per questa app iOS è ancora da abilitare.").font(.footnote).foregroundStyle(.secondary)
                         Text(store.plan == nil ? "Il profilo è pronto. La creazione AI del programma è disponibile nel coach locale; qui puoi importare un piano dalla scheda Piano." : "Apri Review per valutare la seduta e Consigli per la prossima scelta.")
                     }
+                    if !store.manualSessions.isEmpty {
+                        Section("Feedback recenti") {
+                            ForEach(store.manualSessions, id: \.activityId) { session in
+                                VStack(alignment: .leading, spacing: 6) {
+                                    Text(session.name).font(.headline)
+                                    Text("\(session.date) · \(Metric.duration(session.durationS)) dichiarati")
+                                    if let feedback = session.feedback {
+                                        Text("Sforzo: \(feedback.perceivedExertion.map(String.init) ?? "—")/10 · \(FeedbackText.feeling(feedback.feeling))").font(.footnote)
+                                        if !feedback.notes.isEmpty { Text(feedback.notes).font(.footnote).foregroundStyle(.secondary) }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }.navigationTitle("Il tuo coach")
                 .sheet(isPresented: $editing) { OnboardingView(editing: true).environmentObject(store) }
+                .sheet(isPresented: $recording) { ManualSessionView().environmentObject(store) }
                 .refreshable { await store.run { try await store.refresh() } }
         }
     }

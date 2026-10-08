@@ -13,11 +13,15 @@ function renderDetailedSummary() {
   if (!sessionDetail || sessionDetail.status !== "ready") return;
   const a = sessionDetail.activity, d = sessionDetail.analysis, m = sessionDetail.match;
   $("workout-name").textContent = a.name;
-  $("workout-meta").textContent = `${a.sport.toUpperCase()} · ${date(a.date)} · LAP E CAMPIONI GARMIN`;
+  const manual = a.source === "manual";
+  $("workout-meta").textContent = `${a.sport.toUpperCase()} · ${date(a.date)} · ${manual ? "DICHIARATO DALL’ATLETA" : "LAP E CAMPIONI GARMIN"}`;
   $("workout-verdict").textContent = d.verdict;
-  $("workout-stats").replaceChildren(...[["Distanza", `${number(a.distance_m / 1000)} km`], ["Durata attiva", duration(a.duration_s)], ["Passo medio", pace(a.avg_pace_s_km)], ["FC media/max", `${number(a.avg_hr)} / ${number(a.max_hr)} bpm`], ["Dislivello", `${number(a.elevation_gain_m)} m`]].map(v => metricTile(...v)));
-  $("workout-match").textContent = m ? `${m.planned_name} · previsti ${duration(m.planned_duration_s)} · registrati ${duration(a.duration_s)}` : "Sessione senza associazione certa: i dati reali sono mostrati, senza imporre target di un'altra seduta.";
-  $("workout-note").textContent = "Le fasi qui sotto sono ricostruite dai lap e dagli indici degli step Garmin. Il confronto usa il piano corrente.";
+  const metrics = manual ? [["Durata dichiarata", duration(a.duration_s)], ["Distanza dichiarata", a.distance_known === false ? "Non indicata" : `${number(a.distance_m/1000)} km`], ["Passo da tempo/distanza", pace(a.avg_pace_s_km)], ["Sforzo percepito", `${a.feedback?.perceived_exertion ?? "—"}/10`]] : [["Distanza", `${number(a.distance_m / 1000)} km`], ["Durata attiva", duration(a.duration_s)], ["Passo medio", pace(a.avg_pace_s_km)], ["FC media/max", `${number(a.avg_hr)} / ${number(a.max_hr)} bpm`], ["Dislivello", `${number(a.elevation_gain_m)} m`]];
+  $("workout-stats").replaceChildren(...metrics.map(v => metricTile(...v)));
+  $("workout-match").textContent = m ? `${m.planned_name} · previsti ${duration(m.planned_duration_s)} · registrati ${duration(a.duration_s)}` : manual ? "Sessione senza associazione certa: il feedback dichiarato viene considerato senza imporre target di un'altra seduta." : "Sessione senza associazione certa: i dati reali sono mostrati, senza imporre target di un'altra seduta.";
+  $("workout-note").textContent = manual ? "Durata, distanza eventuale e feedback sono dichiarati. Non verificano le fasi o i ritmi delle ripetute." : "Le fasi qui sotto sono ricostruite dai lap e dagli indici degli step Garmin. Il confronto usa il piano corrente.";
+  $("review-updated").textContent = manual ? `Feedback dichiarato: ${date(a.date)}` : `Dettagli riletti: ${date(sessionDetail.fetched_at)}`;
+  if(sessionDetail.limitations)$("review-limitations").replaceChildren(...sessionDetail.limitations.map(text=>node("p",text)));
   $("advice-list").replaceChildren(...d.actions.map(text => node("li", text)));
 }
 function evidenceList(id, title, items, className) {
@@ -31,15 +35,25 @@ function renderSession(value) {
   sessionDetail = value;
   if (value.status !== "ready") { $("detail-status").textContent = value.message; return; }
   const d = value.analysis;
+  const manual = value.activity.source === "manual";
+  ["measured-dynamics","measured-route","measured-phases","measured-laps"].forEach(id=>$(id).hidden=manual);
+  $("manual-feedback-panel").hidden=!manual;
+  document.querySelector(".session-evidence-grid").classList.toggle("manual-evidence",manual);
+  $("read-session").textContent=manual?"Rileggi feedback":"Leggi fasi e campioni Garmin";
   renderDetailedSummary();
-  $("detail-status").textContent = `${d.coverage.lap_count} lap · ${d.coverage.sample_count} campioni · dettagli letti ${date(value.fetched_at)}`;
+  $("detail-status").textContent = manual ? "Feedback dichiarato: nessuna lettura Garmin richiesta." : `${d.coverage.lap_count} lap · ${d.coverage.sample_count} campioni · dettagli letti ${date(value.fetched_at)}`;
   $("session-judgement").textContent = d.verdict;
   evidenceList("session-positive", "Cosa è riuscito", d.positive, "finding-positive");
   evidenceList("session-issues", "Cosa correggere o chiarire", d.issues, "finding-warning");
   evidenceList("session-actions", "Per la prossima seduta", d.actions, "finding-action");
+  if(manual){const f=d.manual_feedback || {}, feelings={good:"Buone",normal:"Normali",fatigued:"Stanco",very_fatigued:"Molto stanco"}, pain={none:"Non segnalati",present:"Segnalati",prefer_not_to_say:"Non indicato"};
+    $("manual-feedback-metrics").replaceChildren(...[["Sforzo percepito",`${f.perceived_exertion ?? "—"}/10`],["Sensazioni",feelings[f.feeling] || "—"],["Fastidi/dolore",pain[f.discomfort] || "—"],["Come previsto",f.completed_as_planned==null?"Non indicato":f.completed_as_planned?"Sì, dichiarato":"Modificato / interrotto"]].map(v=>metricTile(...v)));
+    $("manual-feedback-notes").textContent=f.notes || "Nessuna nota aggiunta.";
+    if(value.brain)showBrain(value.brain);else{$("brain-text").hidden=true;$("brain-text").textContent="";}return;
+  }
   const mechanics = d.dynamics;
   $("session-dynamics").replaceChildren(...[["Cadenza", `${number(mechanics.cadence_spm)} passi/min`], ["Stride length", `${strideValue(mechanics.stride_m)} m`], ["Contatto a terra", `${number(mechanics.gct_ms)} ms`], ["Oscillazione verticale", `${number(mechanics.vertical_cm)} cm`], ["Rapporto verticale", `${number(mechanics.vertical_ratio_percent)}%`], ["Potenza", `${number(mechanics.power_w)} W`]].map(v => metricTile(...v)));
-  $("session-locomotion").textContent = `Garmin distingue: corsa ${duration(d.locomotion_s.RWD_RUN)} · cammino ${duration(d.locomotion_s.RWD_WALK)} · soste ${duration(d.locomotion_s.RWD_STAND)}.`;
+  $("session-locomotion").textContent = Object.values(d.locomotion_s).some(value=>value>0) ? `Garmin distingue: corsa ${duration(d.locomotion_s.RWD_RUN)} · cammino ${duration(d.locomotion_s.RWD_WALK)} · soste ${duration(d.locomotion_s.RWD_STAND)}.` : "Ripartizione corsa/cammino/soste non disponibile nei dati letti.";
   $("phase-list").replaceChildren(...d.phases.map(phase => {
     const el = node("article", "", "session-phase");
     const heading = node("div", "", "section-heading"); heading.append(node("h3", `${phase.number}. ${phase.name}`), node("span", phase.verdict, `badge ${phase.verdict.includes("troppo") ? "phase-warning" : ""}`));

@@ -48,7 +48,8 @@ def coach(request):
 def refresh_details(body: DetailRequest, request: Request):
     current = coach(request)
     with current.lock:
-        current.details.refresh(body.activity_id)
+        if current.details.activity(body.activity_id).get("source") != "manual":
+            current.details.refresh(body.activity_id)
     return detailed_view(current, body.activity_id)
 
 
@@ -56,6 +57,8 @@ def detailed_view(current, activity_id=None):
     result = current.details.view(current.workout_review(), current.plan(), activity_id)
     status = current.chatgpt.status()
     result["chatgpt"] = status
+    if result["status"] == "ready":
+        result["limitations"] = result.get("context", {}).get("limitations", [])
     if result["status"] == "ready" and status["active"]:
         cached = current.db.get("chatgpt_review:" + result["activity"]["activity_id"])
         if cached and cached.get("context_hash") == result["context_hash"] and cached.get("profile") == status["active"]:

@@ -10,6 +10,7 @@ pytest.importorskip("argon2", reason="Install .[platform] to test account securi
 from platform_database import isolated_database
 from sqlalchemy import func, select
 from test_intake import profile_fixture
+from test_manual_sessions import manual_body
 from test_workout_advice import runs
 
 from app.errors import CoachError
@@ -28,6 +29,7 @@ from app.platform.tables import (
     PlanVersion,
     SchemaRevision,
 )
+from app.session_feedback import ManualSession
 from scripts.create_initial_plan import initial_plan
 
 PASSWORD = "test-only password with enough entropy"
@@ -568,6 +570,30 @@ def test_profile_is_owner_bound_versioned_exported_and_deleted(platform):
     assert client.request("DELETE", "/v1/me", headers=alice["headers"], json={"password": PASSWORD, "confirmed": True}).status_code == 204
     with app.state.store.read_session() as session:
         assert session.get(AthleteProfile, alice["id"]) is None
+
+
+def test_manual_sessions_are_owned_idempotent_exported_and_not_merged_with_devices(platform):
+    client, _, (alice, bob), settings = platform
+    body = manual_body(settings.now(), distance_km=5)
+    assert client.post("/v1/activities/manual", json=body).status_code == 401
+    assert client.post("/v1/activities/manual", headers=alice["headers"], json=body).json()["code"] == "profile_required"
+    client.put("/v1/profile", headers=alice["headers"], json={"expected_version": 0, "profile": profile_fixture()})
+    for _ in range(2):
+        response = client.post("/v1/activities/manual", headers=alice["headers"], json=body)
+        assert response.status_code == 200 and response.json()["unique_workouts"] == 1
+    assert client.get("/v1/activities", headers=bob["headers"]).json()["total"] == 0
+    future_record = ManualSession.model_validate({**body, "duration_min": 120}).record().model_dump(mode="json")
+    assert client.post("/v1/activities/import", headers=alice["headers"], json={"activities": [future_record]}).status_code == 422
+    own = client.get("/v1/activities", headers=alice["headers"]).json()["activities"][0]
+    assert own["evidence_kind"] == "self_reported" and own["feedback"]["perceived_exertion"] == 7
+    device = {**ManualSession.model_validate(body).record().model_dump(mode="json"),
+              "source": "apple_health", "source_activity_id": "synthetic-device", "feedback": None}
+    assert client.post("/v1/activities/import", headers=alice["headers"], json={"activities": [device]}).json()["unique_workouts"] == 2
+    assert client.delete("/v1/activities/manual/" + body["request_id"], headers=bob["headers"]).status_code == 404
+    exported = client.get("/v1/me/export", headers=alice["headers"]).json()["activity_sources"]
+    assert any(item["activity"]["feedback"] for item in exported)
+    assert client.delete("/v1/activities/manual/" + body["request_id"], headers=alice["headers"]).status_code == 204
+    assert client.get("/v1/activities", headers=alice["headers"]).json()["total"] == 1
 
 
 def test_revision_one_migration_preserves_data_and_requires_explicit_initializer(platform):

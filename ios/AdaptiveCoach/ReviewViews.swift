@@ -11,11 +11,18 @@ struct ReviewView: View {
                         if let workout = review.lastWorkout {
                             Text(workout.name).font(.title2.bold())
                             Text("\(workout.date) · \(workout.source)").foregroundStyle(.secondary)
-                            LabeledContent("Distanza", value: String(format: "%.2f km", workout.distanceM / 1000))
+                            LabeledContent("Distanza", value: workout.distanceKnown == false ? "Non indicata" : String(format: "%.2f km", workout.distanceM / 1000))
                             LabeledContent("Durata", value: Metric.duration(workout.durationS))
                             LabeledContent("Passo medio", value: Metric.pace(workout.avgPaceSKm))
                             LabeledContent("FC media", value: workout.avgHr.map { "\(Int($0.rounded())) bpm" } ?? "Non disponibile")
                             LabeledContent("Dislivello positivo", value: workout.elevationGainM.map { "\(Int($0.rounded())) m" } ?? "Non disponibile")
+                            if let feedback = workout.feedback {
+                                Text("Feedback dichiarato dall'atleta; non sono misure dell'orologio.").font(.footnote).foregroundStyle(.secondary)
+                                LabeledContent("Sforzo percepito", value: feedback.perceivedExertion.map { "\($0)/10" } ?? "Non indicato")
+                                LabeledContent("Sensazioni", value: FeedbackText.feeling(feedback.feeling))
+                                LabeledContent("Fastidi/dolore", value: FeedbackText.discomfort(feedback.discomfort))
+                                if !feedback.notes.isEmpty { Text(feedback.notes) }
+                            }
                         } else { Text("Importa i workout da Account per ottenere la prima review.") }
                     }
                     if let match = review.match {

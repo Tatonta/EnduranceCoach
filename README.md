@@ -18,6 +18,8 @@ Dashboard: **http://127.0.0.1:8000/**. API interattiva: **http://127.0.0.1:8000/
 
 Il primo ingresso apre il questionario: obiettivo e scadenza, peso/altezza facoltativi, dispositivo, esperienza, migliori tempi, palestra e disponibilità. Dopo il salvataggio la home è il coach AI, con il contesto personale e il collegamento ChatGPT. Funziona anche senza dispositivo. Il pannello operativo precedente è `/dashboard`; un programma esistente viene conservato. [Onboarding, assistente e API del profilo](docs/COACH_ONBOARDING.md).
 
+La home Coach permette anche di registrare durata, sforzo percepito e sensazioni senza orologio. Il feedback entra nello storico e nella review come dichiarazione, senza inventare metriche misurate né attivare un adattamento prestazionale automatico. È disponibile anche nel client iOS: [registro manuale e contratti](docs/MANUAL_FEEDBACK.md).
+
 Review dell'ultimo workout e consigli pratici: **http://127.0.0.1:8000/review**.
 
 La review dettagliata legge lap, step e campioni Garmin, confronta le fasi con il piano, mostra running dynamics, grafico passo/FC e mappa. Il bottone **Continue with ChatGPT** collega il piano ChatGPT dell’atleta senza chiave API e abilita la review professionale sullo storico. [Funzionamento, disponibilità e verifiche](docs/DETAILED_REVIEW.md).

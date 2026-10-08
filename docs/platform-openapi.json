@@ -423,6 +423,47 @@
         ]
       }
     },
+    "/v1/activities/manual": {
+      "post": {
+        "summary": "Manual Session",
+        "operationId": "manual_session_v1_activities_manual_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualSession"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
     "/v1/activities/{provider}/{provider_id}": {
       "delete": {
         "summary": "Remove Activity",
@@ -783,6 +824,16 @@
             "type": "string",
             "title": "Workout Id",
             "default": ""
+          },
+          "feedback": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SessionFeedback"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "additionalProperties": false,
@@ -910,6 +961,116 @@
         },
         "type": "object",
         "title": "HTTPValidationError"
+      },
+      "ManualSession": {
+        "properties": {
+          "request_id": {
+            "type": "string",
+            "format": "uuid4",
+            "title": "Request Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "sport": {
+            "type": "string",
+            "enum": [
+              "running",
+              "cycling",
+              "strength",
+              "other"
+            ],
+            "title": "Sport"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start Time"
+          },
+          "duration_min": {
+            "type": "number",
+            "maximum": 1440.0,
+            "minimum": 1.0,
+            "title": "Duration Min"
+          },
+          "distance_km": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1500.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Km"
+          },
+          "perceived_exertion": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perceived Exertion"
+          },
+          "feeling": {
+            "type": "string",
+            "enum": [
+              "good",
+              "normal",
+              "fatigued",
+              "very_fatigued"
+            ],
+            "title": "Feeling",
+            "default": "normal"
+          },
+          "discomfort": {
+            "type": "string",
+            "enum": [
+              "none",
+              "present",
+              "prefer_not_to_say"
+            ],
+            "title": "Discomfort",
+            "default": "prefer_not_to_say"
+          },
+          "completed_as_planned": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed As Planned"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1500,
+            "title": "Notes",
+            "default": ""
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "request_id",
+          "name",
+          "sport",
+          "start_time",
+          "duration_min"
+        ],
+        "title": "ManualSession"
       },
       "PaceTarget": {
         "properties": {
@@ -1066,6 +1227,69 @@
           "password"
         ],
         "title": "Registration"
+      },
+      "SessionFeedback": {
+        "properties": {
+          "perceived_exertion": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Perceived Exertion"
+          },
+          "feeling": {
+            "type": "string",
+            "enum": [
+              "good",
+              "normal",
+              "fatigued",
+              "very_fatigued"
+            ],
+            "title": "Feeling",
+            "default": "normal"
+          },
+          "discomfort": {
+            "type": "string",
+            "enum": [
+              "none",
+              "present",
+              "prefer_not_to_say"
+            ],
+            "title": "Discomfort",
+            "default": "prefer_not_to_say"
+          },
+          "completed_as_planned": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed As Planned"
+          },
+          "notes": {
+            "type": "string",
+            "maxLength": 1500,
+            "title": "Notes",
+            "default": ""
+          },
+          "distance_reported": {
+            "type": "boolean",
+            "title": "Distance Reported",
+            "default": false
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "SessionFeedback"
       },
       "Step": {
         "properties": {

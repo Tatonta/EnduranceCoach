@@ -9,6 +9,7 @@ final class CoachStore: ObservableObject {
     @Published private(set) var plan: PlanReply?
     @Published private(set) var profile: ProfileReply?
     @Published private(set) var profileChecked = false
+    @Published private(set) var manualSessions: [ActivityMetrics] = []
     @Published private(set) var vendors: [Vendor] = []
     @Published private(set) var busy = false
     @Published var errorMessage: String?
@@ -96,6 +97,8 @@ final class CoachStore: ObservableObject {
             profile = nil; profileChecked = true
         }
         guard profile != nil else { plan = nil; review = nil; return }
+        let activityList: ActivityList = try await api.request("v1/activities", query: [URLQueryItem(name: "limit", value: "50")])
+        manualSessions = Array(activityList.activities.filter { $0.source == "manual" }.prefix(5))
         do { plan = try await api.request("v1/plan") }
         catch let error as ServiceError where error.code == "plan_required" {
             plan = nil; review = nil
@@ -114,6 +117,11 @@ final class CoachStore: ObservableObject {
         profile = result
         profileChecked = true
         try await refresh()
+    }
+    func saveManualSession(_ value: ManualSessionRequest) async throws {
+        let _: ImportReply = try await api().request("v1/activities/manual", method: "POST", body: Wire.encoder().encode(value))
+        try await refresh()
+        notice = "Feedback salvato nel tuo storico. Durata e sensazioni sono dati dichiarati."
     }
     func previewAdjustment() async throws {
         // Always retrieve fresh evidence before creating a server-owned proposal.
@@ -206,6 +214,7 @@ final class CoachStore: ObservableObject {
     private func clearMemory() {
         identity = nil; client = nil; review = nil; plan = nil; vendors = []
         profile = nil; profileChecked = false
+        manualSessions = []
         healthPreview = []; pendingPlan = nil; invalidateReview(); removeExport()
     }
 }

@@ -22,6 +22,7 @@ from app.platform.schemas import (
 from app.platform.security import AccountService
 from app.platform.service import AthleteService
 from app.platform.store import PlatformStore
+from app.session_feedback import ManualSession
 from app.training_profile import ProfileWrite
 
 bearer = HTTPBearer(auto_error=False)
@@ -186,6 +187,12 @@ def create_platform_app(settings=None, store=None):
     @app.post("/v1/activities/import")
     def import_activities(body: ActivityImport, user: authenticated):
         return athletes.ingest(user["id"], body.activities)
+
+    @app.post("/v1/activities/manual")
+    def manual_session(body: ManualSession, user: authenticated):
+        athletes.profile(user["id"])
+        body.validate_completion(settings.now())
+        return athletes.ingest(user["id"], [body.record()])
 
     @app.delete("/v1/activities/{provider}/{provider_id}", status_code=204)
     def remove_activity(provider: str, provider_id: str, user: authenticated):

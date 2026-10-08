@@ -92,3 +92,11 @@ class Database:
                 )
             ]
         return sorted(items, key=lambda a: a["start_time"], reverse=True)
+
+    def delete_manual_activity(self, activity_id):
+        with self.connection() as db:
+            row = db.execute("SELECT payload FROM activities WHERE user_id=? AND activity_id=?", (self.user_id, activity_id)).fetchone()
+            if not row or json.loads(row[0]).get("source") != "manual":
+                return False
+            db.execute("DELETE FROM activities WHERE user_id=? AND activity_id=?", (self.user_id, activity_id))
+        return True

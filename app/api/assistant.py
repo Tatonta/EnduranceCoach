@@ -84,6 +84,9 @@ def context(coach):
                 "max_hr",
                 "avg_pace_s_km",
                 "elevation_gain_m",
+                "feedback",
+                "evidence_kind",
+                "distance_known",
             )
         }
         for row in rows
@@ -115,6 +118,7 @@ def assistant(request: Request):
         "conversation": saved.get("messages", [])
         if saved.get("profile") == status["active"]
         else [],
+        "manual_sessions": [row for row in coach.db.activities() if row.get("source") == "manual"][:5],
     }
 
 
@@ -136,6 +140,7 @@ def message(body: Message, request: Request):
         "l'esperienza e gli eventuali migliori tempi dichiarati. Considera il carico recente se documentato. "
         "Spiega obiettivi realistici e progressioni pragmatiche senza promettere risultati. "
         "Senza dispositivo usa durata e percezione dello sforzo; non inventare FC, split, soglie, FTP o GPS. "
+        "Le sedute evidence_kind=self_reported sono dichiarate: non scambiare RPE o passo calcolato da stime per misure dell'orologio. "
         "Peso e altezza sono contesto: non trasformare il coaching in una dieta o una diagnosi. "
         "Chiedi le informazioni indispensabili che mancano. Dolore o limitazioni richiedono prudenza, "
         "non prescrizioni mediche. Non interpretare l'assenza di dati come assenza di allenamento. "

@@ -126,6 +126,7 @@ class AthleteService:
         # Deliberately narrow: uncertain similarities must never erase real workouts.
         return (
             left["source"] != right["source"]
+            and "manual" not in {left["source"], right["source"]}
             and left["sport"] == right["sport"]
             and abs(
                 (
@@ -140,7 +141,7 @@ class AthleteService:
 
     def ingest(self, athlete_id, records):
         now = self.settings.now()
-        if any(record.start_time > now for record in records):
+        if any(record.start_time > now or record.source == "manual" and record.start_time + timedelta(seconds=record.elapsed_duration_s) > now for record in records):
             raise CoachError("Future activities cannot be imported", "future_activity", 422)
         identities = [(r.source, r.source_activity_id) for r in records]
         if len(set(identities)) != len(identities):

@@ -44,13 +44,16 @@ final class APIClient {
         if let protocolClasses { config.protocolClasses = protocolClasses }
         session = URLSession(configuration: config, delegate: RejectRedirects(), delegateQueue: nil)
     }
-    func request<T: Decodable>(_ path: String, method: String = "GET", body: Data? = nil) async throws -> T {
-        let data = try await raw(path, method: method, body: body)
+    func request<T: Decodable>(_ path: String, method: String = "GET", body: Data? = nil, query: [URLQueryItem] = []) async throws -> T {
+        let data = try await raw(path, method: method, body: body, query: query)
         if data.isEmpty, T.self == EmptyReply.self { return EmptyReply() as! T }
         return try Wire.decoder().decode(T.self, from: data)
     }
-    func raw(_ path: String, method: String = "GET", body: Data? = nil) async throws -> Data {
-        var request = URLRequest(url: endpoint.appendingPathComponent(path))
+    func raw(_ path: String, method: String = "GET", body: Data? = nil, query: [URLQueryItem] = []) async throws -> Data {
+        var components = URLComponents(url: endpoint.appendingPathComponent(path), resolvingAgainstBaseURL: false)
+        if !query.isEmpty { components?.queryItems = query }
+        guard let url = components?.url else { throw URLError(.badURL) }
+        var request = URLRequest(url: url)
         request.httpMethod = method
         request.httpBody = body
         request.setValue("application/json", forHTTPHeaderField: "Accept")

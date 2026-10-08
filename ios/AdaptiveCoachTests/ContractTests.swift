@@ -92,6 +92,32 @@ final class ContractTests: XCTestCase {
         XCTAssertEqual(uploaded.targetDate, "2027-03-01")
         XCTAssertEqual(uploaded.goalDescription, reply.profile.goalDescription)
     }
+    func testManualSessionKeepsUnknownMetricsAndFeedbackDistinct() throws {
+        let list = try Wire.decoder().decode(ActivityList.self, from: data("manual-activities"))
+        let session = try XCTUnwrap(list.activities.first)
+        XCTAssertEqual(session.source, "manual")
+        XCTAssertEqual(session.evidenceKind, "self_reported")
+        XCTAssertEqual(session.distanceKnown, false)
+        XCTAssertNil(session.avgHr)
+        XCTAssertNil(session.avgPaceSKm)
+        XCTAssertEqual(session.feedback?.perceivedExertion, 7)
+        XCTAssertEqual(FeedbackText.feeling(session.feedback?.feeling ?? ""), "Stanco")
+        let request = ManualSessionRequest(requestId: "00000000-0000-4000-8000-000000000001", name: "Synthetic", sport: "running",
+            startTime: "2026-10-05T18:00:00Z", durationMin: 30, distanceKm: nil, perceivedExertion: 7,
+            feeling: "fatigued", discomfort: "none", completedAsPlanned: false, notes: "Synthetic feedback")
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with: Wire.encoder().encode(request)) as? [String: Any])
+        XCTAssertEqual(body["request_id"] as? String, request.requestId)
+        XCTAssertEqual(body["duration_min"] as? Double, 30)
+        XCTAssertEqual(body["perceived_exertion"] as? Int, 7)
+        XCTAssertNil(body["distance_km"])
+        XCTAssertNil(body["avg_hr"])
+        XCTAssertNil(body["source"])
+    }
+    func testActivityQueryUsesQueryParametersRatherThanEscapedPath() async throws {
+        let api = APIClient(endpoint: try Endpoint.validate("https://coach.example.test"), token: "synthetic-test-only-token", protocolClasses: [FixtureProtocol.self])
+        let list: ActivityList = try await api.request("v1/activities", query: [URLQueryItem(name: "limit", value: "50")])
+        XCTAssertEqual(list.activities.first?.feedback?.perceivedExertion, 7)
+    }
     func testAuthenticatedTransportAndServerConflict() async throws {
         let api = APIClient(endpoint: try Endpoint.validate("https://coach.example.test"), token: "synthetic-test-only-token", protocolClasses: [FixtureProtocol.self])
         let review: WorkoutReview = try await api.request("v1/review/workout")
@@ -115,6 +141,11 @@ private final class FixtureProtocol: URLProtocol {
         let data: Data
         if request.url?.path == "/v1/review/workout" {
             guard let url = Bundle(for: ContractTests.self).url(forResource: "review-improving", withExtension: "json", subdirectory: "Fixtures"), let fixture = try? Data(contentsOf: url) else {
+                client?.urlProtocol(self, didFailWithError: URLError(.fileDoesNotExist)); return
+            }
+            status = 200; data = fixture
+        } else if request.url?.path == "/v1/activities", request.url?.query == "limit=50" {
+            guard let url = Bundle(for: ContractTests.self).url(forResource: "manual-activities", withExtension: "json", subdirectory: "Fixtures"), let fixture = try? Data(contentsOf: url) else {
                 client?.urlProtocol(self, didFailWithError: URLError(.fileDoesNotExist)); return
             }
             status = 200; data = fixture

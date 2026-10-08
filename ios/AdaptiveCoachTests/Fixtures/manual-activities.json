@@ -1,0 +1,15 @@
+{
+  "activities": [{
+    "activity_id": "synthetic-canonical-manual",
+    "source_activity_id": "00000000-0000-4000-8000-000000000001",
+    "name": "Seduta sintetica senza orologio",
+    "sport": "running", "activity_type": "running",
+    "date": "2026-10-05", "start_time": "2026-10-05T18:00:00+02:00",
+    "distance_m": 0, "duration_s": 1800, "elapsed_duration_s": 1800,
+    "avg_pace_s_km": null, "avg_hr": null, "elevation_gain_m": null,
+    "source": "manual", "evidence_kind": "self_reported", "distance_known": false,
+    "feedback": {"perceived_exertion": 7, "feeling": "fatigued", "discomfort": "none",
+                 "completed_as_planned": false, "notes": "Feedback sintetico", "distance_reported": false}
+  }],
+  "total": 1, "next_offset": null
+}

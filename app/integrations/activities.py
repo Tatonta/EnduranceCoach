@@ -6,6 +6,7 @@ from pydantic import Field, ValidationError, model_validator
 
 from app.errors import CoachError
 from app.models import StrictModel
+from app.session_feedback import SessionFeedback
 
 
 class ActivityRecord(StrictModel):
@@ -27,6 +28,7 @@ class ActivityRecord(StrictModel):
     training_load: float | None = Field(default=None, ge=0)
     aerobic_training_effect: float | None = Field(default=None, ge=0, le=5)
     workout_id: str = ""
+    feedback: SessionFeedback | None = None
 
     @model_validator(mode="after")
     def valid_time(self):
@@ -34,6 +36,13 @@ class ActivityRecord(StrictModel):
             raise ValueError("Activity timestamps require a timezone")
         if self.elapsed_duration_s < self.duration_s:
             raise ValueError("Elapsed duration cannot be less than active duration")
+        if self.source == "manual":
+            if self.feedback is None or any(value is not None for value in (self.avg_hr, self.max_hr, self.training_load, self.aerobic_training_effect, self.elevation_gain_m)):
+                raise ValueError("Manual sessions require feedback and cannot claim device measurements")
+            if not self.feedback.distance_reported and (self.distance_m != 0 or self.avg_pace_s_km is not None):
+                raise ValueError("Unknown manual distance cannot produce a pace")
+        elif self.feedback is not None:
+            raise ValueError("This feedback contract is for manually reported sessions")
         return self
 
     def payload(self, timezone):
@@ -47,6 +56,8 @@ class ActivityRecord(StrictModel):
             start_time=stamp.isoformat(),
             date=stamp.date().isoformat(),
         )
+        if self.source == "manual":
+            result.update(evidence_kind="self_reported", distance_known=self.feedback.distance_reported)
         return result
 
 

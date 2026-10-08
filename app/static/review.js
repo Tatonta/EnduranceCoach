@@ -26,12 +26,12 @@ function selectTab(name, focus = false) {
 function render(value) {
   review = value;
   const a = value.last_workout, m = value.match, p = value.program;
-  $("review-updated").textContent = `Dati aggiornati: ${date(value.activities_refreshed_at)}`;
+  $("review-updated").textContent = a?.source === "manual" ? `Feedback dichiarato: ${date(a.date)}` : `Dati aggiornati: ${date(value.activities_refreshed_at)}`;
   $("workout-name").textContent = a?.name || "Nessun workout disponibile";
   $("workout-meta").textContent = a ? `${a.sport.toUpperCase()} · ${date(a.date)} · ${(a.source || "garmin").toUpperCase()}` : "SINCRONIZZA LE ATTIVITÀ PER INIZIARE";
   $("workout-verdict").textContent = value.verdict;
   $("workout-stats").replaceChildren();
-  if (a) [["Distanza", `${number(a.distance_m / 1000)} km`], ["Durata", duration(a.duration_s)], ["Passo", pace(a.avg_pace_s_km)], ["FC media", a.avg_hr ? `${number(a.avg_hr)} bpm` : "—"], ["Dislivello", a.elevation_gain_m == null ? "—" : `+${number(a.elevation_gain_m)} m`]].forEach(([label, text]) => { const el = node("div", ""); el.append(node("small", label), node("strong", text)); $("workout-stats").append(el); });
+  if (a) [["Distanza", a.distance_known === false ? "Non indicata" : `${number(a.distance_m / 1000)} km`], ["Durata", duration(a.duration_s)], ["Passo", pace(a.avg_pace_s_km)], ["FC media", a.avg_hr ? `${number(a.avg_hr)} bpm` : "—"], ["Dislivello", a.elevation_gain_m == null ? "—" : `+${number(a.elevation_gain_m)} m`]].forEach(([label, text]) => { const el = node("div", ""); el.append(node("small", label), node("strong", text)); $("workout-stats").append(el); });
   const statuses = {completed:"Durata compatibile", completed_modified:"Durata modificata", substituted:"Alternativa prevista"};
   $("workout-match").textContent = m ? `${m.planned_name} · previsti ${duration(m.planned_duration_s)} · svolti ${duration(a.duration_s)} · ${statuses[m.status] || m.status}.` : a ? "Nessuna associazione certa con una seduta del piano." : "Premi Aggiorna e valuta per leggere le attività.";
   $("workout-note").textContent = m?.note || (m ? "L'associazione non verifica ogni singolo step." : "");
@@ -52,7 +52,7 @@ function render(value) {
 async function load() { render(await api("/api/review/workout")); }
 $("refresh-review").onclick = async () => {
   if (busy) return; setBusy(true); notice("Lettura delle attività e valutazione…");
-  try { await api("/api/review/run", "POST"); await load(); if (typeof refreshDetailed === "function") await refreshDetailed(true); notice("Review e dettagli della seduta aggiornati."); } catch (error) { notice(error.message, true); } finally { setBusy(false); }
+  try { if (typeof sessionDetail === "undefined" || sessionDetail?.activity?.source !== "manual") await api("/api/review/run", "POST"); await load(); if (typeof refreshDetailed === "function") await refreshDetailed(true); notice("Review e dettagli della seduta aggiornati."); } catch (error) { notice(error.message, true); } finally { setBusy(false); }
 };
 $("adjust-program").onclick = async () => {
   if (busy || !review?.program.eligible) return; setBusy(true);

@@ -57,6 +57,7 @@ These are pilot account flows. Public onboarding still needs verified-email enro
 | `PUT /v1/plan` | Validated plan plus `expected_version`; 0 creates the first plan; stale writers receive 409 |
 | `GET /v1/plan/history` | Own immutable previous plan versions |
 | `POST /v1/activities/import` | Batch of 1–500 canonical `ActivityRecord` objects, explicitly marked `client_import` |
+| `POST /v1/activities/manual` | Own concluded, self-reported session and feedback; requires a saved profile; stable request UUID makes repeated saves idempotent |
 | `GET /v1/activities?limit=50&offset=0` | Own canonical workouts with source references, total and next offset; maximum page size 200 |
 | `DELETE /v1/activities/{provider}/{provider_id}` | Remove only that source record from the signed-in athlete |
 | `GET /v1/review/workout` | Shared review/advice engine, current plan version and interpretation limits |

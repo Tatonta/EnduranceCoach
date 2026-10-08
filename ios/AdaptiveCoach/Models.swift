@@ -63,6 +63,30 @@ struct ActivityMetrics: Decodable {
     let avgHr: Double?
     let elevationGainM: Double?
     let source: String
+    let evidenceKind: String?
+    let distanceKnown: Bool?
+    let feedback: SessionFeedback?
+}
+struct SessionFeedback: Decodable {
+    let perceivedExertion: Int?
+    let feeling: String
+    let discomfort: String
+    let completedAsPlanned: Bool?
+    let notes: String
+}
+struct ActivityList: Decodable { let activities: [ActivityMetrics] }
+struct ManualSessionRequest: Encodable {
+    let requestId: String
+    let name: String
+    let sport: String
+    let startTime: String
+    let durationMin: Double
+    let distanceKm: Double?
+    let perceivedExertion: Int?
+    let feeling: String
+    let discomfort: String
+    let completedAsPlanned: Bool?
+    let notes: String
 }
 struct WorkoutMatch: Decodable {
     let plannedName: String?

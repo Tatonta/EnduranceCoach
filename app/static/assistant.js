@@ -1,12 +1,12 @@
 "use strict";
 const $=id=>document.getElementById(id), days=["Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato","Domenica"];
-let state=null, modelAccount=null, draft=null, busy=false;
+let state=null, modelAccount=null, draft=null, busy=false, manualRequestId=null;
 function el(tag,text,cls){const node=document.createElement(tag);node.textContent=text || "";if(cls)node.className=cls;return node;}
 async function api(path,options={}){const response=await fetch(path,{headers:{"Content-Type":"application/json"},...options});const data=await response.json();if(!response.ok)throw new Error(data.detail || "Operazione non completata.");return data;}
 function error(text){$("coach-error").textContent=text;$("coach-error").hidden=!text;}
 function controls(){const connected=!!state?.chatgpt.profiles.find(p=>p.id===state.chatgpt.active)?.plan_enabled;
   $("send-message").disabled=busy || !connected || !$("model").value;$("create-plan").disabled=busy || !connected || !$("model").value || state?.has_plan;
-  for(const id of ["connect","disconnect","account","model"])$(id).disabled=busy;
+  for(const id of ["connect","disconnect","account","model","open-manual","save-manual","cancel-manual"])$(id).disabled=busy;
 }
 async function load(){state=await api("/api/assistant");if(!state.intake.profile){window.location.assign("/onboarding");return;}
   const p=state.intake.profile;$("coach-goal").textContent=p.goal_description;$("coach-timeline").textContent=p.target_date?`Obiettivo entro ${p.target_date}${p.deadline_flexible?" · scadenza flessibile":""}`:"Scadenza da definire con il coach";
@@ -15,6 +15,7 @@ async function load(){state=await api("/api/assistant");if(!state.intake.profile
   $("device-summary").textContent=p.device_vendor==="none"?"Nessun dispositivo: il coach userà il contesto e i tuoi feedback, con meno dettagli tecnici.":`${p.device_vendor.toUpperCase()} ${p.device_model} · scelta registrata; le connessioni e i dati disponibili sono verificati separatamente.`;
   $("existing-plan").textContent=state.has_plan?"Il tuo programma esiste già. Le proposte di adattamento si trovano nella review, quando il trend le giustifica.":"Il coach può preparare una bozza iniziale dopo il collegamento ChatGPT.";
   $("review-link").hidden=!state.has_plan;
+  $("manual-history").replaceChildren(...state.manual_sessions.map(row=>{const item=el("div",null,"weekly-day");item.append(el("strong",row.name),el("p",`${row.date} · ${row.duration_s/60} min dichiarati · sforzo ${row.feedback.perceived_exertion ?? "—"}/10`,"small"));return item;}));
   $("conversation").replaceChildren(...state.conversation.flatMap(item=>[el("div",item.question,"coach-message question"),el("div",item.answer,"coach-message")]));
   const s=state.chatgpt,active=s.profiles.find(p=>p.id===s.active),connected=!!active?.plan_enabled;
   $("coach-connection").textContent=connected?"ChatGPT collegato · scegli il modello e invia una domanda.":active?.connected?"Account collegato; autorizza anche l'uso del piano ChatGPT.":"Collega il tuo account ChatGPT per parlare con il coach.";
@@ -45,4 +46,10 @@ $("coach-form").addEventListener("submit",event=>{event.preventDefault();operati
 $("create-plan").addEventListener("click",()=>operation(()=>send("initial_plan")));
 $("dismiss-draft").addEventListener("click",()=>{$("draft-dialog").close();draft=null;});
 $("accept-draft").addEventListener("click",()=>operation(async()=>{if(!draft)return;$("accept-draft").disabled=true;try{await api("/api/assistant/plan/apply",{method:"POST",body:JSON.stringify({draft_id:draft.draft_id,confirmed:true})});$("draft-dialog").close();draft=null;await load();$("coach-status").textContent="Programma salvato. Puoi controllarlo in Piano e calendario.";}catch(failure){$("draft-error").textContent=failure.message;}finally{$("accept-draft").disabled=false;}}));
+$("open-manual").addEventListener("click",()=>{manualRequestId=crypto.randomUUID();$("manual-form").reset();const start=new Date(Date.now()-40*60000);const local=new Date(start.getTime()-start.getTimezoneOffset()*60000);$("manual-start").value=local.toISOString().slice(0,16);$("manual-start").max=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16);$("manual-error").textContent="";$("manual-dialog").showModal();});
+$("cancel-manual").addEventListener("click",()=>$("manual-dialog").close());
+$("manual-dialog").addEventListener("cancel",event=>{if(busy)event.preventDefault();});
+$("manual-form").addEventListener("submit",event=>{event.preventDefault();operation(async()=>{const optional=id=>$(id).value===""?null:Number($(id).value);const planned=$("manual-completed").value;
+  try{await api("/api/activities/manual",{method:"POST",body:JSON.stringify({request_id:manualRequestId,name:$("manual-name").value,sport:$("manual-sport").value,start_time:new Date($("manual-start").value).toISOString(),duration_min:Number($("manual-duration").value),distance_km:optional("manual-distance"),perceived_exertion:optional("manual-rpe"),feeling:$("manual-feeling").value,discomfort:$("manual-discomfort").value,completed_as_planned:planned===""?null:planned==="true",notes:$("manual-notes").value})});$("manual-dialog").close();await load();$("coach-status").textContent="Feedback salvato. Il coach lo considererà alla prossima domanda.";}catch(failure){$("manual-error").textContent=failure.message;}
+});});
 operation(load);
