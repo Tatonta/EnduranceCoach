@@ -9,12 +9,14 @@ from app.db import Database
 from app.errors import CoachError
 from app.garmin.client import GarminClient
 from app.integrations.activities import GarminActivitySource, integration_catalog
+from app.services.chatgpt import ChatGPTService
 from app.services.cleanup import CleanupService
 from app.services.climbs import ClimbService
 from app.services.performances import PerformanceService
 from app.services.planner import atomic_json, canonical_hash, load_plan, replace_plan
 from app.services.reviewer import review_latest_workouts
 from app.services.sync import SyncService
+from app.services.workout_details import WorkoutDetailsService
 from app.services.workout_review import adjusted_plan, last_workout_review
 
 
@@ -58,6 +60,8 @@ class Coach:
         self.cleaner = CleanupService(settings, self.db, self.client)
         self.performances = PerformanceService(settings, self.db, self.client)
         self.climbs = ClimbService(settings, self.db, self.client)
+        self.details = WorkoutDetailsService(settings, self.db, self.client)
+        self.chatgpt = ChatGPTService(settings)
         self.scheduler = None
 
     def plan(self):

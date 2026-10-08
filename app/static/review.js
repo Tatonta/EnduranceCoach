@@ -47,11 +47,12 @@ function render(value) {
   $("adjust-program").hidden = !p.eligible;
   $("program-detail").textContent = p.eligible ? "Apri la proposta per vedere esattamente cosa cambierebbe. Puoi mantenere il piano." : "Il cambio verrà proposto solo con un trend persistente e dati sufficienti.";
   $("review-limitations").replaceChildren(...value.limitations.map(text => node("p", text)));
+  if (typeof renderDetailedSummary === "function") renderDetailedSummary();
 }
 async function load() { render(await api("/api/review/workout")); }
 $("refresh-review").onclick = async () => {
   if (busy) return; setBusy(true); notice("Lettura delle attività e valutazione…");
-  try { await api("/api/review/run", "POST"); await load(); notice("Review aggiornata. Apri Consigli pratici per il prossimo passo."); } catch (error) { notice(error.message, true); } finally { setBusy(false); }
+  try { await api("/api/review/run", "POST"); await load(); if (typeof refreshDetailed === "function") await refreshDetailed(true); notice("Review e dettagli della seduta aggiornati."); } catch (error) { notice(error.message, true); } finally { setBusy(false); }
 };
 $("adjust-program").onclick = async () => {
   if (busy || !review?.program.eligible) return; setBusy(true);

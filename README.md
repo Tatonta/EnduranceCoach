@@ -18,6 +18,8 @@ Dashboard: **http://127.0.0.1:8000/**. API interattiva: **http://127.0.0.1:8000/
 
 Review dell'ultimo workout e consigli pratici: **http://127.0.0.1:8000/review**.
 
+La review dettagliata legge lap, step e campioni Garmin, confronta le fasi con il piano, mostra running dynamics, grafico passo/FC e mappa. Il bottone **Continue with ChatGPT** collega il piano ChatGPT dell’atleta senza chiave API e abilita la review professionale sullo storico. [Funzionamento, disponibilità e verifiche](docs/DETAILED_REVIEW.md).
+
 La nuova scheda confronta l'ultima attività con il piano e spiega se mantenerlo. La proposta di adattamento appare solo dopo quattro corse facili comparabili, su almeno sette giorni, con miglioramento continuo ≥6% o rallentamento ≥8%, dati recenti e FC/durata/dislivello compatibili. Sono soglie euristiche: un risultato isolato o dati mancanti non abilitano il cambio. Il popup mostra le modifiche per i prossimi sette giorni; accettarle salva un backup locale e richiede poi test e sync espliciti per Garmin. API: `GET /api/review/workout`, `POST /api/review/adjustment/preview`, `POST /api/review/adjustment/apply`.
 
 È stata introdotta una boundary comune per gli adapter attività (`ActivityRecord` / `ActivitySource`), usata dal refresh Garmin, con unità SI e identità della fonte. `GET /api/integrations` distingue l'adapter locale dalle integrazioni pianificate. L'app resta locale e mono-utente. Architettura proposta, accessi vendor necessari e percorso iOS/App Store: [roadmap produzione](docs/PRODUCTION_ROADMAP.md).

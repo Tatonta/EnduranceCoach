@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import ValidationError
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
-from app.api import activities, calendar, climbs, performances, plan, review
+from app.api import activities, calendar, climbs, performances, plan, review, session_review
 from app.config import ROOT, Settings
 from app.garmin.client import CoachError
 from app.services.coach import Coach
@@ -42,6 +42,8 @@ def create_app(settings=None, client=None):
                     {"detail": "Richiesta da origine esterna bloccata"}, status_code=403
                 )
         response = await call_next(request)
+        if request.url.path.startswith(("/api/session-review", "/api/chatgpt", "/auth/callback")):
+            response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Content-Security-Policy"] = (
             "default-src 'self'; style-src 'self'; script-src 'self'; img-src 'self' data: https://tile.openstreetmap.org; frame-ancestors 'none'; base-uri 'self'"
@@ -69,6 +71,7 @@ def create_app(settings=None, client=None):
         review.router,
         performances.router,
         climbs.router,
+        session_review.router,
     ):
         app.include_router(router)
     app.mount("/static", StaticFiles(directory=ROOT / "app" / "static"), name="static")

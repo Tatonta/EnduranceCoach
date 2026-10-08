@@ -21,7 +21,7 @@ Le versioni PNG con gli stessi nomi sono anteprime. Il [catalogo delle API](api-
 
 I due percorsi **condividono codice di regole**, non database, sessioni o uno stato globale comune. La UI web personale non è ancora un frontend della piattaforma `/v1`. Il blocco “Regole condivise” rappresenta una libreria importata in ciascuna applicazione, non un terzo servizio HTTP.
 
-La review e i consigli attuali sono **deterministici**, basati su dati disponibili e regole Python. Non c'è un servizio LLM/ChatGPT chiamato dal software che decida o modifichi il piano.
+Aggiornamento: il percorso personale locale include ora analisi misurata di lap/campioni e un adapter **ChatGPTService**. Dopo Sign in with ChatGPT e consenso all’uso del piano, ChatGPT formula la review su seduta e storico. Le regole condivise nei disegni restano deterministiche e non fanno chiamate LLM; il modello non modifica direttamente il programma. Vedi [review dettagliata e collegamento account](../DETAILED_REVIEW.md). Questo adapter locale non è ancora un servizio ChatGPT multi-atleta ospitato né un’abilitazione App Store.
 
 ## Layer attuali e responsabilità
 

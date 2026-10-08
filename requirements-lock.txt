@@ -43,3 +43,5 @@ tzlocal==5.4.4
 ua-generator==2.1.6
 urllib3==2.8.0
 uvicorn==0.54.0
+PyJWT==2.15.1
+cryptography==50.0.2
