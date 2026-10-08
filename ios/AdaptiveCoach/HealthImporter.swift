@@ -3,7 +3,8 @@ import HealthKit
 
 @MainActor
 final class HealthImporter {
-    private let store = HKHealthStore()
+    // Do not open a HealthKit connection at launch; wait for the explicit import action.
+    private lazy var store = HKHealthStore()
     private let heart = HKQuantityType(.heartRate)
     private let runningDistance = HKQuantityType(.distanceWalkingRunning)
     private let cyclingDistance = HKQuantityType(.distanceCycling)

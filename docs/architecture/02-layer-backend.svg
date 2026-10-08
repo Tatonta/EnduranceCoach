@@ -1,0 +1,99 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1070" viewBox="0 0 1400 1070" role="img" aria-label="Layer del backend multi-atleta">
+  <title>Layer del backend multi-atleta</title>
+  <desc>Confini logici nello stesso processo Python. L'HTTP separa app iPhone e backend; i servizi dipendono ancora dall'ORM.</desc>
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#526071" />
+    </marker>
+  </defs>
+  <text x="60" y="47" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="500">Layer del backend multi-atleta</text>
+  <text x="60" y="76" fill="#536173" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Confini logici nello stesso processo Python. L'HTTP separa app iPhone e backend; i servizi dipendono ancora dall'ORM.</text>
+  <polyline points="440,220 535,220" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="255,130 255,110 1175,110 1175,130" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="708,265 708,375" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="880,460 1020,460" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="535,495 255,495 255,640" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="708,545 708,640" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="880,715 1020,715" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="255,795 255,865 610,865 610,905" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="780,795 780,905" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="880,990 1020,990" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <rect x="70" y="130" width="370" height="135" rx="10" fill="#edf3ff" stroke="#5972ae" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="86" y="171" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Presentazione e stato iOS</text>
+  <text x="86" y="195" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">SwiftUI Views → CoachStore</text>
+  <text x="86" y="216" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Nessuna decisione autonoma sul piano</text>
+  <text x="86" y="237" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Il bottone segue program.eligible</text>
+  <rect x="535" y="130" width="345" height="135" rx="10" fill="#edf3ff" stroke="#5972ae" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="551" y="171" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Trasporto iOS</text>
+  <text x="551" y="195" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">APIClient · URLSession ephemeral</text>
+  <text x="551" y="216" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">DTO Swift + encoding/decoding JSON</text>
+  <text x="551" y="237" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">HTTPS; redirect respinti</text>
+  <rect x="1020" y="130" width="310" height="135" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="1036" y="160" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Sessione sul dispositivo</text>
+  <text x="1036" y="184" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">SessionVault → Keychain</text>
+  <text x="1036" y="205" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Token opaco legato a</text>
+  <text x="1036" y="226" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">account/origine</text>
+  <text x="1036" y="247" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Password non persistita</text>
+  <rect x="535" y="375" width="345" height="170" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="551" y="423" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">API e identità</text>
+  <text x="551" y="447" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">app/platform/main.py</text>
+  <text x="551" y="468" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">FastAPI routes + middleware</text>
+  <text x="551" y="489" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">HTTPBearer → identity()</text>
+  <text x="551" y="510" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Owner determinato dal server</text>
+  <rect x="1020" y="375" width="310" height="170" rx="10" fill="#f3effb" stroke="#8063aa" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="1036" y="412" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Contratti di ingresso</text>
+  <text x="1036" y="436" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">platform/schemas.py · Pydantic</text>
+  <text x="1036" y="457" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">PlanWrite / ActivityImport</text>
+  <text x="1036" y="478" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">ProposalAcceptance /</text>
+  <text x="1036" y="499" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">AccountDeletion</text>
+  <text x="1036" y="520" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">StrictModel: rifiuta campi extra</text>
+  <rect x="70" y="640" width="370" height="155" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="86" y="680" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Servizio account</text>
+  <text x="86" y="704" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">AccountService · security.py</text>
+  <text x="86" y="725" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Register/login/logout/delete</text>
+  <text x="86" y="746" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Argon2id + digest sessioni + rate limit</text>
+  <text x="86" y="767" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Query SQLAlchemy dirette</text>
+  <rect x="535" y="640" width="345" height="155" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="551" y="680" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Servizio atleta</text>
+  <text x="551" y="704" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">AthleteService · service.py</text>
+  <text x="551" y="725" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Piano, import, dedup, review, proposal</text>
+  <text x="551" y="746" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Scope atleta + versioni + audit</text>
+  <text x="551" y="767" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Query SQLAlchemy dirette</text>
+  <rect x="1020" y="625" width="310" height="185" rx="10" fill="#f3effb" stroke="#8063aa" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="1036" y="659" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Dominio condiviso</text>
+  <text x="1036" y="683" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Plan / Workout / Step /</text>
+  <text x="1036" y="704" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">ActivityRecord</text>
+  <text x="1036" y="725" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">review_latest_workouts()</text>
+  <text x="1036" y="746" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">last_workout_review()</text>
+  <text x="1036" y="767" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">adjusted_plan()</text>
+  <text x="1036" y="788" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Nessun LLM, DB o vendor</text>
+  <rect x="535" y="905" width="345" height="145" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="551" y="940" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Persistenza e transazioni</text>
+  <text x="551" y="964" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">PlatformStore · store.py</text>
+  <text x="551" y="985" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">transaction() / read_session()</text>
+  <text x="551" y="1006" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">lock_athlete() · pool e timeout</text>
+  <text x="551" y="1027" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Non è ancora un repository astratto</text>
+  <rect x="1020" y="905" width="310" height="145" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="1036" y="930" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Schema SQL</text>
+  <text x="1036" y="954" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">tables.py → 8 tabelle ac_*</text>
+  <text x="1036" y="975" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">FK/cascade, indici e chiavi</text>
+  <text x="1036" y="996" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">composte</text>
+  <text x="1036" y="1017" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">PostgreSQL / SQLite</text>
+  <text x="1036" y="1038" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Autorizzazione applicativa, non RLS</text>
+  <rect x="70" y="905" width="370" height="145" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="86" y="951" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Punto di refactoring</text>
+  <text x="86" y="975" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">I servizi conoscono Session e tabelle.</text>
+  <text x="86" y="996" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Estrarre repository/UnitOfWork rende</text>
+  <text x="86" y="1017" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">il dominio e i casi d'uso più isolati.</text>
+  <text x="650.4" y="101" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">read/write sessione</text>
+  <text x="718" y="320.0" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">HTTP JSON /v1/*</text>
+  <text x="912.6" y="451" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">valida body</text>
+  <text x="344.0" y="486" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">auth + identity</text>
+  <text x="718" y="592.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">identity.id</text>
+  <text x="899.0" y="706" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">funzioni Python</text>
+  <text x="381.5" y="856" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">sessioni / SQLA</text>
+  <text x="790" y="850.0" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">ORM + transazione</text>
+  <text x="916.0" y="981" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">driver SQL</text>
+</svg>

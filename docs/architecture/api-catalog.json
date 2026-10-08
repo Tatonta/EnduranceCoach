@@ -1,0 +1,338 @@
+[
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/",
+    "handler": "dashboard",
+    "file": "app/main.py",
+    "line": 102
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/api/activities/recent",
+    "handler": "recent",
+    "file": "app/api/activities.py",
+    "line": 7
+  },
+  {
+    "system": "personal",
+    "method": "POST",
+    "path": "/api/activities/refresh",
+    "handler": "refresh",
+    "file": "app/api/activities.py",
+    "line": 16
+  },
+  {
+    "system": "personal",
+    "method": "POST",
+    "path": "/api/calendar/cleanup/apply",
+    "handler": "apply",
+    "file": "app/api/calendar.py",
+    "line": 18
+  },
+  {
+    "system": "personal",
+    "method": "POST",
+    "path": "/api/calendar/cleanup/preview",
+    "handler": "preview",
+    "file": "app/api/calendar.py",
+    "line": 13
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/api/climbs",
+    "handler": "latest",
+    "file": "app/api/climbs.py",
+    "line": 7
+  },
+  {
+    "system": "personal",
+    "method": "POST",
+    "path": "/api/climbs/refresh",
+    "handler": "refresh",
+    "file": "app/api/climbs.py",
+    "line": 12
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/api/dashboard/summary",
+    "handler": "summary",
+    "file": "app/main.py",
+    "line": 90
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/api/health",
+    "handler": "health",
+    "file": "app/main.py",
+    "line": 78
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/api/integrations",
+    "handler": "integrations",
+    "file": "app/main.py",
+    "line": 94
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/api/performances",
+    "handler": "latest",
+    "file": "app/api/performances.py",
+    "line": 7
+  },
+  {
+    "system": "personal",
+    "method": "POST",
+    "path": "/api/performances/refresh",
+    "handler": "refresh",
+    "file": "app/api/performances.py",
+    "line": 12
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/api/plan",
+    "handler": "get_plan",
+    "file": "app/api/plan.py",
+    "line": 18
+  },
+  {
+    "system": "personal",
+    "method": "PUT",
+    "path": "/api/plan",
+    "handler": "put_plan",
+    "file": "app/api/plan.py",
+    "line": 23
+  },
+  {
+    "system": "personal",
+    "method": "POST",
+    "path": "/api/plan/sync",
+    "handler": "sync",
+    "file": "app/api/plan.py",
+    "line": 33
+  },
+  {
+    "system": "personal",
+    "method": "POST",
+    "path": "/api/plan/test",
+    "handler": "test_workout",
+    "file": "app/api/plan.py",
+    "line": 28
+  },
+  {
+    "system": "personal",
+    "method": "POST",
+    "path": "/api/review/adjustment/apply",
+    "handler": "apply_adjustment",
+    "file": "app/api/review.py",
+    "line": 26
+  },
+  {
+    "system": "personal",
+    "method": "POST",
+    "path": "/api/review/adjustment/preview",
+    "handler": "preview_adjustment",
+    "file": "app/api/review.py",
+    "line": 21
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/api/review/latest",
+    "handler": "latest",
+    "file": "app/api/review.py",
+    "line": 31
+  },
+  {
+    "system": "personal",
+    "method": "POST",
+    "path": "/api/review/run",
+    "handler": "run_review",
+    "file": "app/api/review.py",
+    "line": 39
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/api/review/workout",
+    "handler": "workout",
+    "file": "app/api/review.py",
+    "line": 16
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/climbs",
+    "handler": "cycling_climbs",
+    "file": "app/main.py",
+    "line": 110
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/performances",
+    "handler": "best_performances",
+    "file": "app/main.py",
+    "line": 106
+  },
+  {
+    "system": "personal",
+    "method": "GET",
+    "path": "/review",
+    "handler": "workout_review_page",
+    "file": "app/main.py",
+    "line": 98
+  },
+  {
+    "system": "platform",
+    "method": "GET",
+    "path": "/health",
+    "handler": "health",
+    "file": "app/platform/main.py",
+    "line": 123
+  },
+  {
+    "system": "platform",
+    "method": "GET",
+    "path": "/v1/activities",
+    "handler": "activities",
+    "file": "app/platform/main.py",
+    "line": 170
+  },
+  {
+    "system": "platform",
+    "method": "POST",
+    "path": "/v1/activities/import",
+    "handler": "import_activities",
+    "file": "app/platform/main.py",
+    "line": 178
+  },
+  {
+    "system": "platform",
+    "method": "DELETE",
+    "path": "/v1/activities/{provider}/{provider_id}",
+    "handler": "remove_activity",
+    "file": "app/platform/main.py",
+    "line": 182
+  },
+  {
+    "system": "platform",
+    "method": "POST",
+    "path": "/v1/auth/login",
+    "handler": "login",
+    "file": "app/platform/main.py",
+    "line": 134
+  },
+  {
+    "system": "platform",
+    "method": "POST",
+    "path": "/v1/auth/logout",
+    "handler": "logout",
+    "file": "app/platform/main.py",
+    "line": 138
+  },
+  {
+    "system": "platform",
+    "method": "POST",
+    "path": "/v1/auth/register",
+    "handler": "register",
+    "file": "app/platform/main.py",
+    "line": 128
+  },
+  {
+    "system": "platform",
+    "method": "GET",
+    "path": "/v1/integrations",
+    "handler": "integrations",
+    "file": "app/platform/main.py",
+    "line": 199
+  },
+  {
+    "system": "platform",
+    "method": "DELETE",
+    "path": "/v1/me",
+    "handler": "delete_account",
+    "file": "app/platform/main.py",
+    "line": 147
+  },
+  {
+    "system": "platform",
+    "method": "GET",
+    "path": "/v1/me",
+    "handler": "me",
+    "file": "app/platform/main.py",
+    "line": 143
+  },
+  {
+    "system": "platform",
+    "method": "GET",
+    "path": "/v1/me/export",
+    "handler": "export",
+    "file": "app/platform/main.py",
+    "line": 154
+  },
+  {
+    "system": "platform",
+    "method": "GET",
+    "path": "/v1/openapi.json",
+    "handler": "schema",
+    "file": "app/platform/main.py",
+    "line": 207
+  },
+  {
+    "system": "platform",
+    "method": "GET",
+    "path": "/v1/plan",
+    "handler": "get_plan",
+    "file": "app/platform/main.py",
+    "line": 158
+  },
+  {
+    "system": "platform",
+    "method": "PUT",
+    "path": "/v1/plan",
+    "handler": "put_plan",
+    "file": "app/platform/main.py",
+    "line": 162
+  },
+  {
+    "system": "platform",
+    "method": "GET",
+    "path": "/v1/plan/history",
+    "handler": "history",
+    "file": "app/platform/main.py",
+    "line": 166
+  },
+  {
+    "system": "platform",
+    "method": "POST",
+    "path": "/v1/review/adjustments/preview",
+    "handler": "preview",
+    "file": "app/platform/main.py",
+    "line": 191
+  },
+  {
+    "system": "platform",
+    "method": "POST",
+    "path": "/v1/review/adjustments/{proposal_id}/apply",
+    "handler": "apply",
+    "file": "app/platform/main.py",
+    "line": 195
+  },
+  {
+    "system": "platform",
+    "method": "GET",
+    "path": "/v1/review/workout",
+    "handler": "workout_review",
+    "file": "app/platform/main.py",
+    "line": 187
+  }
+]

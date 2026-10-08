@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="990" viewBox="0 0 1400 990" role="img" aria-label="Confini operativi e dati">
+  <title>Confini operativi e dati</title>
+  <desc>Il container e lo stack privato sono predisposti nel working tree. HTTPS pubblico, dominio e hosting non sono configurati.</desc>
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#526071" />
+    </marker>
+  </defs>
+  <text x="60" y="47" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="500">Confini operativi e dati</text>
+  <text x="60" y="76" fill="#536173" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Il container e lo stack privato sono predisposti nel working tree. HTTPS pubblico, dominio e hosting non sono configurati.</text>
+  <polyline points="445,190 555,190" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="750,265 750,400" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="945,500 1030,500" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="750,565 750,710" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="445,790 555,790" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <rect x="65" y="130" width="380" height="135" rx="10" fill="#edf3ff" stroke="#5972ae" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="81" y="171" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Dispositivo iPhone</text>
+  <text x="81" y="195" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">UI + HealthKit + Keychain</text>
+  <text x="81" y="216" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Dati di workout in memoria</text>
+  <text x="81" y="237" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Upload solo dopo consenso</text>
+  <rect x="555" y="130" width="390" height="135" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="571" y="171" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Ingresso pubblico HTTPS</text>
+  <text x="571" y="195" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Reverse proxy / certificato / dominio</text>
+  <text x="571" y="216" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Allowed hosts e proxy espliciti</text>
+  <text x="571" y="237" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">NON ancora configurato</text>
+  <rect x="555" y="400" width="390" height="165" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="571" y="445" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Container API privato</text>
+  <text x="571" y="469" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">app.platform.host → 2 worker</text>
+  <text x="571" y="490" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">UID 10001; root FS read-only</text>
+  <text x="571" y="511" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">127.0.0.1:8001 nello stack pilot</text>
+  <text x="571" y="532" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Pool/timeout; niente dati personali nel build</text>
+  <rect x="1030" y="400" width="305" height="165" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="1046" y="456" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Configurazione e segreti</text>
+  <text x="1046" y="480" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">DATABASE_URL_FILE montato</text>
+  <text x="1046" y="501" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Credenziali DB fuori da Git</text>
+  <text x="1046" y="522" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Nessun token vendor ancora gestito</text>
+  <rect x="555" y="710" width="390" height="165" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="571" y="745" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">PostgreSQL condiviso</text>
+  <text x="571" y="769" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Archivio multi-atleta / indici / FK</text>
+  <text x="571" y="790" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Lock atleta: scritture su stesso account</text>
+  <text x="571" y="811" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">serializzate</text>
+  <text x="571" y="832" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Snapshot coerenti per le letture</text>
+  <text x="571" y="853" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Nessuna porta host pubblicata nel pilot</text>
+  <rect x="65" y="710" width="380" height="165" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="81" y="766" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Inizializzatore separato</text>
+  <text x="81" y="790" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">app.platform.cli init-db</text>
+  <text x="81" y="811" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Schema revision 1; nessun upgrade implicito</text>
+  <text x="81" y="832" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Prima dell'avvio dei worker</text>
+  <rect x="1030" y="710" width="305" height="165" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="1046" y="745" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Da completare per produzione</text>
+  <text x="1046" y="769" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Hosting/TLS; migrazioni evolutive</text>
+  <text x="1046" y="790" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Email verification/recovery</text>
+  <text x="1046" y="811" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">OAuth cifrato e job durevoli</text>
+  <text x="1046" y="832" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Backup/restore, monitoraggio e test</text>
+  <text x="1046" y="853" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">device</text>
+  <text x="760" y="332.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">proxy fidato</text>
+  <text x="760" y="637.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">SQL/psycopg</text>
+</svg>

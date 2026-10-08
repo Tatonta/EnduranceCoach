@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1320" viewBox="0 0 1400 1320" role="img" aria-label="Flusso: review → proposta → conferma">
+  <title>Flusso: review → proposta → conferma</title>
+  <desc>La UI visualizza; il server decide e ricontrolla. Nessuna modifica automatica e nessun invio al watch in questo backend.</desc>
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#526071" />
+    </marker>
+  </defs>
+  <text x="60" y="47" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="500">Flusso: review → proposta → conferma</text>
+  <text x="60" y="76" fill="#536173" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">La UI visualizza; il server decide e ricontrolla. Nessuna modifica automatica e nessun invio al watch in questo backend.</text>
+  <polyline points="710,220 710,290" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="380,355 185,355 185,465" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="710,420 710,495" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="710,605 710,680" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="710,790 710,865" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="710,970 710,1045" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="1040,1110 1080,1110" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="710,1175 710,1210" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <rect x="380" y="115" width="660" height="105" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="396" y="151" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">1 · Leggi l'ultima review</text>
+  <text x="396" y="175" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">GET /v1/review/workout</text>
+  <text x="396" y="196" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Piano + attività + regole → advice e program.eligible</text>
+  <rect x="380" y="290" width="660" height="130" rx="10" fill="#f3effb" stroke="#8063aa" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="396" y="328" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">2 · Trend realmente idoneo?</text>
+  <text x="396" y="352" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">4 corse facili comparabili su almeno 7 giorni; dati recenti</text>
+  <text x="396" y="373" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Progresso ≥6% oppure rallentamento ≥8%; soglie euristiche</text>
+  <text x="396" y="394" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Ogni passaggio ≥1%; FC, durata e terreno simili</text>
+  <rect x="50" y="465" width="270" height="130" rx="10" fill="#f6f7f9" stroke="#9da7b4" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="66" y="491" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">NO · Mantieni il</text>
+  <text x="66" y="515" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">programma</text>
+  <text x="66" y="539" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Nessun bottone di adattamento</text>
+  <text x="66" y="560" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Consigli pragmatici e limiti</text>
+  <text x="66" y="581" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">dei dati</text>
+  <rect x="380" y="495" width="660" height="110" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="396" y="534" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">3 · Chiedi un'anteprima</text>
+  <text x="396" y="558" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">POST /v1/review/adjustments/preview</text>
+  <text x="396" y="579" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Salva proposta con owner, base_version, evidence_hash e scadenza 10 min</text>
+  <rect x="380" y="680" width="660" height="110" rx="10" fill="#edf3ff" stroke="#5972ae" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="396" y="719" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">4 · Mostra le modifiche e chiedi conferma</text>
+  <text x="396" y="743" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Sheet SwiftUI: sedute, step, durate e ripetizioni esatte</text>
+  <text x="396" y="764" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Annullare non cambia il piano; nessuna apertura automatica</text>
+  <rect x="380" y="865" width="660" height="105" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="396" y="901" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">5 · Accetta esplicitamente</text>
+  <text x="396" y="925" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">POST /v1/review/adjustments/{proposal_id}/apply</text>
+  <text x="396" y="946" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Body: expected_version + confirmed=true</text>
+  <rect x="380" y="1045" width="660" height="130" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="396" y="1083" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">6 · Verifica e applica nella stessa transazione</text>
+  <text x="396" y="1107" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">lock_athlete → verifica owner, scadenza, versione, hash e idoneità</text>
+  <text x="396" y="1128" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">PlanVersion + last_adjustment + audit + proposta consumata</text>
+  <text x="396" y="1149" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">COMMIT completo oppure ROLLBACK completo</text>
+  <rect x="1080" y="1045" width="280" height="130" rx="10" fill="#f6f7f9" stroke="#9da7b4" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="1096" y="1071" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">409 · Proposta non più</text>
+  <text x="1096" y="1095" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">valida</text>
+  <text x="1096" y="1119" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Dati/piano cambiati o scadenza</text>
+  <text x="1096" y="1140" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Aggiorna e genera nuova</text>
+  <text x="1096" y="1161" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">anteprima</text>
+  <rect x="380" y="1210" width="660" height="90" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="396" y="1239" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">7 · Ricarica piano e review</text>
+  <text x="396" y="1263" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Nuova versione; evidenze consumate non riutilizzabili</text>
+  <text x="396" y="1284" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">vendor_sync = not_implemented</text>
+  <text x="720" y="255.0" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">calcolo server</text>
+  <text x="275.7" y="346" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">NO</text>
+  <text x="720" y="457.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">SÌ + click utente</text>
+  <text x="720" y="642.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">JSON proposta</text>
+  <text x="720" y="827.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">conferma utente</text>
+  <text x="720" y="1007.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">request autenticata</text>
+  <text x="720" y="1192.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">successo</text>
+</svg>

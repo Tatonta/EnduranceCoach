@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="1080" viewBox="0 0 1400 1080" role="img" aria-label="Refactoring proposto: porte e adapter">
+  <title>Refactoring proposto: porte e adapter</title>
+  <desc>PROPOSTA, NON IMPLEMENTATA. Mantiene un backend modulare unico; separa i casi d'uso dall'ORM e dai vendor.</desc>
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#526071" />
+    </marker>
+  </defs>
+  <text x="60" y="47" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="500">Refactoring proposto: porte e adapter</text>
+  <text x="60" y="76" fill="#536173" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">PROPOSTA, NON IMPLEMENTATA. Mantiene un backend modulare unico; separa i casi d'uso dall'ORM e dai vendor.</text>
+  <polyline points="705,230 705,325" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="410,430 245,430 245,570" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="770,475 770,570" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="640,840 640,725" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <polyline points="1125,840 1125,770 945,770 945,725" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="7 5" marker-end="url(#arrow)" />
+  <rect x="410" y="125" width="590" height="105" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="426" y="161" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Adapter d'ingresso</text>
+  <text x="426" y="185" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">FastAPI /v1 + DTO request/response</text>
+  <text x="426" y="206" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Web, iOS e worker richiamano gli stessi casi d'uso</text>
+  <rect x="410" y="325" width="590" height="150" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="426" y="363" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Casi d'uso applicativi</text>
+  <text x="426" y="387" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">ImportActivities · GetWorkoutReview</text>
+  <text x="426" y="408" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">PreviewAdjustment · ApplyAdjustment</text>
+  <text x="426" y="429" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">AccountActions · contesto atleta autenticato</text>
+  <text x="426" y="450" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Dipendono da porte, non da Session/tabelle</text>
+  <rect x="60" y="570" width="370" height="135" rx="10" fill="#f3effb" stroke="#8063aa" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="76" y="611" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Dominio da mantenere</text>
+  <text x="76" y="635" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Regole deterministiche e test già presenti</text>
+  <text x="76" y="656" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Plan / Activity / Evidence / Adjustment</text>
+  <text x="76" y="677" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Nessun HTTP, ORM o SDK vendor</text>
+  <rect x="540" y="570" width="460" height="155" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="556" y="610" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Porte da estrarre</text>
+  <text x="556" y="634" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">PlanRepository / ActivityRepository</text>
+  <text x="556" y="655" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">ProposalRepository / AuditRepository</text>
+  <text x="556" y="676" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">UnitOfWork / Clock / SessionStore</text>
+  <text x="556" y="697" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">ActivitySource separato da WorkoutPublisher</text>
+  <rect x="410" y="840" width="460" height="150" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="426" y="888" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Adapter di persistenza</text>
+  <text x="426" y="912" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">SQLAlchemy → PostgreSQL / SQLite</text>
+  <text x="426" y="933" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Query, sessioni, lock e commit qui</text>
+  <text x="426" y="954" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Test dei casi d'uso con adapter in memoria</text>
+  <rect x="940" y="840" width="395" height="150" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="956" y="888" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Adapter e job vendor</text>
+  <text x="956" y="912" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Uno per vendor, solo dopo accesso approvato</text>
+  <text x="956" y="933" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Token cifrati, OAuth, webhook, retry/cursori</text>
+  <text x="956" y="954" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Import e pubblicazione sono capacità distinte</text>
+  <rect x="1060" y="340" width="275" height="220" rx="10" fill="#f6f7f9" stroke="#9da7b4" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="1076" y="392" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Ordine suggerito</text>
+  <text x="1076" y="416" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">1. Repository + UnitOfWork</text>
+  <text x="1076" y="437" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">2. DTO di risposta tipizzati</text>
+  <text x="1076" y="458" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">3. Separare</text>
+  <text x="1076" y="479" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">import/review/adattamento</text>
+  <text x="1076" y="500" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">4. OAuth/job vendor e ciclo</text>
+  <text x="1076" y="521" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">account pubblico</text>
+  <text x="715" y="277.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">invoca</text>
+  <text x="290.1" y="421" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">regole pure</text>
+  <text x="780" y="522.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">interfacce</text>
+  <text x="650" y="782.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">implementa le porte</text>
+</svg>

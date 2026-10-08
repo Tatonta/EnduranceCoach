@@ -1,0 +1,73 @@
+name: endurance-coach-pilot
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: coach
+      POSTGRES_DB: endurance_coach
+      POSTGRES_PASSWORD_FILE: /run/secrets/database_password
+    secrets: [database_password]
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    networks: [backend]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U coach -d endurance_coach"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+    shm_size: 128mb
+  migrate:
+    image: endurance-coach-platform:local
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    command: [python, -m, app.platform.cli, init-db]
+    environment:
+      COACH_PLATFORM_DATABASE_URL_FILE: /run/secrets/database_url
+    secrets: [database_url]
+    networks: [backend]
+    depends_on:
+      db: {condition: service_healthy}
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  api:
+    image: endurance-coach-platform:local
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    environment:
+      COACH_PLATFORM_DATABASE_URL_FILE: /run/secrets/database_url
+      COACH_PLATFORM_ALLOWED_HOSTS: localhost,127.0.0.1
+      # Explicitly private HTTP pilot; do not expose this configuration publicly.
+      COACH_PLATFORM_REQUIRE_HTTPS: "false"
+      COACH_PLATFORM_REGISTRATION: "${COACH_PILOT_REGISTRATION:-false}"
+      COACH_PLATFORM_WORKERS: "2"
+    secrets: [database_url]
+    ports: ["127.0.0.1:8001:8001"]
+    networks: [backend]
+    depends_on:
+      db: {condition: service_healthy}
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=5)"]
+      interval: 15s
+      timeout: 6s
+      retries: 3
+      start_period: 15s
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+secrets:
+  database_password:
+    file: ../data/deployment/postgres-password.txt
+  database_url:
+    file: ../data/deployment/database-url.txt
+volumes:
+  postgres_data:
+networks:
+  backend:
+    internal: true

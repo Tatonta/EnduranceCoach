@@ -1,0 +1,73 @@
+name: Backend SQLite, PostgreSQL and container verification
+on:
+  pull_request:
+    paths: ["app/**", "tests/**", "scripts/**", "deploy/**", "requirements*.txt", "pyproject.toml", ".dockerignore", ".github/workflows/backend.yml"]
+  push:
+    paths: ["app/**", "tests/**", "scripts/**", "deploy/**", "requirements*.txt", "pyproject.toml", ".dockerignore", ".github/workflows/backend.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sqlite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.14"}
+      - run: python -m pip install -e ".[dev,platform]" -c requirements-lock.txt -c requirements-platform-lock.txt
+      - run: python -m pytest -q
+      - run: python -m ruff check app tests scripts run.py
+  postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.14"}
+      - run: python -m pip install -e ".[dev,platform]" -c requirements-lock.txt -c requirements-platform-lock.txt
+      - name: Start an isolated PostgreSQL server
+        run: |
+          python - <<'PY'
+          import os, secrets, subprocess
+          from pathlib import Path
+          password = secrets.token_urlsafe(40)
+          print("::add-mask::" + password)
+          subprocess.run(["docker", "run", "-d", "--name", "coach-test-postgres", "-p", "127.0.0.1:55432:5432", "-e", "POSTGRES_USER=coach_verify", "-e", "POSTGRES_PASSWORD", "postgres:17"], env={**os.environ, "POSTGRES_PASSWORD": password}, check=True)
+          path = Path(os.environ["RUNNER_TEMP"]) / "test-database-url.txt"
+          path.write_text("postgresql+psycopg://coach_verify:" + password + "@127.0.0.1:55432/postgres\n")
+          with open(os.environ["GITHUB_ENV"], "a") as stream:
+              stream.write("COACH_TEST_POSTGRES_URL_FILE=" + str(path) + "\n")
+          PY
+          for attempt in $(seq 1 30); do
+            if docker exec coach-test-postgres pg_isready -U coach_verify -d postgres; then exit 0; fi
+            sleep 2
+          done
+          exit 1
+      - run: python -m pytest tests/test_platform.py tests/test_platform_config.py -q
+      - name: Stop only the disposable test server
+        if: always()
+        run: docker rm -f coach-test-postgres
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.14"}
+      - name: Prepare a private pilot
+        run: python -m scripts.prepare_private_pilot
+      - name: Build and start the backend-only container stack
+        env: {COACH_PILOT_REGISTRATION: "true"}
+        run: docker compose -f deploy/compose.yml up --build -d api
+      - name: Verify native-client API flows
+        run: python -m scripts.platform_smoke
+      - name: Verify the image excludes personal modules and runs as a non-root user
+        run: |
+          docker compose -f deploy/compose.yml exec -T api python -c "import os; from pathlib import Path; assert os.getuid() == 10001; assert not Path('app/config.py').exists(); assert not Path('app/garmin').exists(); assert not Path('app/assets').exists(); assert not Path('data').exists(); assert not Path('.env').exists(); print('Backend-only image boundaries verified')"
+      - name: Keep operational diagnostics
+        if: failure()
+        run: docker compose -f deploy/compose.yml logs --no-color --tail 80
+      - name: Stop only the disposable pilot
+        if: always()
+        run: docker compose -f deploy/compose.yml down --volumes

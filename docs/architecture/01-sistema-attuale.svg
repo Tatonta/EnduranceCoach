@@ -1,0 +1,88 @@
+<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="1090" viewBox="0 0 1260 1090" role="img" aria-label="Sistema attuale: due percorsi separati">
+  <title>Sistema attuale: due percorsi separati</title>
+  <desc>Frecce = chiamate; verde/blu/viola = codice presente; tratteggio = parte futura. Nessun hosting pubblico.</desc>
+  <rect width="100%" height="100%" fill="#ffffff" />
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#526071" />
+    </marker>
+  </defs>
+  <text x="60" y="47" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="27" font-weight="500">Sistema attuale: due percorsi separati</text>
+  <text x="60" y="76" fill="#536173" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Frecce = chiamate; verde/blu/viola = codice presente; tratteggio = parte futura. Nessun hosting pubblico.</text>
+  <polyline points="240,220 240,270" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="240,405 240,500" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="995,405 995,500" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="410,560 475,560" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="825,610 760,610" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="240,660 240,775" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="995,660 995,775" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <polyline points="1165,580 1200,580 1200,1025 1165,1025" fill="none" stroke="#526071" stroke-width="1.7" stroke-dasharray="none" marker-end="url(#arrow)" />
+  <rect x="70" y="110" width="340" height="110" rx="10" fill="#edf3ff" stroke="#5972ae" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="86" y="138" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Apple Health sul telefono</text>
+  <text x="86" y="162" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">SDK HealthKit • sola lettura</text>
+  <text x="86" y="183" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Dati effettivamente disponibili e</text>
+  <text x="86" y="204" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">autorizzati</text>
+  <rect x="70" y="270" width="340" height="135" rx="10" fill="#edf3ff" stroke="#5972ae" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="86" y="300" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">App iPhone · SwiftUI</text>
+  <text x="86" y="324" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Review / Consigli / Piano / Account</text>
+  <text x="86" y="345" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">CoachStore + APIClient + SessionVault</text>
+  <text x="86" y="366" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">HealthImporter: anteprima + consenso</text>
+  <text x="86" y="387" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">invio</text>
+  <rect x="825" y="270" width="340" height="135" rx="10" fill="#edf3ff" stroke="#5972ae" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="841" y="311" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Browser locale + CLI</text>
+  <text x="841" y="335" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">HTML/Jinja2 + JavaScript</text>
+  <text x="841" y="356" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">app/templates, app/static, app/cli.py</text>
+  <text x="841" y="377" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Questa UI NON usa il backend /v1</text>
+  <rect x="70" y="500" width="340" height="160" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="86" y="543" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Backend multi-atleta</text>
+  <text x="86" y="567" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">FastAPI · app/platform/main.py</text>
+  <text x="86" y="588" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">API /v1/* · autenticazione Bearer</text>
+  <text x="86" y="609" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">AccountService / AthleteService</text>
+  <text x="86" y="630" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Nessuna connessione diretta ai vendor</text>
+  <rect x="825" y="500" width="340" height="160" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="841" y="543" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">App Garmin personale</text>
+  <text x="841" y="567" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">FastAPI · app/main.py · API /api/*</text>
+  <text x="841" y="588" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Coach: review, refresh, sync, cleanup</text>
+  <text x="841" y="609" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">APScheduler + lock su file</text>
+  <text x="841" y="630" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Uso locale mono-atleta, senza login web</text>
+  <rect x="475" y="500" width="285" height="210" rx="10" fill="#f3effb" stroke="#8063aa" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="491" y="536" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Regole condivise</text>
+  <text x="491" y="560" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">models.py + ActivityRecord</text>
+  <text x="491" y="581" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">reviewer.py</text>
+  <text x="491" y="602" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">workout_review.py</text>
+  <text x="491" y="623" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Regole deterministiche; nessun</text>
+  <text x="491" y="644" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">LLM</text>
+  <text x="491" y="665" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">È una libreria, non un terzo</text>
+  <text x="491" y="686" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">server</text>
+  <rect x="70" y="775" width="340" height="150" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="86" y="813" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Archivio della piattaforma</text>
+  <text x="86" y="837" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">PlatformStore → SQLAlchemy</text>
+  <text x="86" y="858" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">PostgreSQL per hosting; SQLite nei test</text>
+  <text x="86" y="879" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Account, piani versionati, attività</text>
+  <text x="86" y="900" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Proposte, sessioni e audit per atleta</text>
+  <rect x="825" y="775" width="340" height="150" rx="10" fill="#f1f6e9" stroke="#718544" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="841" y="813" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Archivio personale separato</text>
+  <text x="841" y="837" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">data/coach.sqlite3 + workouts.json</text>
+  <text x="841" y="858" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Cache, snapshot e prove di sync</text>
+  <text x="841" y="879" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Sessioni Garmin fuori dal repository</text>
+  <text x="841" y="900" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Non viene importato nella piattaforma</text>
+  <rect x="70" y="980" width="690" height="110" rx="10" fill="#fff5e5" stroke="#a77d35" stroke-width="1.2" stroke-dasharray="7 5" />
+  <text x="86" y="1008" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Integrazioni ancora da implementare</text>
+  <text x="86" y="1032" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">COROS · Suunto · Fitbit/Google Health · Amazfit · Xiaomi</text>
+  <text x="86" y="1053" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">OAuth approvato, token cifrati, worker/webhook, export workout</text>
+  <text x="86" y="1074" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Apple Health è un ponte locale, non un'API diretta del vendor</text>
+  <rect x="825" y="980" width="340" height="110" rx="10" fill="#eff8f7" stroke="#497d76" stroke-width="1.2" stroke-dasharray="none" />
+  <text x="841" y="1008" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="500">Garmin Connect personale</text>
+  <text x="841" y="1032" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">GarminClient / python-garminconnect</text>
+  <text x="841" y="1053" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">Lettura attività + upload/schedule</text>
+  <text x="841" y="1074" fill="#17212f" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="400">locali</text>
+  <text x="250" y="245.0" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">SDK locale</text>
+  <text x="250" y="452.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">HTTPS · JSON · Bearer</text>
+  <text x="733.4" y="452.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">HTTP localhost:8000 / chiamate CLI</text>
+  <text x="422.1" y="551" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">Python</text>
+  <text x="772.1" y="601" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">Python</text>
+  <text x="250" y="717.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">SQL/ORM</text>
+  <text x="1005" y="717.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">SQL + file locali</text>
+  <text x="1108.6" y="802.5" fill="#435168" font-family="Segoe UI, Arial, sans-serif" font-size="14" font-weight="400">HTTPS cloud</text>
+</svg>

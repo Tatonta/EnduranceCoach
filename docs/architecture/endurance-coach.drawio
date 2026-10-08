@@ -1,0 +1,362 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" agent="EnduranceCoach architecture generator" version="24.7.17" type="device" compressed="false">
+  <diagram id="01-sistema-attuale" name="Sistema attuale: due percorsi separati">
+    <mxGraphModel dx="1260" dy="1090" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1260" pageHeight="1090">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Sistema attuale: due percorsi separati&lt;br&gt;&lt;font size='3'&gt;Frecce = chiamate; verde/blu/viola = codice presente; tratteggio = parte futura. Nessun hosting pubblico.&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=0;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="20" width="1140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="health" value="&lt;b&gt;Apple Health sul telefono&lt;/b&gt;&lt;br&gt;SDK HealthKit • sola lettura&lt;br&gt;Dati effettivamente disponibili e autorizzati" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#edf3ff;strokeColor=#5972ae;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="110" width="340" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="ios" value="&lt;b&gt;App iPhone · SwiftUI&lt;/b&gt;&lt;br&gt;Review / Consigli / Piano / Account&lt;br&gt;CoachStore + APIClient + SessionVault&lt;br&gt;HealthImporter: anteprima + consenso invio" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#edf3ff;strokeColor=#5972ae;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="270" width="340" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="web" value="&lt;b&gt;Browser locale + CLI&lt;/b&gt;&lt;br&gt;HTML/Jinja2 + JavaScript&lt;br&gt;app/templates, app/static, app/cli.py&lt;br&gt;Questa UI NON usa il backend /v1" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#edf3ff;strokeColor=#5972ae;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="825" y="270" width="340" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="platform" value="&lt;b&gt;Backend multi-atleta&lt;/b&gt;&lt;br&gt;FastAPI · app/platform/main.py&lt;br&gt;API /v1/* · autenticazione Bearer&lt;br&gt;AccountService / AthleteService&lt;br&gt;Nessuna connessione diretta ai vendor" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="500" width="340" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="local" value="&lt;b&gt;App Garmin personale&lt;/b&gt;&lt;br&gt;FastAPI · app/main.py · API /api/*&lt;br&gt;Coach: review, refresh, sync, cleanup&lt;br&gt;APScheduler + lock su file&lt;br&gt;Uso locale mono-atleta, senza login web" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="825" y="500" width="340" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="engine" value="&lt;b&gt;Regole condivise&lt;/b&gt;&lt;br&gt;models.py + ActivityRecord&lt;br&gt;reviewer.py&lt;br&gt;workout_review.py&lt;br&gt;Regole deterministiche; nessun LLM&lt;br&gt;È una libreria, non un terzo server" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f3effb;strokeColor=#8063aa;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="475" y="500" width="285" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="platformdb" value="&lt;b&gt;Archivio della piattaforma&lt;/b&gt;&lt;br&gt;PlatformStore → SQLAlchemy&lt;br&gt;PostgreSQL per hosting; SQLite nei test&lt;br&gt;Account, piani versionati, attività&lt;br&gt;Proposte, sessioni e audit per atleta" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f1f6e9;strokeColor=#718544;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="775" width="340" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="localdb" value="&lt;b&gt;Archivio personale separato&lt;/b&gt;&lt;br&gt;data/coach.sqlite3 + workouts.json&lt;br&gt;Cache, snapshot e prove di sync&lt;br&gt;Sessioni Garmin fuori dal repository&lt;br&gt;Non viene importato nella piattaforma" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f1f6e9;strokeColor=#718544;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="825" y="775" width="340" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="future" value="&lt;b&gt;Integrazioni ancora da implementare&lt;/b&gt;&lt;br&gt;COROS · Suunto · Fitbit/Google Health · Amazfit · Xiaomi&lt;br&gt;OAuth approvato, token cifrati, worker/webhook, export workout&lt;br&gt;Apple Health è un ponte locale, non un&amp;#x27;API diretta del vendor" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="980" width="690" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="garmin" value="&lt;b&gt;Garmin Connect personale&lt;/b&gt;&lt;br&gt;GarminClient / python-garminconnect&lt;br&gt;Lettura attività + upload/schedule locali" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="825" y="980" width="340" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-0" value="SDK locale" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="health" target="ios">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" value="HTTPS · JSON · Bearer" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="ios" target="platform">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-2" value="HTTP localhost:8000 / chiamate CLI" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="web" target="local">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" value="Python" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="platform" target="engine">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-4" value="Python" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="local" target="engine">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-5" value="SQL/ORM" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="platform" target="platformdb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-6" value="SQL + file locali" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="local" target="localdb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-7" value="HTTPS cloud" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="local" target="garmin">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1200" y="580" />
+              <mxPoint x="1200" y="1025" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="02-layer-backend" name="Layer del backend multi-atleta">
+    <mxGraphModel dx="1400" dy="1070" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1070">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Layer del backend multi-atleta&lt;br&gt;&lt;font size='3'&gt;Confini logici nello stesso processo Python. L&amp;#x27;HTTP separa app iPhone e backend; i servizi dipendono ancora dall&amp;#x27;ORM.&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=0;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="20" width="1280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="ui" value="&lt;b&gt;Presentazione e stato iOS&lt;/b&gt;&lt;br&gt;SwiftUI Views → CoachStore&lt;br&gt;Nessuna decisione autonoma sul piano&lt;br&gt;Il bottone segue program.eligible" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#edf3ff;strokeColor=#5972ae;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="130" width="370" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="httpclient" value="&lt;b&gt;Trasporto iOS&lt;/b&gt;&lt;br&gt;APIClient · URLSession ephemeral&lt;br&gt;DTO Swift + encoding/decoding JSON&lt;br&gt;HTTPS; redirect respinti" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#edf3ff;strokeColor=#5972ae;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="535" y="130" width="345" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="vault" value="&lt;b&gt;Sessione sul dispositivo&lt;/b&gt;&lt;br&gt;SessionVault → Keychain&lt;br&gt;Token opaco legato a account/origine&lt;br&gt;Password non persistita" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f1f6e9;strokeColor=#718544;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="130" width="310" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="&lt;b&gt;API e identità&lt;/b&gt;&lt;br&gt;app/platform/main.py&lt;br&gt;FastAPI routes + middleware&lt;br&gt;HTTPBearer → identity()&lt;br&gt;Owner determinato dal server" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="535" y="375" width="345" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="schema" value="&lt;b&gt;Contratti di ingresso&lt;/b&gt;&lt;br&gt;platform/schemas.py · Pydantic&lt;br&gt;PlanWrite / ActivityImport&lt;br&gt;ProposalAcceptance / AccountDeletion&lt;br&gt;StrictModel: rifiuta campi extra" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f3effb;strokeColor=#8063aa;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="375" width="310" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="accounts" value="&lt;b&gt;Servizio account&lt;/b&gt;&lt;br&gt;AccountService · security.py&lt;br&gt;Register/login/logout/delete&lt;br&gt;Argon2id + digest sessioni + rate limit&lt;br&gt;Query SQLAlchemy dirette" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="70" y="640" width="370" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="athletes" value="&lt;b&gt;Servizio atleta&lt;/b&gt;&lt;br&gt;AthleteService · service.py&lt;br&gt;Piano, import, dedup, review, proposal&lt;br&gt;Scope atleta + versioni + audit&lt;br&gt;Query SQLAlchemy dirette" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="535" y="640" width="345" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="rules" value="&lt;b&gt;Dominio condiviso&lt;/b&gt;&lt;br&gt;Plan / Workout / Step / ActivityRecord&lt;br&gt;review_latest_workouts()&lt;br&gt;last_workout_review()&lt;br&gt;adjusted_plan()&lt;br&gt;Nessun LLM, DB o vendor" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f3effb;strokeColor=#8063aa;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="625" width="310" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="store" value="&lt;b&gt;Persistenza e transazioni&lt;/b&gt;&lt;br&gt;PlatformStore · store.py&lt;br&gt;transaction() / read_session()&lt;br&gt;lock_athlete() · pool e timeout&lt;br&gt;Non è ancora un repository astratto" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f1f6e9;strokeColor=#718544;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="535" y="905" width="345" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="tables" value="&lt;b&gt;Schema SQL&lt;/b&gt;&lt;br&gt;tables.py → 8 tabelle ac_*&lt;br&gt;FK/cascade, indici e chiavi composte&lt;br&gt;PostgreSQL / SQLite&lt;br&gt;Autorizzazione applicativa, non RLS" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f1f6e9;strokeColor=#718544;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1020" y="905" width="310" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="coupling" value="&lt;b&gt;Punto di refactoring&lt;/b&gt;&lt;br&gt;I servizi conoscono Session e tabelle.&lt;br&gt;Estrarre repository/UnitOfWork rende&lt;br&gt;il dominio e i casi d&amp;#x27;uso più isolati." style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="70" y="905" width="370" height="145" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-0" value="metodi Swift" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="ui" target="httpclient">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" value="read/write sessione" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="ui" target="vault">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="255" y="110" />
+              <mxPoint x="1175" y="110" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-2" value="HTTP JSON /v1/*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="httpclient" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" value="valida body" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="api" target="schema">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-4" value="auth + identity" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="api" target="accounts">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="255" y="495" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-5" value="identity.id" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="api" target="athletes">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-6" value="funzioni Python" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="athletes" target="rules">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-7" value="sessioni / SQLA" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="accounts" target="store">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="255" y="865" />
+              <mxPoint x="610" y="865" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-8" value="ORM + transazione" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="athletes" target="store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-9" value="driver SQL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="store" target="tables">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="03-flusso-adattamento" name="Flusso: review → proposta → conferma">
+    <mxGraphModel dx="1400" dy="1320" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1320">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Flusso: review → proposta → conferma&lt;br&gt;&lt;font size='3'&gt;La UI visualizza; il server decide e ricontrolla. Nessuna modifica automatica e nessun invio al watch in questo backend.&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=0;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="20" width="1280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="read" value="&lt;b&gt;1 · Leggi l&amp;#x27;ultima review&lt;/b&gt;&lt;br&gt;GET /v1/review/workout&lt;br&gt;Piano + attività + regole → advice e program.eligible" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="115" width="660" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="eligibility" value="&lt;b&gt;2 · Trend realmente idoneo?&lt;/b&gt;&lt;br&gt;4 corse facili comparabili su almeno 7 giorni; dati recenti&lt;br&gt;Progresso ≥6% oppure rallentamento ≥8%; soglie euristiche&lt;br&gt;Ogni passaggio ≥1%; FC, durata e terreno simili" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f3effb;strokeColor=#8063aa;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="290" width="660" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="keep" value="&lt;b&gt;NO · Mantieni il programma&lt;/b&gt;&lt;br&gt;Nessun bottone di adattamento&lt;br&gt;Consigli pragmatici e limiti dei dati" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f6f7f9;strokeColor=#9da7b4;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="50" y="465" width="270" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="preview" value="&lt;b&gt;3 · Chiedi un&amp;#x27;anteprima&lt;/b&gt;&lt;br&gt;POST /v1/review/adjustments/preview&lt;br&gt;Salva proposta con owner, base_version, evidence_hash e scadenza 10 min" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="495" width="660" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="confirm" value="&lt;b&gt;4 · Mostra le modifiche e chiedi conferma&lt;/b&gt;&lt;br&gt;Sheet SwiftUI: sedute, step, durate e ripetizioni esatte&lt;br&gt;Annullare non cambia il piano; nessuna apertura automatica" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#edf3ff;strokeColor=#5972ae;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="680" width="660" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="apply" value="&lt;b&gt;5 · Accetta esplicitamente&lt;/b&gt;&lt;br&gt;POST /v1/review/adjustments/{proposal_id}/apply&lt;br&gt;Body: expected_version + confirmed=true" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="865" width="660" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="transaction" value="&lt;b&gt;6 · Verifica e applica nella stessa transazione&lt;/b&gt;&lt;br&gt;lock_athlete → verifica owner, scadenza, versione, hash e idoneità&lt;br&gt;PlanVersion + last_adjustment + audit + proposta consumata&lt;br&gt;COMMIT completo oppure ROLLBACK completo" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f1f6e9;strokeColor=#718544;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="1045" width="660" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="reject" value="&lt;b&gt;409 · Proposta non più valida&lt;/b&gt;&lt;br&gt;Dati/piano cambiati o scadenza&lt;br&gt;Aggiorna e genera nuova anteprima" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f6f7f9;strokeColor=#9da7b4;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1080" y="1045" width="280" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="result" value="&lt;b&gt;7 · Ricarica piano e review&lt;/b&gt;&lt;br&gt;Nuova versione; evidenze consumate non riutilizzabili&lt;br&gt;vendor_sync = not_implemented" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="380" y="1210" width="660" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-0" value="calcolo server" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="read" target="eligibility">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" value="NO" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="eligibility" target="keep">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="185" y="355" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-2" value="SÌ + click utente" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="eligibility" target="preview">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" value="JSON proposta" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="preview" target="confirm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-4" value="conferma utente" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="confirm" target="apply">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-5" value="request autenticata" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="apply" target="transaction">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-6" value="incoerente" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="transaction" target="reject">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-7" value="successo" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="transaction" target="result">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="04-api-http" name="API tra app iPhone e backend">
+    <mxGraphModel dx="1400" dy="1040" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1040">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="API tra app iPhone e backend&lt;br&gt;&lt;font size='3'&gt;Trasporto: HTTPS + JSON. Bearer opaco sulle route atleta. Registrazione/login e /health non richiedono una sessione.&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=0;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="20" width="1280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="auth" value="&lt;b&gt;Autenticazione&lt;/b&gt;&lt;br&gt;POST /v1/auth/register · email/password/timezone&lt;br&gt;POST /v1/auth/login → access_token + expires_at&lt;br&gt;POST /v1/auth/logout · revoca sessione corrente&lt;br&gt;Signup chiuso di default; rate limit nel DB" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="130" width="600" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="plan" value="&lt;b&gt;Programma&lt;/b&gt;&lt;br&gt;GET /v1/plan → {version, plan}&lt;br&gt;PUT /v1/plan · {expected_version, plan}&lt;br&gt;GET /v1/plan/history&lt;br&gt;Plan → Workout → Step; scritture concorrenti: 409" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="740" y="130" width="600" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="activities" value="&lt;b&gt;Attività e provenienza&lt;/b&gt;&lt;br&gt;GET /v1/activities?limit=&amp;amp;offset=&lt;br&gt;POST /v1/activities/import · 1–500 ActivityRecord&lt;br&gt;DELETE /v1/activities/{provider}/{provider_id}&lt;br&gt;SI, timestamp con offset, source/id, client_import&lt;br&gt;Dedup conservativa; il body non sceglie l&amp;#x27;atleta" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="405" width="600" height="195" as="geometry" />
+        </mxCell>
+        <mxCell id="review" value="&lt;b&gt;Review e adattamento&lt;/b&gt;&lt;br&gt;GET /v1/review/workout → review/advice/program&lt;br&gt;POST /v1/review/adjustments/preview&lt;br&gt;POST /v1/review/adjustments/{proposal_id}/apply&lt;br&gt;Apply: {expected_version, confirmed:true}&lt;br&gt;La conferma riguarda una proposta salvata dal server" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="740" y="405" width="600" height="195" as="geometry" />
+        </mxCell>
+        <mxCell id="account" value="&lt;b&gt;Account, dati e capacità&lt;/b&gt;&lt;br&gt;GET /v1/me · identità account&lt;br&gt;GET /v1/me/export · export dei propri dati&lt;br&gt;DELETE /v1/me · {password, confirmed:true}&lt;br&gt;GET /v1/integrations · capacità effettive&lt;br&gt;GET /v1/openapi.json · schema autenticato" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="700" width="600" height="195" as="geometry" />
+        </mxCell>
+        <mxCell id="contract" value="&lt;b&gt;Isolamento del contratto&lt;/b&gt;&lt;br&gt;GET /health · readiness pubblica&lt;br&gt;401: sessione; 403: signup/origin; 409: conflitto&lt;br&gt;422: body invalido; 429: limite; 503: DB indisponibile&lt;br&gt;Request DTO Pydantic; response dict Python&lt;br&gt;DTO Swift + fixture; response_model da aggiungere" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f3effb;strokeColor=#8063aa;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="740" y="700" width="600" height="195" as="geometry" />
+        </mxCell>
+        <mxCell id="locals" value="&lt;b&gt;API della UI personale: sistema distinto&lt;/b&gt;&lt;br&gt;/api/review/* · /api/plan/{test,sync} · /api/activities/* · /api/calendar/cleanup/*&lt;br&gt;Chiamano Coach, usano storage personale e conferme locali; non sono /v1 e non sono un&amp;#x27;API pubblica autenticata." style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f6f7f9;strokeColor=#9da7b4;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="950" width="1280" height="90" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="05-refactoring-proposto" name="Refactoring proposto: porte e adapter">
+    <mxGraphModel dx="1400" dy="1080" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1080">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Refactoring proposto: porte e adapter&lt;br&gt;&lt;font size='3'&gt;PROPOSTA, NON IMPLEMENTATA. Mantiene un backend modulare unico; separa i casi d&amp;#x27;uso dall&amp;#x27;ORM e dai vendor.&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=0;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="20" width="1280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="transport" value="&lt;b&gt;Adapter d&amp;#x27;ingresso&lt;/b&gt;&lt;br&gt;FastAPI /v1 + DTO request/response&lt;br&gt;Web, iOS e worker richiamano gli stessi casi d&amp;#x27;uso" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="410" y="125" width="590" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="usecases" value="&lt;b&gt;Casi d&amp;#x27;uso applicativi&lt;/b&gt;&lt;br&gt;ImportActivities · GetWorkoutReview&lt;br&gt;PreviewAdjustment · ApplyAdjustment&lt;br&gt;AccountActions · contesto atleta autenticato&lt;br&gt;Dipendono da porte, non da Session/tabelle" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="410" y="325" width="590" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="domain" value="&lt;b&gt;Dominio da mantenere&lt;/b&gt;&lt;br&gt;Regole deterministiche e test già presenti&lt;br&gt;Plan / Activity / Evidence / Adjustment&lt;br&gt;Nessun HTTP, ORM o SDK vendor" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f3effb;strokeColor=#8063aa;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="570" width="370" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="ports" value="&lt;b&gt;Porte da estrarre&lt;/b&gt;&lt;br&gt;PlanRepository / ActivityRepository&lt;br&gt;ProposalRepository / AuditRepository&lt;br&gt;UnitOfWork / Clock / SessionStore&lt;br&gt;ActivitySource separato da WorkoutPublisher" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="540" y="570" width="460" height="155" as="geometry" />
+        </mxCell>
+        <mxCell id="dbadapter" value="&lt;b&gt;Adapter di persistenza&lt;/b&gt;&lt;br&gt;SQLAlchemy → PostgreSQL / SQLite&lt;br&gt;Query, sessioni, lock e commit qui&lt;br&gt;Test dei casi d&amp;#x27;uso con adapter in memoria" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="410" y="840" width="460" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="vendoradapter" value="&lt;b&gt;Adapter e job vendor&lt;/b&gt;&lt;br&gt;Uno per vendor, solo dopo accesso approvato&lt;br&gt;Token cifrati, OAuth, webhook, retry/cursori&lt;br&gt;Import e pubblicazione sono capacità distinte" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="940" y="840" width="395" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="priority" value="&lt;b&gt;Ordine suggerito&lt;/b&gt;&lt;br&gt;1. Repository + UnitOfWork&lt;br&gt;2. DTO di risposta tipizzati&lt;br&gt;3. Separare import/review/adattamento&lt;br&gt;4. OAuth/job vendor e ciclo account pubblico" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f6f7f9;strokeColor=#9da7b4;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="340" width="275" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-0" value="invoca" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="transport" target="usecases">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" value="regole pure" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="usecases" target="domain">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="245" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edge-2" value="interfacce" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="usecases" target="ports">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" value="implementa le porte" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="dbadapter" target="ports">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-4" value="implementa capacità vendor" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="vendoradapter" target="ports">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1125" y="770" />
+              <mxPoint x="945" y="770" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="06-deploy-e-isolamento" name="Confini operativi e dati">
+    <mxGraphModel dx="1400" dy="990" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="990">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" value="Confini operativi e dati&lt;br&gt;&lt;font size='3'&gt;Il container e lo stack privato sono predisposti nel working tree. HTTPS pubblico, dominio e hosting non sono configurati.&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=0;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="20" width="1280" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="device" value="&lt;b&gt;Dispositivo iPhone&lt;/b&gt;&lt;br&gt;UI + HealthKit + Keychain&lt;br&gt;Dati di workout in memoria&lt;br&gt;Upload solo dopo consenso" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#edf3ff;strokeColor=#5972ae;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="65" y="130" width="380" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="proxy" value="&lt;b&gt;Ingresso pubblico HTTPS&lt;/b&gt;&lt;br&gt;Reverse proxy / certificato / dominio&lt;br&gt;Allowed hosts e proxy espliciti&lt;br&gt;NON ancora configurato" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="555" y="130" width="390" height="135" as="geometry" />
+        </mxCell>
+        <mxCell id="api" value="&lt;b&gt;Container API privato&lt;/b&gt;&lt;br&gt;app.platform.host → 2 worker&lt;br&gt;UID 10001; root FS read-only&lt;br&gt;127.0.0.1:8001 nello stack pilot&lt;br&gt;Pool/timeout; niente dati personali nel build" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="555" y="400" width="390" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="secrets" value="&lt;b&gt;Configurazione e segreti&lt;/b&gt;&lt;br&gt;DATABASE_URL_FILE montato&lt;br&gt;Credenziali DB fuori da Git&lt;br&gt;Nessun token vendor ancora gestito" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f1f6e9;strokeColor=#718544;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="400" width="305" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="&lt;b&gt;PostgreSQL condiviso&lt;/b&gt;&lt;br&gt;Archivio multi-atleta / indici / FK&lt;br&gt;Lock atleta: scritture su stesso account serializzate&lt;br&gt;Snapshot coerenti per le letture&lt;br&gt;Nessuna porta host pubblicata nel pilot" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#f1f6e9;strokeColor=#718544;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="555" y="710" width="390" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="init" value="&lt;b&gt;Inizializzatore separato&lt;/b&gt;&lt;br&gt;app.platform.cli init-db&lt;br&gt;Schema revision 1; nessun upgrade implicito&lt;br&gt;Prima dell&amp;#x27;avvio dei worker" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#eff8f7;strokeColor=#497d76;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
+          <mxGeometry x="65" y="710" width="380" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="pending" value="&lt;b&gt;Da completare per produzione&lt;/b&gt;&lt;br&gt;Hosting/TLS; migrazioni evolutive&lt;br&gt;Email verification/recovery&lt;br&gt;OAuth cifrato e job durevoli&lt;br&gt;Backup/restore, monitoraggio e test device" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="710" width="305" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-0" value="HTTPS /v1 (futuro hosting)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="device" target="proxy">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-1" value="proxy fidato" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=1;" edge="1" parent="1" source="proxy" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-2" value="legge file montato" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="api" target="secrets">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-3" value="SQL/psycopg" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="api" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge-4" value="crea/verifica schema" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="init" target="db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

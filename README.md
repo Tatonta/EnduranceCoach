@@ -24,9 +24,11 @@ La nuova scheda confronta l'ultima attività con il piano e spiega se mantenerlo
 
 Il backend multi-atleta separato è ora implementato in `app/platform`: autenticazione, piano per account con versioni, import attività, deduplicazione conservativa, review, proposte transazionali, export e cancellazione account. Richiede le dipendenze opzionali `.[platform]` e un database nuovo, separato dai dati Garmin personali. Configurazione, API e limiti verificati: [backend multi-atleta](docs/PLATFORM_API.md). Non è ancora un servizio pubblico, non include connessioni OAuth live e non costituisce una release iOS.
 
-Il client iPhone nativo SwiftUI è ora presente in `ios/AdaptiveCoach.xcodeproj`: Review, Consigli, conferma delle proposte, import piano JSON, anteprima Apple Health con consenso separato all'invio, sessioni nel Portachiavi, export e cancellazione account. [Avvio e verifiche iOS](ios/README.md). Il sorgente e i file del progetto sono stati controllati su Windows; compilazione/XCTest su macOS e prove su dispositivo restano da eseguire. Nessuna app è stata firmata o inviata all'App Store.
+Il client iPhone nativo SwiftUI è ora presente in `ios/AdaptiveCoach.xcodeproj`: Review, Consigli, conferma delle proposte, import piano JSON, anteprima Apple Health con consenso separato all'invio, sessioni nel Portachiavi, export e cancellazione account. [Avvio e verifiche iOS](ios/README.md). La build macOS con Xcode 16.4 e gli otto test nativi passano in [GitHub Actions](https://github.com/Tatonta/EnduranceCoach/actions/runs/37741009818); le prove HealthKit, UI e su dispositivo restano da eseguire. Nessuna app è stata firmata o inviata all'App Store.
 
 Scheda dei migliori tempi: **http://127.0.0.1:8000/performances**.
+
+Mappa dei layer, delle chiamate e delle API: [architettura illustrata](docs/architecture/README.md). Include XML draw.io modificabile con sei viste, disegni SVG/PNG, catalogo delle route estratto dal sorgente e una proposta di refactoring separata dall'architettura attuale.
 
 Salite in bici: **http://127.0.0.1:8000/climbs**.
 
