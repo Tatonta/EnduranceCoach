@@ -138,6 +138,48 @@ final class ContractTests: XCTestCase {
         XCTAssertEqual(review.detailedReview?.status, "stale")
         XCTAssertNil(review.detailedReview?.analysis)
     }
+    func testHealthEvidencePreservesUnitsAndDoesNotCarryMissingHeartRate() throws {
+        let input: [HealthMetric:[HealthReading]] = [
+            .heart:[HealthReading(start:5,end:5,value:140)], .speed:[HealthReading(start:10,end:20,value:3)],
+            .stride:[HealthReading(start:10,end:20,value:1.23)], .groundContact:[HealthReading(start:10,end:20,value:0.279)],
+            .steps:[HealthReading(start:0,end:60,value:170)]]
+        let result=HealthEvidenceBuilder.build(readings:input,elapsed:300,active:300,lapIntervals:[],pauses:[],routes:[],cycling:false)
+        XCTAssertEqual(result.samples.first?.hr,140)
+        XCTAssertNil(result.samples.first(where:{$0.elapsedS==15})?.hr)
+        XCTAssertEqual(try XCTUnwrap(result.dynamics.strideM),1.23,accuracy:0.001)
+        XCTAssertEqual(try XCTUnwrap(result.dynamics.groundContactS),0.279,accuracy:0.001)
+        XCTAssertEqual(try XCTUnwrap(result.dynamics.cadenceSpm),170,accuracy:0.001)
+        let data=try Wire.encoder().encode(HealthDetailWrite(expectedDetailsVersion:0,expectedActivityHash:String(repeating:"a",count:64),details:result))
+        let object=try XCTUnwrap(JSONSerialization.jsonObject(with:data) as? [String:Any])
+        let details=try XCTUnwrap(object["details"] as? [String:Any])
+        let samples=try XCTUnwrap(details["samples"] as? [[String:Any]])
+        XCTAssertEqual(samples.first(where:{$0["speed_m_s"] != nil})?["speed_m_s"] as? Double,3)
+        XCTAssertNil(samples.first?["distance_m"])
+        XCTAssertNil(details["plan_version"])
+        XCTAssertNil(details["plan_workout_id"])
+    }
+    func testHealthLapsRequireKnownActiveTimeAndCompleteDistance() {
+        let laps=[HealthInterval(start:0,end:150),HealthInterval(start:150,end:300)]
+        let input:[HealthMetric:[HealthReading]]=[.distance:[HealthReading(start:0,end:150,value:500),HealthReading(start:150,end:300,value:600)],.heart:[HealthReading(start:10,end:20,value:140)]]
+        let full=HealthEvidenceBuilder.build(readings:input,elapsed:300,active:300,lapIntervals:laps,pauses:[],routes:[],cycling:false)
+        XCTAssertEqual(full.laps.count,2);XCTAssertEqual(full.laps.first?.distanceM,500)
+        let pausedUnknown=HealthEvidenceBuilder.build(readings:input,elapsed:300,active:250,lapIntervals:laps,pauses:[],routes:[],cycling:false)
+        XCTAssertTrue(pausedUnknown.laps.isEmpty)
+        let partial=HealthEvidenceBuilder.build(readings:[.distance:[HealthReading(start:10,end:150,value:500)]],elapsed:300,active:300,lapIntervals:laps,pauses:[],routes:[],cycling:false)
+        XCTAssertNil(partial.laps.first?.distanceM)
+    }
+    func testHealthGPSGapsAndPointReductionStayWithinContract() {
+        let locations=[HealthCoordinate(time:0,lat:45,lon:9,accuracy:5),HealthCoordinate(time:1,lat:45.001,lon:9.001,accuracy:5),
+            HealthCoordinate(time:2,lat:45.002,lon:9.002,accuracy:-1),HealthCoordinate(time:3,lat:45.003,lon:9.003,accuracy:5),HealthCoordinate(time:4,lat:45.004,lon:9.004,accuracy:5)]
+        let gap=HealthEvidenceBuilder.build(readings:[:],elapsed:300,active:300,lapIntervals:[],pauses:[],routes:[locations],cycling:false)
+        XCTAssertEqual(gap.routeSegments.count,2)
+        let heart=(0..<10000).map{HealthReading(start:Double($0),end:Double($0),value:140)}
+        let route=(0..<10000).map{HealthCoordinate(time:Double($0),lat:45+Double($0)/1000000,lon:9,accuracy:5)}
+        let reduced=HealthEvidenceBuilder.build(readings:[.heart:heart],elapsed:10000,active:10000,lapIntervals:[],pauses:[],routes:[route],cycling:false)
+        XCTAssertLessThanOrEqual(reduced.samples.count,4000)
+        XCTAssertLessThanOrEqual(reduced.routeSegments.reduce(0){$0+$1.count},2000)
+        XCTAssertEqual(reduced.reportedSampleCount,10000)
+    }
     func testActivityQueryUsesQueryParametersRatherThanEscapedPath() async throws {
         let api = APIClient(endpoint: try Endpoint.validate("https://coach.example.test"), token: "synthetic-test-only-token", protocolClasses: [FixtureProtocol.self])
         let list: ActivityList = try await api.request("v1/activities", query: [URLQueryItem(name: "limit", value: "50")])

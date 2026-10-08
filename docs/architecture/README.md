@@ -33,7 +33,7 @@ La home personale parte dal questionario e dall'assistente; il client iOS includ
 | --- | --- | --- |
 | Presentazione iOS | Schermate, stato visualizzato, conferma esplicita; non decide l'idoneità | `ios/AdaptiveCoach/*View*.swift`, `CoachStore.swift` |
 | Trasporto iOS | HTTPS, token, JSON e DTO Swift; redirect respinti | `APIClient.swift`, `Models.swift` |
-| Adapter locale HealthKit | Lettura autorizzata, normalizzazione in unità SI, anteprima e consenso upload | `HealthImporter.swift` |
+| Adapter locale HealthKit | Lettura autorizzata, normalizzazione in unità SI, anteprima e consenso upload | `HealthImporter.swift`, `HealthEvidence.swift` |
 | Sessione dispositivo | Token opaco nel Keychain, legato a origine/account; nessuna password persistita | `SessionVault.swift` |
 | API piattaforma | Routing, validazione richiesta, middleware, autenticazione e risoluzione owner | [main.py](../../app/platform/main.py), [schemas.py](../../app/platform/schemas.py) |
 | Servizio account | Registrazione/login/logout/delete, Argon2id, digest dei token e rate limit | [security.py](../../app/platform/security.py) |

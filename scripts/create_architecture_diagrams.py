@@ -158,7 +158,7 @@ def pages():
             Edge("api", "db", "SQL/psycopg", [(750, 565), (750, 710)]),
             Edge("init", "db", "crea/verifica schema", [(445, 790), (555, 790)]),
         ]),
-        Page("07-dettagli-canonici", "Dettagli della seduta: dati e layer", "Dati normalizzati e owner-bound; nessuna connessione cloud vendor approvata. HealthKit importa ancora riepiloghi.", 1400, 1060, [
+        Page("07-dettagli-canonici", "Dettagli della seduta: dati e layer", "Dati normalizzati e owner-bound; nessuna connessione cloud vendor approvata. HealthKit: dettagli selezionati; test device da completare.", 1400, 1060, [
             Node("source", "Fonte / adapter autorizzato", ["Garmin locale: normalizer senza rete", "Altri client: dati importati", "Unità vendor convertite prima dell'API"], 55, 140, 350, 155, "client"),
             Node("contract", "SessionDetails canonico", ["Lap, campioni e segmenti GPS", "Metri / secondi / bpm / watt", "Indici di step senza marker repeat FIT", "Dati incompleti restano espliciti"], 515, 140, 365, 175, "domain"),
             Node("api", "API dettagli per atleta e fonte", ["GET/PUT /v1/activities/{source}/{id}/details", "Bearer; versioni e hash del riepilogo", "Rifiuta tempi/distanze incoerenti"], 1000, 140, 350, 175),
@@ -167,7 +167,7 @@ def pages():
             Node("db", "Storage separato", ["ac_activities: riepiloghi leggeri", "ac_activity_details: dati per fonte", "FK owner/fonte/ID; cascade delete", "Hash cambiato: dettagli obsoleti"], 1000, 455, 350, 175, "store"),
             Node("local", "Review personale Garmin", ["Parser Garmin + analisi comune", "Target dal piano locale corrente", "Originale remoto non verificato"], 55, 805, 350, 155, "client"),
             Node("ios", "Review nativa SwiftUI", ["Fasi, lap e dinamiche", "Grafici FC/passo in unità separate", "MapKit: segmenti GPS distinti"], 515, 805, 365, 155, "client"),
-            Node("gates", "Integrazioni da completare", ["Accessi vendor approvati", "HealthKit dettagli e test device", "AI remoto e release firmata"], 1000, 805, 350, 155, "planned"),
+            Node("gates", "Integrazioni da completare", ["Accessi vendor approvati", "HealthKit: test device/permessi", "AI remoto e release firmata"], 1000, 805, 350, 155, "planned"),
         ], [
             Edge("source", "contract", "normalizza", [(405, 215), (515, 215)]),
             Edge("contract", "api", "JSON", [(880, 215), (1000, 215)]),

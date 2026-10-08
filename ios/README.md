@@ -4,6 +4,8 @@ SwiftUI iPhone app, iOS 17+, no third-party SDKs. Open **AdaptiveCoach.xcodeproj
 
 ## Implemented flows
 
+- On-demand HealthKit detail preview for a selected running/cycling workout: associated quantity samples, dynamics, explicit lap/segment events and optional route reading. Detail and GPS upload consent are separate; summary/detail writes are bound by the source hash returned by import. Device and permission verification remain open. See [HealthKit detailed flow](../docs/HEALTHKIT_DETAILS.md).
+
 - Detailed native review when the backend has canonical evidence: phase targets from a referenced plan version, lap metrics, running dynamics, separate pace/HR charts and GPS segments in MapKit. Missing/stale details remain explicit. The HealthKit importer currently supplies summaries; this does not establish live detail access from every vendor. See [canonical detailed-evidence contract](../docs/CANONICAL_DETAILS.md).
 
 - Manual session recording from Coach, including optional distance/exertion, feelings, discomfort and notes. It requires no HealthKit permission and labels the evidence as self-reported. The same request identity is retained after a failed save. Recent manual feedback appears in Coach and Review; missing distance is shown as unknown. See [manual feedback contract](../docs/MANUAL_FEEDBACK.md).

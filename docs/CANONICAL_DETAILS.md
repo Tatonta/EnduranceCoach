@@ -46,7 +46,7 @@ Il confronto dei target usa la versione storica esplicitamente riferita. Aggiorn
 
 La review nativa mostra giudizi tecnici, target della versione riferita, fasi, lap, stride length, cadenza, contatto a terra e potenza, quando disponibili. Passo e FC hanno grafici separati con unità esplicite. I tratti con dati assenti non vengono uniti; la mappa conserva la separazione dei segmenti GPS. Le sedute manuali mantengono il loro percorso di feedback dichiarato.
 
-Il client corrente HealthKit importa ancora i riepiloghi. Questa estensione permette di visualizzare dettagli quando un client/adapter autorizzato li carica nel nuovo contratto; non dimostra che ogni watch o app HealthKit fornisca lap, dinamiche o GPS. Il collegamento AI remoto, HealthKit su dispositivo reale e gli accessi vendor approvati restano da verificare.
+Il client HealthKit importa i riepiloghi e offre ora una lettura dettagliata selezionata, con anteprima e consensi separati ([flusso](HEALTHKIT_DETAILS.md)). Questa estensione permette di visualizzare dettagli quando un client/adapter autorizzato li carica nel nuovo contratto; non dimostra che ogni watch o app HealthKit fornisca lap, dinamiche o GPS. Il collegamento AI remoto, HealthKit su dispositivo reale e gli accessi vendor approvati restano da verificare.
 
 ## Migrazione e verifiche
 

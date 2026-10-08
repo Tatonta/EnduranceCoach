@@ -16,6 +16,7 @@ from app.platform.tables import (
     AuditEvent,
     PlanVersion,
 )
+from app.services.planner import canonical_hash
 from app.services.reviewer import review_latest_workouts
 from app.services.workout_review import adjusted_plan, last_workout_review
 from app.training_profile import profile_brief
@@ -287,10 +288,13 @@ class AthleteService:
                     Activity.athlete_id == athlete_id
                 )
             )
+            source_hashes = [{"source": row.provider, "source_activity_id": row.provider_id,
+                              "activity_hash": canonical_hash(row.payload)} for row in touched]
         return {
             "imported": len(records),
             "unique_workouts": count,
             "ingestion_method": "client_import",
+            "source_activity_hashes": source_hashes,
         }
 
     def activity_payloads(self, session, athlete_id, *, limit=None, offset=0, earliest=None):

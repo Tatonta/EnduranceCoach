@@ -364,7 +364,7 @@
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="title" value="Dettagli della seduta: dati e layer&lt;br&gt;&lt;font size='3'&gt;Dati normalizzati e owner-bound; nessuna connessione cloud vendor approvata. HealthKit importa ancora riepiloghi.&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=0;whiteSpace=wrap;" vertex="1" parent="1">
+        <mxCell id="title" value="Dettagli della seduta: dati e layer&lt;br&gt;&lt;font size='3'&gt;Dati normalizzati e owner-bound; nessuna connessione cloud vendor approvata. HealthKit: dettagli selezionati; test device da completare.&lt;/font&gt;" style="text;html=1;align=left;verticalAlign=middle;fontSize=24;fontStyle=0;whiteSpace=wrap;" vertex="1" parent="1">
           <mxGeometry x="60" y="20" width="1280" height="70" as="geometry" />
         </mxCell>
         <mxCell id="source" value="&lt;b&gt;Fonte / adapter autorizzato&lt;/b&gt;&lt;br&gt;Garmin locale: normalizer senza rete&lt;br&gt;Altri client: dati importati&lt;br&gt;Unità vendor convertite prima dell&amp;#x27;API" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#edf3ff;strokeColor=#5972ae;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
@@ -391,7 +391,7 @@
         <mxCell id="ios" value="&lt;b&gt;Review nativa SwiftUI&lt;/b&gt;&lt;br&gt;Fasi, lap e dinamiche&lt;br&gt;Grafici FC/passo in unità separate&lt;br&gt;MapKit: segmenti GPS distinti" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#edf3ff;strokeColor=#5972ae;fontColor=#17212f;dashed=0;" vertex="1" parent="1">
           <mxGeometry x="515" y="805" width="365" height="155" as="geometry" />
         </mxCell>
-        <mxCell id="gates" value="&lt;b&gt;Integrazioni da completare&lt;/b&gt;&lt;br&gt;Accessi vendor approvati&lt;br&gt;HealthKit dettagli e test device&lt;br&gt;AI remoto e release firmata" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
+        <mxCell id="gates" value="&lt;b&gt;Integrazioni da completare&lt;/b&gt;&lt;br&gt;Accessi vendor approvati&lt;br&gt;HealthKit: test device/permessi&lt;br&gt;AI remoto e release firmata" style="rounded=1;whiteSpace=wrap;html=1;align=left;verticalAlign=middle;spacing=15;fontSize=15;fillColor=#fff5e5;strokeColor=#a77d35;fontColor=#17212f;dashed=1;" vertex="1" parent="1">
           <mxGeometry x="1000" y="805" width="350" height="155" as="geometry" />
         </mxCell>
         <mxCell id="edge-0" value="normalizza" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;fontSize=13;strokeColor=#526071;strokeWidth=1.5;labelBackgroundColor=#ffffff;dashed=0;" edge="1" parent="1" source="source" target="contract">

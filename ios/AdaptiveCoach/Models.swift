@@ -292,7 +292,13 @@ struct ActivityImport: Encodable {
     let ingestionMethod = "client_import"
     let activities: [ImportedActivity]
 }
-struct ImportReply: Decodable { let imported: Int; let uniqueWorkouts: Int }
+struct ImportReply: Decodable {
+    let imported: Int
+    let uniqueWorkouts: Int
+    let sourceActivityHashes: [ImportedSourceHash]?
+}
+struct ImportedSourceHash: Decodable { let source: String; let sourceActivityId: String; let activityHash: String }
+struct DetailStateReply: Decodable { let status: String; let version: Int; let activityHash: String }
 struct AccountDeletion: Encodable { let password: String; let confirmed: Bool }
 
 struct TrainingDay: Codable, Identifiable {

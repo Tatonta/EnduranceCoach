@@ -710,6 +710,9 @@ def test_detailed_evidence_is_owned_versioned_and_uses_its_referenced_plan(platf
     assert client.get(path).status_code == 401
     initial = client.get(path, headers=alice["headers"]).json()
     assert initial["status"] == "not_loaded"
+    imported=client.post("/v1/activities/import",headers=alice["headers"],json={"activities":[activity]}).json()
+    assert imported["source_activity_hashes"][0]["activity_hash"]==initial["activity_hash"]
+    assert imported["source_activity_hashes"][0]["source_activity_id"]==activity["source_activity_id"]
     body = {
         "expected_details_version": 0,
         "expected_activity_hash": initial["activity_hash"],

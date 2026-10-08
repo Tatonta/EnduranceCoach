@@ -22,6 +22,8 @@ La home Coach permette anche di registrare durata, sforzo percepito e sensazioni
 
 La review nativa e l'API multi-atleta condividono anche lap, fasi, running dynamics, grafici e segmenti GPS attraverso un contratto canonico. I dettagli vengono conservati per fonte, separati dai riepiloghi, con versioni e riferimenti storici ai target: [layer dei dettagli, API e verifiche](docs/CANONICAL_DETAILS.md).
 
+Nell'anteprima Apple Health puoi selezionare una seduta, leggerne campioni/dinamiche/lap disponibili e scegliere separatamente l'invio dei dettagli e del percorso GPS. I dettagli vengono associati al riepilogo attraverso l'hash dell'importazione: [flusso HealthKit e limiti di verifica](docs/HEALTHKIT_DETAILS.md).
+
 Review dell'ultimo workout e consigli pratici: **http://127.0.0.1:8000/review**.
 
 La review dettagliata legge lap, step e campioni Garmin, confronta le fasi con il piano, mostra running dynamics, grafico passo/FC e mappa. Il bottone **Continue with ChatGPT** collega il piano ChatGPT dell’atleta senza chiave API e abilita la review professionale sullo storico. [Funzionamento, disponibilità e verifiche](docs/DETAILED_REVIEW.md).

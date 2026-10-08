@@ -9,7 +9,7 @@
     <key>CFBundleShortVersionString</key><string>$(MARKETING_VERSION)</string>
     <key>CFBundleVersion</key><string>$(CURRENT_PROJECT_VERSION)</string>
     <key>LSRequiresIPhoneOS</key><true/>
-    <key>NSHealthShareUsageDescription</key><string>Leggiamo i workout, distanza e frequenza cardiaca per preparare una review. Prima di inviare i dati al tuo servizio di coaching puoi controllare l'anteprima e confermare l'invio.</string>
+    <key>NSHealthShareUsageDescription</key><string>Leggiamo, su tua scelta, workout, distanza, frequenza cardiaca, velocità, passi, dinamiche e potenza per preparare una review. Puoi leggere anche il percorso già registrato. Controlli l'anteprima e scegli separatamente se inviare dettagli e GPS al tuo servizio di coaching.</string>
     <key>NSAppTransportSecurity</key><dict>
         <key>NSAllowsLocalNetworking</key><true/>
     </dict>

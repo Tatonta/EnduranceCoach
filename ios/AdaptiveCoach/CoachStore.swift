@@ -16,6 +16,8 @@ final class CoachStore: ObservableObject {
     @Published var notice: String?
     @Published var proposal: AdjustmentProposal?
     @Published var healthPreview: [ImportedActivity] = []
+    @Published var healthDetailCandidate: HealthDetailCandidate?
+    @Published private(set) var healthDetails: [String: HealthEvidence] = [:]
     @Published var pendingPlan: JSONValue?
     @Published var exportURL: URL?
     private var client: APIClient?
@@ -143,6 +145,7 @@ final class CoachStore: ObservableObject {
     }
     func previewHealth() async throws {
         healthPreview = []
+        healthDetailCandidate = nil; healthDetails = [:]
         healthPreview = try await health.preview()
         if healthPreview.isEmpty {
             notice = "Nessun workout leggibile negli ultimi 42 giorni. Potrebbero non esserci dati oppure l'accesso di lettura potrebbe essere limitato. Puoi controllare i permessi in Apple Health."
@@ -151,9 +154,44 @@ final class CoachStore: ObservableObject {
     func uploadHealth() async throws {
         guard !healthPreview.isEmpty else { return }
         let result: ImportReply = try await api().request("v1/activities/import", method: "POST", body: Wire.encoder().encode(ActivityImport(activities: healthPreview)))
+        let api = try api()
+        for activity in healthPreview {
+            guard let evidence = healthDetails[activity.sourceActivityId] else { continue }
+            guard let originalHash = result.sourceActivityHashes?.first(where: { $0.source == "apple_health" && $0.sourceActivityId == activity.sourceActivityId })?.activityHash else {
+                throw ServiceError(status: 409, code: "health_backend_contract", message: "Riepiloghi salvati; il backend deve supportare gli hash di importazione per inviare i dettagli in modo coerente.")
+            }
+            let path = "v1/activities/apple_health/\(activity.sourceActivityId)/details"
+            let state: DetailStateReply = try await api.request(path)
+            guard state.activityHash == originalHash else {
+                throw ServiceError(status: 409, code: "health_source_changed", message: "Riepilogo cambiato durante l'importazione. I dettagli non sono stati associati; ripeti l'anteprima.")
+            }
+            let _: JSONValue = try await api.request(path, method: "PUT", body: Wire.encoder().encode(
+                HealthDetailWrite(expectedDetailsVersion: state.version, expectedActivityHash: originalHash, details: evidence)))
+        }
         healthPreview = []
+        healthDetailCandidate = nil; healthDetails = [:]
         notice = "\(result.imported) record importati; \(result.uniqueWorkouts) workout distinti nell'account."
         try await refresh()
+    }
+    func previewHealthDetails(_ activity: ImportedActivity, includeRoute: Bool) async throws {
+        guard healthDetails.count < 10 || healthDetails[activity.sourceActivityId] != nil else {
+            throw ServiceError(status: 0, code: "health_detail_selection", message: "Seleziona al massimo 10 sedute dettagliate per importazione. Puoi importare poi le altre.")
+        }
+        healthDetailCandidate = nil
+        healthDetailCandidate = try await health.previewDetails(activity, includeRoute: includeRoute)
+    }
+    func includeHealthDetails(_ candidate: HealthDetailCandidate, sendRoute: Bool) {
+        guard let index = healthPreview.firstIndex(where: { $0.sourceActivityId == candidate.activity.sourceActivityId }) else { return }
+        var source = candidate.activity; source.name = healthPreview[index].name
+        healthPreview[index] = source
+        var evidence = candidate.evidence
+        if !sendRoute { evidence.routeSegments = [] }
+        guard evidence.hasEvidence else { return }
+        healthDetails[source.sourceActivityId] = evidence
+        healthDetailCandidate = nil
+    }
+    func discardHealthPreview() {
+        healthPreview = []; healthDetailCandidate = nil; healthDetails = [:]
     }
     func readPlanFile(_ url: URL) throws {
         let scoped = url.startAccessingSecurityScopedResource()
@@ -216,5 +254,6 @@ final class CoachStore: ObservableObject {
         profile = nil; profileChecked = false
         manualSessions = []
         healthPreview = []; pendingPlan = nil; invalidateReview(); removeExport()
+        healthDetailCandidate = nil; healthDetails = [:]
     }
 }
