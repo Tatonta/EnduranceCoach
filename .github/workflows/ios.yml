@@ -1,0 +1,42 @@
+name: iOS build and native contract tests
+on:
+  pull_request:
+    paths: ["ios/**", ".github/workflows/ios.yml"]
+  push:
+    paths: ["ios/**", ".github/workflows/ios.yml"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  simulator:
+    runs-on: macos-15
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select an available iPhone simulator
+        id: simulator
+        run: |
+          xcrun simctl list devices available --json > "$RUNNER_TEMP/devices.json"
+          python3 - <<'PY'
+          import json, os
+          with open(os.environ["RUNNER_TEMP"] + "/devices.json") as stream:
+              devices = json.load(stream)["devices"]
+          iphones = [device for runtime, group in devices.items() if "iOS" in runtime for device in group if device["name"].startswith("iPhone")]
+          if not iphones:
+              raise SystemExit("No available iPhone simulator")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as stream:
+              stream.write("udid=" + iphones[0]["udid"] + "\n")
+          PY
+      - name: Compile and run XCTest
+        run: |
+          xcodebuild test -project ios/AdaptiveCoach.xcodeproj -scheme AdaptiveCoach \
+            -destination 'platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}' \
+            -derivedDataPath ios/DerivedData -resultBundlePath ios/NativeTests.xcresult \
+            CODE_SIGNING_ALLOWED=NO
+      - name: Keep diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: native-test-results
+          path: ios/NativeTests.xcresult
+          if-no-files-found: ignore

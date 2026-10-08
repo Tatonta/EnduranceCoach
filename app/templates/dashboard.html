@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Garmin Adaptive Coach</title><link rel="stylesheet" href="/static/style.css">
+  <script src="/static/dashboard.js" defer></script>
+</head>
+<body>
+<aside class="sidebar">
+  <a class="brand" href="/" aria-label="Home"><span class="brand-icon">↗</span><span>ADAPTIVE<br><small>GARMIN COACH</small></span></a>
+  <span class="nav-label">IL TUO TRAINING</span>
+  <a class="nav active" href="#overview">◉ &nbsp; Panoramica</a>
+  <a class="nav" href="#activities">↗ &nbsp; Attività recenti</a>
+  <a class="nav" href="/review">✓ &nbsp; Review e consigli</a><a class="nav" href="/performances">♜ &nbsp; Best performances</a>
+<a class="nav" href="/climbs">△ &nbsp; Salite in bici</a>  <a class="nav" href="#plan">▤ &nbsp; Piano attuale</a>
+  <a class="nav" href="#recovery">♡ &nbsp; Recupero</a>
+  <div class="sidebar-bottom"><span class="device">⌚</span><strong>epix Pro · Gen 2</strong><small>Coach personale · v1.0</small><a href="/docs" target="_blank" rel="noopener">API & documentazione ↗</a></div>
+</aside>
+<main id="overview">
+  <header><div><div class="eyebrow">GARMIN ADAPTIVE COACH <span class="local">LOCAL</span></div><h1>Un passo alla volta.</h1><p>Il tuo piano, le tue attività, il recupero che conta.</p></div><div class="connection"><span id="status-dot" class="dot"></span><span id="connection">Connessione in corso…</span><small id="last-refresh">—</small></div></header>
+  <div class="toolbar"><button id="refresh">↻ &nbsp; Refresh Garmin</button><button id="review">Run Review</button><span class="toolbar-spacer"></span><span id="today-date" class="muted"></span></div>
+  <div id="notice" role="status" aria-live="polite" hidden></div>
+  <section class="metrics" aria-label="Metriche">
+    <article class="metric"><div class="metric-label">VO₂ MAX <span>↗</span></div><div class="metric-value" id="vo2">—</div><small id="vo2-source">—</small></article>
+    <article class="metric"><div class="metric-label">CORSA · ULTIMI 7 GIORNI <span>↗</span></div><div class="metric-value"><span id="run-km">—</span><em>km</em></div><small>Volume realmente eseguito</small></article>
+    <article class="metric"><div class="metric-label">BICI · ULTIMI 7 GIORNI <span>↗</span></div><div class="metric-value"><span id="bike-hours">—</span><em>ore</em></div><small>Il lavoro aerobico complementare</small></article>
+    <article class="metric"><div class="metric-label">ULTIMA ATTIVITÀ <span>◷</span></div><div class="last-title" id="last-title">—</div><small id="last-detail">Aggiorna Garmin per iniziare</small><p class="small"><a href="/review">Review ultimo workout →</a></p></article>
+  </section>
+  <section class="session-grid">
+    <article class="card today-card"><div class="eyebrow">TODAY'S WORKOUT</div><h2 id="today-name">Caricamento…</h2><p id="today-description"></p><div class="session-meta" id="today-meta"></div><div class="divider"></div><div class="eyebrow">PROSSIMO PASSO</div><p id="tomorrow"></p></article>
+    <article class="card quality-card"><div class="eyebrow">NEXT QUALITY SESSION <span class="tag">QUALITÀ</span></div><h2 id="quality-name">—</h2><div id="quality-steps" class="steps"></div><div class="session-meta" id="quality-meta"></div><small>Qualità solo se recuperato. I ritmi seguono il livello attuale.</small></article>
+  </section>
+  <section class="card" id="activities"><div class="section-heading"><div><div class="eyebrow">IL LAVORO FATTO</div><h2>Attività recenti</h2></div><a href="/api/activities/recent" target="_blank" rel="noopener">Dati JSON ↗</a></div><div class="table-wrap"><table><thead><tr><th>ATTIVITÀ</th><th>DATA</th><th>DISTANZA</th><th>DURATA</th><th>PASSO</th><th>FC MEDIA</th></tr></thead><tbody id="activities-body"><tr><td colspan="6">Nessuna attività ancora caricata.</td></tr></tbody></table></div></section>
+  <section class="bottom-grid">
+    <article class="card" id="recovery"><div class="eyebrow">RECOVERY / FLAGS</div><h2>Ascolta il recupero.</h2><div id="flags"></div><p class="muted small">I flag sono segnali euristici da controllare con le sensazioni. La review non modifica il piano automaticamente.</p><div class="divider"></div><div class="eyebrow">REVIEW OGNI 2 GIORNI</div><p id="scheduler" class="small"></p><a href="/api/review/latest" target="_blank" rel="noopener">Snapshot per ChatGPT ↗</a></article>
+    <article class="card goals"><div class="eyebrow">DIREZIONE, SENZA FRETTA</div><h2>Costruire continuità.</h2><div class="goal-row"><span>10K attuale</span><strong>41:27 <small>27 set 2026</small></strong></div><div class="goal-row"><span>Obiettivi futuri</span><strong>10K &lt; 35′<br>Maratona &lt; 3h</strong></div><p class="small muted">Volume prudente, bici e forza nel piano. Lo storico di frattura da stress richiede attenzione alla tolleranza al carico.</p></article>
+  </section>
+  <section class="card" id="plan"><div class="section-heading"><div><div class="eyebrow">CURRENT PLAN</div><h2 id="plan-name">—</h2></div><button id="edit-plan" class="subtle">Modifica JSON</button></div><div id="plan-notes" class="plan-notes"></div><div class="table-wrap"><table><thead><tr><th>DATA</th><th>SESSIONE</th><th>SPORT</th><th>DURATA STIMATA</th><th>GARMIN</th></tr></thead><tbody id="plan-body"></tbody></table></div></section>
+  <section class="card calendar-card"><div class="section-heading"><div><div class="eyebrow">CALENDARIO GARMIN</div><h2>Un piano alla volta.</h2><p>La pulizia riguarda soltanto l'intervallo del piano corrente.</p></div></div><div class="action-row"><button id="preview">Preview Calendar Cleanup</button><button id="apply" class="danger" disabled>Apply Calendar Cleanup</button><button id="test">Test 1 workout</button><button id="sync" class="primary">Sync Plan</button></div><p id="proof" class="small muted">Prima della sync, verifica un singolo workout Garmin.</p><div id="preview-wrap" hidden><p id="preview-summary"></p><div class="table-wrap"><table><thead><tr><th>DATA</th><th>WORKOUT</th><th>SCHEDULED ID</th><th>AZIONE</th><th>MOTIVO</th></tr></thead><tbody id="preview-body"></tbody></table></div></div></section>
+  <footer>Garmin Adaptive Coach · dati locali · Europe/Rome <span>Adatta con criterio. Allenati con continuità.</span></footer>
+</main>
+<dialog id="confirm-dialog"><form method="dialog"><div class="eyebrow">CONFERMA OPERAZIONE</div><h2 id="confirm-title"></h2><p id="confirm-description"></p><div class="action-row"><button value="cancel">Annulla</button><button id="confirm-button" class="primary" value="confirm">Confermo</button></div></form></dialog>
+<dialog id="editor"><div class="section-heading"><h2>Modifica il piano</h2><button id="close-editor" aria-label="Chiudi">×</button></div><p class="small muted">Il salvataggio valida il JSON e conserva una copia del piano precedente. Le modifiche invalidano preview e test del piano.</p><label for="plan-json">data/workouts.json</label><textarea id="plan-json" spellcheck="false"></textarea><div id="editor-error" role="alert"></div><div class="action-row"><button id="save-plan" class="primary">Valida e salva</button></div></dialog>
+</body></html>

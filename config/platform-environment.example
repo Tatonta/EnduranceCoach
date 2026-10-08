@@ -1,0 +1,8 @@
+# Set these in the process environment; this example is not loaded automatically.
+# Local development only. Default database is data/platform/coach.sqlite3.
+COACH_PLATFORM_ALLOWED_HOSTS=127.0.0.1,localhost
+COACH_PLATFORM_REGISTRATION=false
+COACH_PLATFORM_REQUIRE_HTTPS=true
+# For a hosted pilot, set COACH_PLATFORM_DATABASE_URL to a managed
+# postgresql+psycopg DSN through your deployment's secret manager.
+# Do not put database credentials or API tokens in source control.

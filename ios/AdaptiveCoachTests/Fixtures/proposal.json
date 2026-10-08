@@ -1,0 +1,204 @@
+{
+  "proposal_id": "605afe52-389b-4900-a63b-33372e52f482",
+  "base_version": 1,
+  "expires_at": "2026-10-05T20:10:00+00:00",
+  "direction": "improving",
+  "reason": "Quattro corse facili migliorano a FC simile: valuta una piccola progressione del volume facile.",
+  "changes": [
+    {
+      "workout_id": "easy-1",
+      "date": "2026-10-06",
+      "name": "Corsa facile",
+      "before_duration_min": 40.0,
+      "after_duration_min": 41.5,
+      "step_changes": [
+        {
+          "type": "run",
+          "iterations": 1,
+          "before_duration_s": 1800.0,
+          "after_duration_s": 1890
+        }
+      ],
+      "description": "+5% sui soli tratti facili a tempo"
+    },
+    {
+      "workout_id": "easy-3",
+      "date": "2026-10-08",
+      "name": "Corsa facile",
+      "before_duration_min": 40.0,
+      "after_duration_min": 41.5,
+      "step_changes": [
+        {
+          "type": "run",
+          "iterations": 1,
+          "before_duration_s": 1800.0,
+          "after_duration_s": 1890
+        }
+      ],
+      "description": "+5% sui soli tratti facili a tempo"
+    },
+    {
+      "workout_id": "easy-5",
+      "date": "2026-10-10",
+      "name": "Corsa facile",
+      "before_duration_min": 40.0,
+      "after_duration_min": 41.5,
+      "step_changes": [
+        {
+          "type": "run",
+          "iterations": 1,
+          "before_duration_s": 1800.0,
+          "after_duration_s": 1890
+        }
+      ],
+      "description": "+5% sui soli tratti facili a tempo"
+    }
+  ],
+  "proposed_plan": {
+    "plan_name": "Synthetic native contract plan",
+    "goal": "A consistent, easy training week",
+    "athlete": {
+      "custom_key_must_survive": {
+        "CaseSensitive": [
+          1,
+          true,
+          null
+        ]
+      }
+    },
+    "notes": [
+      "Synthetic data, never a recommended personal program."
+    ],
+    "workouts": [
+      {
+        "id": "easy-1",
+        "date": "2026-10-06",
+        "name": "Corsa facile",
+        "sport": "running",
+        "estimated_duration_min": 41.5,
+        "description": "",
+        "quality": false,
+        "steps": [
+          {
+            "type": "warmup",
+            "duration_s": null,
+            "duration_min": 5.0,
+            "distance_m": null,
+            "target": null,
+            "iterations": null,
+            "steps": []
+          },
+          {
+            "type": "run",
+            "duration_s": null,
+            "duration_min": 31.5,
+            "distance_m": null,
+            "target": {
+              "type": "hr_zone",
+              "zone": 2
+            },
+            "iterations": null,
+            "steps": []
+          },
+          {
+            "type": "cooldown",
+            "duration_s": null,
+            "duration_min": 5.0,
+            "distance_m": null,
+            "target": null,
+            "iterations": null,
+            "steps": []
+          }
+        ]
+      },
+      {
+        "id": "easy-3",
+        "date": "2026-10-08",
+        "name": "Corsa facile",
+        "sport": "running",
+        "estimated_duration_min": 41.5,
+        "description": "",
+        "quality": false,
+        "steps": [
+          {
+            "type": "warmup",
+            "duration_s": null,
+            "duration_min": 5.0,
+            "distance_m": null,
+            "target": null,
+            "iterations": null,
+            "steps": []
+          },
+          {
+            "type": "run",
+            "duration_s": null,
+            "duration_min": 31.5,
+            "distance_m": null,
+            "target": {
+              "type": "hr_zone",
+              "zone": 2
+            },
+            "iterations": null,
+            "steps": []
+          },
+          {
+            "type": "cooldown",
+            "duration_s": null,
+            "duration_min": 5.0,
+            "distance_m": null,
+            "target": null,
+            "iterations": null,
+            "steps": []
+          }
+        ]
+      },
+      {
+        "id": "easy-5",
+        "date": "2026-10-10",
+        "name": "Corsa facile",
+        "sport": "running",
+        "estimated_duration_min": 41.5,
+        "description": "",
+        "quality": false,
+        "steps": [
+          {
+            "type": "warmup",
+            "duration_s": null,
+            "duration_min": 5.0,
+            "distance_m": null,
+            "target": null,
+            "iterations": null,
+            "steps": []
+          },
+          {
+            "type": "run",
+            "duration_s": null,
+            "duration_min": 31.5,
+            "distance_m": null,
+            "target": {
+              "type": "hr_zone",
+              "zone": 2
+            },
+            "iterations": null,
+            "steps": []
+          },
+          {
+            "type": "cooldown",
+            "duration_s": null,
+            "duration_min": 5.0,
+            "distance_m": null,
+            "target": null,
+            "iterations": null,
+            "steps": []
+          }
+        ]
+      }
+    ]
+  },
+  "evidence_activity_ids": [
+    "ad028498-600e-49b7-8147-b6b6c0d7ab90",
+    "602a834a-58b7-4a04-828a-08dec83512c5",
+    "b7657ed3-88c1-48c5-b75a-bbd94d7adeb7",
+    "10368b4a-205d-416a-b054-94cd54445e97"
+  ]
+}

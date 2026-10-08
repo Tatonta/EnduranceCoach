@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-05T22:00:00+02:00",
+  "activities_refreshed_at": "2026-10-05T20:00:00+00:00",
+  "last_workout": {
+    "source": "apple_health",
+    "source_activity_id": "synthetic-workout-3",
+    "name": "Corsa facile",
+    "sport": "running",
+    "activity_type": "running",
+    "start_time": "2026-10-04T22:00:00+02:00",
+    "distance_m": 7272.727272727272,
+    "duration_s": 2400.0,
+    "elapsed_duration_s": 2400.0,
+    "avg_pace_s_km": 330.0,
+    "avg_hr": 140.0,
+    "max_hr": 155.0,
+    "elevation_gain_m": 10.0,
+    "training_load": null,
+    "aerobic_training_effect": null,
+    "workout_id": "",
+    "activity_id": "10368b4a-205d-416a-b054-94cd54445e97",
+    "date": "2026-10-04",
+    "source_references": [
+      {
+        "source": "apple_health",
+        "source_activity_id": "synthetic-workout-3",
+        "ingestion_method": "client_import"
+      }
+    ]
+  },
+  "match": null,
+  "verdict": "Lavoro registrato, recupero da valutare",
+  "advice": [
+    "Attività registrata, senza associazione certa al piano. Verifica sport, data e durata prima di considerare una seduta saltata.",
+    "Annota quanto è stata impegnativa la seduta e come ti senti il giorno dopo: questi dati aiutano a distinguere progresso e stanchezza."
+  ],
+  "program": {
+    "decision": "consider_adjustment",
+    "eligible": true,
+    "direction": "improving",
+    "reason": "Quattro corse facili migliorano a FC simile: valuta una piccola progressione del volume facile.",
+    "evidence": [
+      {
+        "activity_id": "ad028498-600e-49b7-8147-b6b6c0d7ab90",
+        "name": "Corsa facile",
+        "date": "2026-09-25",
+        "avg_pace_s_km": 360.0,
+        "avg_hr": 140.0,
+        "duration_s": 2400.0,
+        "elevation_gain_m": 10.0
+      },
+      {
+        "activity_id": "602a834a-58b7-4a04-828a-08dec83512c5",
+        "name": "Corsa facile",
+        "date": "2026-09-28",
+        "avg_pace_s_km": 350.0,
+        "avg_hr": 140.0,
+        "duration_s": 2400.0,
+        "elevation_gain_m": 10.0
+      },
+      {
+        "activity_id": "b7657ed3-88c1-48c5-b75a-bbd94d7adeb7",
+        "name": "Corsa facile",
+        "date": "2026-10-01",
+        "avg_pace_s_km": 340.0,
+        "avg_hr": 140.0,
+        "duration_s": 2400.0,
+        "elevation_gain_m": 10.0
+      },
+      {
+        "activity_id": "10368b4a-205d-416a-b054-94cd54445e97",
+        "name": "Corsa facile",
+        "date": "2026-10-04",
+        "avg_pace_s_km": 330.0,
+        "avg_hr": 140.0,
+        "duration_s": 2400.0,
+        "elevation_gain_m": 10.0
+      }
+    ],
+    "change_percent": 9.1,
+    "policy": "Ultime 4 corse facili: ogni passaggio ≥1%, miglioramento complessivo ≥6% o rallentamento ≥8%; FC entro 6 bpm, durata entro 25%, terreno pianeggiante simile. Soglie euristiche.",
+    "sample_count": 4
+  },
+  "evidence_hash": "8f0c990bed1dcd31165454caae799811c0285202d928dbded3b257e05416c33d",
+  "limitations": [
+    "Le soglie sono euristiche, non una misura clinica di forma o fatica.",
+    "FC e terreno simili riducono gli errori, ma caldo, vento, sonno e sensazioni non sono verificati. Conferma il contesto prima di accettare.",
+    "Non vengono dedotte prestazioni degli intervalli dal passo medio, né confrontati corsa e ciclismo.",
+    "Imported data is supplied by the signed-in athlete; it is not verified against a vendor API."
+  ],
+  "plan_version": 1
+}

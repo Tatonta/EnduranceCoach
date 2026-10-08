@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-05T22:00:00+02:00",
+  "activities_refreshed_at": null,
+  "last_workout": null,
+  "match": null,
+  "verdict": "Nessuna attività disponibile",
+  "advice": [],
+  "program": {
+    "decision": "keep",
+    "eligible": false,
+    "direction": null,
+    "reason": "Mantieni il piano: l'ultima attività non offre un confronto di corsa affidabile. Bici e forza non vengono confrontate con il passo di corsa.",
+    "evidence": [],
+    "change_percent": null,
+    "policy": "Ultime 4 corse facili: ogni passaggio ≥1%, miglioramento complessivo ≥6% o rallentamento ≥8%; FC entro 6 bpm, durata entro 25%, terreno pianeggiante simile. Soglie euristiche."
+  },
+  "evidence_hash": "c20730e443d6c3e177a41882dff5d23af99e7daf321c476ff39d17dc8b1e7cd4",
+  "limitations": [
+    "Le soglie sono euristiche, non una misura clinica di forma o fatica.",
+    "FC e terreno simili riducono gli errori, ma caldo, vento, sonno e sensazioni non sono verificati. Conferma il contesto prima di accettare.",
+    "Non vengono dedotte prestazioni degli intervalli dal passo medio, né confrontati corsa e ciclismo.",
+    "Imported data is supplied by the signed-in athlete; it is not verified against a vendor API."
+  ],
+  "plan_version": 1
+}

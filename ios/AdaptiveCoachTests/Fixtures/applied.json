@@ -1,0 +1,55 @@
+{
+  "status": "applied",
+  "version": 2,
+  "changes": [
+    {
+      "workout_id": "easy-1",
+      "date": "2026-10-06",
+      "name": "Corsa facile",
+      "before_duration_min": 40.0,
+      "after_duration_min": 41.5,
+      "step_changes": [
+        {
+          "type": "run",
+          "iterations": 1,
+          "before_duration_s": 1800.0,
+          "after_duration_s": 1890
+        }
+      ],
+      "description": "+5% sui soli tratti facili a tempo"
+    },
+    {
+      "workout_id": "easy-3",
+      "date": "2026-10-08",
+      "name": "Corsa facile",
+      "before_duration_min": 40.0,
+      "after_duration_min": 41.5,
+      "step_changes": [
+        {
+          "type": "run",
+          "iterations": 1,
+          "before_duration_s": 1800.0,
+          "after_duration_s": 1890
+        }
+      ],
+      "description": "+5% sui soli tratti facili a tempo"
+    },
+    {
+      "workout_id": "easy-5",
+      "date": "2026-10-10",
+      "name": "Corsa facile",
+      "before_duration_min": 40.0,
+      "after_duration_min": 41.5,
+      "step_changes": [
+        {
+          "type": "run",
+          "iterations": 1,
+          "before_duration_s": 1800.0,
+          "after_duration_s": 1890
+        }
+      ],
+      "description": "+5% sui soli tratti facili a tempo"
+    }
+  ],
+  "vendor_sync": "not_implemented"
+}

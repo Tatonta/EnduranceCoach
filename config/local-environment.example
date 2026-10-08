@@ -1,0 +1,7 @@
+COACH_DATA_DIR=data
+GARMIN_TOKEN_DIR=~/.garminconnect
+COACH_TIMEZONE=Europe/Rome
+COACH_PORT=8000
+COACH_SCHEDULER=true
+COACH_STARTUP_REFRESH=true
+# Never put credentials or tokens in this file.

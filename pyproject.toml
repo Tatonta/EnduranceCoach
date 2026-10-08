@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "garmin-adaptive-coach"
+version = "0.1.0"
+description = "Personal Garmin coach with verified structured workouts"
+requires-python = ">=3.12"
+dependencies = [
+  "garminconnect[workout]==0.3.17", "curl_cffi>=0.15",
+  "pyshp>=3,<4",
+  "mapbox-vector-tile>=2.2,<3",
+  "fastapi>=0.115,<1", "uvicorn>=0.30,<1", "pydantic>=2.10,<3",
+  "APScheduler>=3.11,<4", "Jinja2>=3.1,<4", "python-dotenv>=1,<2", "tzdata", "filelock>=3.16,<4"
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.28", "ruff>=0.12"]
+platform = ["SQLAlchemy>=2.0,<2.1", "psycopg[binary]>=3.2,<4", "argon2-cffi>=25,<26"]
+
+[project.scripts]
+garmin-coach = "app.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
+
+[tool.setuptools.package-data]
+app = ["templates/*.html", "static/*", "static/vendor/leaflet/*", "static/vendor/leaflet/images/*", "assets/*.zip", "assets/*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "B", "UP"]

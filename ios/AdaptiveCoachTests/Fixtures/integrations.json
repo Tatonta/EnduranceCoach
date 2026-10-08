@@ -1,0 +1,62 @@
+{
+  "vendors": [
+    {
+      "id": "garmin",
+      "name": "Garmin",
+      "activity_import": false,
+      "status": "planned",
+      "notes": "Local Garmin adapter; production requires official Connect Developer Program access.",
+      "workout_export": true
+    },
+    {
+      "id": "coros",
+      "name": "COROS",
+      "activity_import": false,
+      "status": "planned",
+      "notes": "Developer onboarding and OAuth credentials required.",
+      "workout_export": false
+    },
+    {
+      "id": "suunto",
+      "name": "Suunto",
+      "activity_import": false,
+      "status": "planned",
+      "notes": "Partner approval and OAuth credentials required.",
+      "workout_export": false
+    },
+    {
+      "id": "fitbit",
+      "name": "Fitbit / Google Health",
+      "activity_import": false,
+      "status": "planned",
+      "notes": "Google Health API access required; legacy Fitbit API shuts down October 30, 2026. Google currently states new project onboarding is closed.",
+      "workout_export": false
+    },
+    {
+      "id": "amazfit",
+      "name": "Amazfit / Zepp",
+      "activity_import": false,
+      "status": "planned",
+      "notes": "Confirm approved cloud API access or an Apple Health bridge; Zepp OS device APIs are a separate route.",
+      "workout_export": false
+    },
+    {
+      "id": "xiaomi",
+      "name": "Xiaomi",
+      "activity_import": false,
+      "status": "planned",
+      "notes": "Confirm supported devices, region and authorized data access; no cloud adapter implemented.",
+      "workout_export": false
+    },
+    {
+      "id": "apple_health",
+      "name": "Apple Health",
+      "activity_import": false,
+      "status": "planned",
+      "notes": "Requires an iOS HealthKit client and explicit user permissions.",
+      "workout_export": false
+    }
+  ],
+  "live_vendor_connections": 0,
+  "client_import_available": true
+}

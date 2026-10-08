@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Review e consigli · Adaptive Coach</title><link rel="stylesheet" href="/static/style.css"><script src="/static/review.js" defer></script></head>
+<body>
+<aside class="sidebar"><a class="brand" href="/" aria-label="Home"><span class="brand-icon">↗</span><span>ADAPTIVE<br><small>GARMIN COACH</small></span></a><span class="nav-label">IL TUO TRAINING</span><a class="nav" href="/">◉ &nbsp; Panoramica</a><a class="nav active" href="/review">✓ &nbsp; Review e consigli</a><a class="nav" href="/performances">♜ &nbsp; Best performances</a><a class="nav" href="/climbs">△ &nbsp; Salite in bici</a><a class="nav" href="/#plan">▤ &nbsp; Piano attuale</a><a class="nav" href="/#recovery">♡ &nbsp; Recupero</a><div class="sidebar-bottom"><span class="device">⌚</span><strong>Il tuo prossimo passo</strong><small>Scelte basate sui dati disponibili</small><a href="/docs" target="_blank" rel="noopener">API & documentazione ↗</a></div></aside>
+<main>
+  <header><div><div class="eyebrow">REVIEW DEL WORKOUT <span class="local">COACH</span></div><h1>Capire il lavoro fatto.</h1><p>L'ultima seduta, un consiglio pratico e una scelta motivata sul piano.</p></div><a href="/">← Dashboard</a></header>
+  <div class="toolbar"><button id="refresh-review">↻ &nbsp; Aggiorna e valuta</button><span class="toolbar-spacer"></span><span id="review-updated" class="small muted"></span></div>
+  <div id="notice" role="status" aria-live="polite" hidden></div>
+  <div class="review-tabs" role="tablist" aria-label="Review e consigli"><button id="tab-review" role="tab" aria-selected="true" aria-controls="panel-review">Ultimo workout</button><button id="tab-advice" role="tab" aria-selected="false" aria-controls="panel-advice" tabindex="-1">Consigli pratici</button></div>
+  <section id="panel-review" role="tabpanel" aria-labelledby="tab-review" tabindex="0">
+    <article class="card today-card"><div class="eyebrow" id="workout-meta">IN ATTESA DEI DATI</div><h2 id="workout-name">Caricamento…</h2><p id="workout-verdict"></p><div class="review-stats" id="workout-stats"></div><div class="divider"></div><div class="eyebrow">PREVISTO E SVOLTO</div><p id="workout-match"></p><p class="small" id="workout-note"></p></article>
+    <article class="card"><div class="eyebrow">COME STA ANDANDO</div><h2 id="trend-title">Continuità prima di tutto.</h2><p id="trend-reason"></p><p class="small muted" id="trend-policy"></p><div class="table-wrap"><table><caption class="small muted">Le ultime corse considerate, dalla più vecchia alla più recente</caption><thead><tr><th scope="col">CORSA</th><th scope="col">DATA</th><th scope="col">PASSO MEDIO</th><th scope="col">FC MEDIA</th><th scope="col">DURATA</th><th scope="col">DISLIVELLO</th></tr></thead><tbody id="trend-evidence"></tbody></table></div></article>
+  </section>
+  <section id="panel-advice" role="tabpanel" aria-labelledby="tab-advice" tabindex="0" hidden>
+    <article class="card"><div class="eyebrow">DALLA SEDUTA ALLA PROSSIMA SCELTA</div><h2>Cosa fare adesso.</h2><ol id="advice-list" class="advice-list"></ol></article>
+    <article class="card today-card"><div class="eyebrow">IL PROGRAMMA</div><h2 id="program-title">Mantieni il piano.</h2><p id="program-reason"></p><button id="adjust-program" class="primary" hidden>Valuta un adattamento</button><p class="small muted" id="program-detail">Una singola seduta non basta a cambiare il programma.</p></article>
+  </section>
+  <article class="card"><div class="eyebrow">CONTESTO E DATI MANCANTI</div><div id="review-limitations" class="small muted"></div></article>
+  <footer>Adaptive Coach · dati locali · Europe/Rome <span>Una proposta solo quando il trend la giustifica.</span></footer>
+</main>
+<dialog id="adjustment-dialog" aria-labelledby="adjustment-title"><h2 id="adjustment-title">Una piccola modifica, da valutare.</h2><p id="adjustment-reason"></p><p>Solo le sedute future dei prossimi sette giorni. Controlla le sensazioni e se meteo e percorsi erano simili prima di accettare.</p><div id="adjustment-changes"></div><p class="small muted">L'accettazione salva il piano locale con backup. Per aggiornare il calendario Garmin, esegui poi Test 1 workout e Sync Plan dalla dashboard.</p><div id="adjustment-error" role="alert"></div><div class="action-row"><button id="dismiss-adjustment">Mantieni il piano</button><button id="accept-adjustment" class="primary">Accetta queste modifiche</button></div></dialog>
+</body></html>
