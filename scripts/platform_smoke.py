@@ -9,6 +9,20 @@ import urllib.request
 from urllib.parse import urlsplit
 
 
+def wait_for_ready(probe, attempts=45):
+    for attempt in range(attempts):
+        try:
+            assert probe()["status"] == "ok"
+            return
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as failure:
+            # A published Docker port can reset connections briefly before a
+            # worker binds its socket. Retry readiness, never a mutation.
+            if attempt == attempts - 1:
+                detail = f"HTTP {failure.code}" if isinstance(failure, urllib.error.HTTPError) else type(failure).__name__
+                raise RuntimeError(f"Pilot did not become ready ({detail})") from None
+            time.sleep(2)
+
+
 def verify(origin):
     parts = urlsplit(origin)
     if parts.hostname not in {"localhost", "127.0.0.1"} or parts.path not in {"", "/"}:
@@ -26,15 +40,7 @@ def verify(origin):
             data = response.read()
             return json.loads(data) if data else None
 
-    for attempt in range(45):
-        try:
-            assert request("/health")["status"] == "ok"
-            break
-        except (urllib.error.URLError, TimeoutError) as failure:
-            if attempt == 44:
-                detail = f"HTTP {failure.code}" if isinstance(failure, urllib.error.HTTPError) else type(failure).__name__
-                raise RuntimeError(f"Pilot did not become ready ({detail})") from None
-            time.sleep(2)
+    wait_for_ready(lambda: request("/health"))
     credentials = {"email": f"smoke-{secrets.token_hex(8)}@example.test", "password": secrets.token_urlsafe(32)}
     token = None
     try:
