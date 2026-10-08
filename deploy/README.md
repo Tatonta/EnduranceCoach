@@ -17,6 +17,8 @@ The helper creates random credentials under ignored `data/deployment`, prints no
 
 PostgreSQL 17 runs on a private network with a persistent named volume and no published host port. The one-shot initializer checks/creates schema revision 1; API workers start only after it succeeds. No private-data import or automatic schema upgrade happens. The API is at `http://127.0.0.1:8001`, registration is closed, and HTTPS is explicitly relaxed only for this private stack. Application defaults still require HTTPS.
 
+The API joins a separate bridge network for its loopback host port and the internal database network. PostgreSQL and initialization remain only on the internal network. An API connected solely to an `internal: true` network cannot provide the intended host-facing ingress; this separation follows [Docker's Compose networking model](https://docs.docker.com/compose/how-tos/networking/).
+
 For disposable coach test accounts, enable registration before starting the pilot:
 
 ```sh

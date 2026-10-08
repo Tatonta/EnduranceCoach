@@ -46,7 +46,7 @@ services:
       COACH_PLATFORM_WORKERS: "2"
     secrets: [database_url]
     ports: ["127.0.0.1:8001:8001"]
-    networks: [backend]
+    networks: [frontend, backend]
     depends_on:
       db: {condition: service_healthy}
       migrate: {condition: service_completed_successfully}
@@ -69,5 +69,7 @@ secrets:
 volumes:
   postgres_data:
 networks:
+  frontend:
+    driver: bridge
   backend:
     internal: true

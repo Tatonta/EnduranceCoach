@@ -67,7 +67,10 @@ jobs:
           docker compose -f deploy/compose.yml exec -T api python -c "import os; from pathlib import Path; assert os.getuid() == 10001; assert not Path('app/config.py').exists(); assert not Path('app/garmin').exists(); assert not Path('app/assets').exists(); assert not Path('data').exists(); assert not Path('.env').exists(); print('Backend-only image boundaries verified')"
       - name: Keep operational diagnostics
         if: failure()
-        run: docker compose -f deploy/compose.yml logs --no-color --tail 80
+        run: |
+          docker compose -f deploy/compose.yml ps -a
+          docker compose -f deploy/compose.yml logs --no-color --tail 80
+          docker compose -f deploy/compose.yml exec -T api python -c "import urllib.request; response=urllib.request.urlopen('http://127.0.0.1:8001/health',timeout=5); print('Inside-container readiness:',response.status)" || true
       - name: Stop only the disposable pilot
         if: always()
         run: docker compose -f deploy/compose.yml down --volumes

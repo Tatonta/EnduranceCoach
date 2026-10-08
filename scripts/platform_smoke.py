@@ -30,9 +30,10 @@ def verify(origin):
         try:
             assert request("/health")["status"] == "ok"
             break
-        except (urllib.error.URLError, TimeoutError):
+        except (urllib.error.URLError, TimeoutError) as failure:
             if attempt == 44:
-                raise RuntimeError("Pilot did not become ready") from None
+                detail = f"HTTP {failure.code}" if isinstance(failure, urllib.error.HTTPError) else type(failure).__name__
+                raise RuntimeError(f"Pilot did not become ready ({detail})") from None
             time.sleep(2)
     credentials = {"email": f"smoke-{secrets.token_hex(8)}@example.test", "password": secrets.token_urlsafe(32)}
     token = None
