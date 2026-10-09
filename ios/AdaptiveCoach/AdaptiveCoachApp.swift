@@ -78,8 +78,10 @@ struct LoginView: View {
                 Section(register ? "Crea account" : "Accedi") {
                     TextField("Email", text: $email).textContentType(.username).keyboardType(.emailAddress)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
+                        .accessibilityIdentifier("auth-email")
                     SecureField("Password (almeno 12 caratteri)", text: $password)
                         .textContentType(register ? .newPassword : .password)
+                        .accessibilityIdentifier("auth-password")
                     Toggle("Crea un nuovo account", isOn: $register)
                     if register { Text("La registrazione deve essere abilitata dal gestore del servizio.").font(.footnote) }
                     Button(register ? "Crea account e accedi" : "Accedi") {
@@ -88,6 +90,7 @@ struct LoginView: View {
                             password = ""
                         }
                     }.disabled(store.busy || email.isEmpty || password.count < 12 || store.endpointText.isEmpty)
+                        .accessibilityIdentifier("auth-submit")
                 }
                 if store.busy { ProgressView("Connessione…") }
             }.navigationTitle("Il tuo coach")

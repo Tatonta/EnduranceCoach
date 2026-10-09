@@ -6,7 +6,7 @@
       "activity_import": false,
       "status": "planned",
       "notes": "Local Garmin adapter; production requires official Connect Developer Program access.",
-      "workout_export": true
+      "workout_export": false
     },
     {
       "id": "coros",

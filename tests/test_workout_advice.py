@@ -61,6 +61,14 @@ def test_latest_real_workout_and_no_invented_metrics(plan, settings):
     assert evaluate(plan, [], now)["program"]["eligible"] is False
 
 
+def test_personal_catalog_retains_its_garmin_adapter_and_export(coach):
+    vendors = {vendor["id"]: vendor for vendor in coach.integrations()}
+    assert vendors["garmin"]["activity_import"]
+    assert vendors["garmin"]["workout_export"]
+    assert vendors["garmin"]["status"] == "local_adapter"
+    assert not any(vendor["workout_export"] for key, vendor in vendors.items() if key != "garmin")
+
+
 @pytest.mark.parametrize(
     "paces,direction", [((360, 350, 340, 330), "improving"), ((330, 340, 350, 365), "declining")]
 )

@@ -101,6 +101,15 @@ def records(now):
     return [{k: v for k, v in row.items() if k not in {"activity_id", "date"}} for row in runs(now)]
 
 
+def test_platform_catalog_does_not_advertise_personal_garmin_export(platform):
+    client, _, (alice, _), _ = platform
+    catalog = client.get("/v1/integrations", headers=alice["headers"]).json()
+    assert catalog["client_import_available"]
+    assert catalog["live_vendor_connections"] == 0
+    assert all(not vendor["activity_import"] and not vendor["workout_export"]
+               for vendor in catalog["vendors"])
+
+
 @pytest.mark.parametrize("changed_context", ["high_lap_hr", "stale_details", "detail_version"])
 def test_detail_context_revalidates_adjustment_before_preview_and_apply(platform, changed_context):
     client, app, (alice, _), settings = platform

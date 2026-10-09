@@ -99,7 +99,7 @@ class GarminActivitySource:
         return records
 
 
-def integration_catalog(active_sources):
+def integration_catalog(active_sources, *, workout_export_sources=frozenset()):
     vendors = [
         (
             "garmin",
@@ -136,7 +136,7 @@ def integration_catalog(active_sources):
             "activity_import": key in active_sources,
             "status": "local_adapter" if key in active_sources else "planned",
             "notes": notes,
-            "workout_export": key == "garmin",
+            "workout_export": key in workout_export_sources,
         }
         for key, name, notes in vendors
     ]

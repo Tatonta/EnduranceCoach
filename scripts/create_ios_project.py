@@ -78,7 +78,9 @@ def generate():
         objects[key] = fields
         return key
 
-    app_target, test_target, project = map(identifier, ("app-target", "test-target", "project"))
+    app_target, test_target, ui_target, project = map(
+        identifier, ("app-target", "test-target", "ui-target", "project")
+    )
     app_product = add(
         "app-product",
         isa="PBXFileReference",
@@ -92,6 +94,27 @@ def generate():
         explicitFileType="wrapper.cfbundle",
         path="AdaptiveCoachTests.xctest",
         sourceTree="BUILT_PRODUCTS_DIR",
+    )
+    ui_product = add(
+        "ui-product",
+        isa="PBXFileReference",
+        explicitFileType="wrapper.cfbundle",
+        path="AdaptiveCoachUITests.xctest",
+        sourceTree="BUILT_PRODUCTS_DIR",
+    )
+    ui_source = add(
+        "ui-source",
+        isa="PBXFileReference",
+        lastKnownFileType="sourcecode.swift",
+        path="CoachingFlowTests.swift",
+        sourceTree="<group>",
+    )
+    ui_group = add(
+        "ui-group",
+        isa="PBXGroup",
+        children=[ui_source],
+        path="AdaptiveCoachUITests",
+        sourceTree="<group>",
     )
     app_sources, app_resources, app_children = [], [], []
     for file in sorted((ROOT / "AdaptiveCoach").glob("*.swift")):
@@ -151,14 +174,14 @@ def generate():
     products = add(
         "products",
         isa="PBXGroup",
-        children=[app_product, test_product],
+        children=[app_product, test_product, ui_product],
         name="Products",
         sourceTree="<group>",
     )
     main_group = add(
         "main-group",
         isa="PBXGroup",
-        children=[app_group, test_group, products],
+        children=[app_group, test_group, ui_group, products],
         sourceTree="<group>",
     )
 
@@ -254,6 +277,41 @@ def generate():
     dependency = add(
         "test-dependency", isa="PBXTargetDependency", target=app_target, targetProxy=proxy
     )
+    ui_configs = configs(
+        "ui",
+        {
+            "PRODUCT_NAME": "$(TARGET_NAME)",
+            "PRODUCT_BUNDLE_IDENTIFIER": "com.example.AdaptiveCoachUITests",
+            "GENERATE_INFOPLIST_FILE": "YES",
+            "TARGETED_DEVICE_FAMILY": "1",
+            "CODE_SIGN_STYLE": "Automatic",
+            "TEST_TARGET_NAME": "AdaptiveCoach",
+            "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/Frameworks @loader_path/Frameworks",
+        },
+    )
+    ui_dependency = add(
+        "ui-dependency", isa="PBXTargetDependency", target=app_target, targetProxy=proxy
+    )
+    add(
+        "ui-target",
+        isa="PBXNativeTarget",
+        buildConfigurationList=ui_configs,
+        buildPhases=[
+            phase(
+                "ui-sources",
+                "PBXSourcesBuildPhase",
+                [add("ui-build", isa="PBXBuildFile", fileRef=ui_source)],
+            ),
+            phase("ui-frameworks", "PBXFrameworksBuildPhase", []),
+            phase("ui-resources", "PBXResourcesBuildPhase", []),
+        ],
+        buildRules=[],
+        dependencies=[ui_dependency],
+        name="AdaptiveCoachUITests",
+        productName="AdaptiveCoachUITests",
+        productReference=ui_product,
+        productType="com.apple.product-type.bundle.ui-testing",
+    )
     add(
         "app-target",
         isa="PBXNativeTarget",
@@ -305,6 +363,7 @@ def generate():
                     "SystemCapabilities": {"com.apple.HealthKit": {"enabled": 1}},
                 },
                 test_target: {"CreatedOnToolsVersion": "16.0", "TestTargetID": app_target},
+                ui_target: {"CreatedOnToolsVersion": "16.0", "TestTargetID": app_target},
             },
         },
         buildConfigurationList=configs("project", common),
@@ -315,7 +374,7 @@ def generate():
         productRefGroup=products,
         projectDirPath="",
         projectRoot="",
-        targets=[app_target, test_target],
+        targets=[app_target, test_target, ui_target],
     )
     path = ROOT / "AdaptiveCoach.xcodeproj"
     path.mkdir(parents=True, exist_ok=True)
@@ -346,6 +405,9 @@ def generate():
 <ArchiveAction buildConfiguration="Release" revealArchiveInOrganizer="YES"/>
 </Scheme>
 """)
+    ui_ref = f'<BuildableReference BuildableIdentifier="primary" BlueprintIdentifier="{ui_target}" BuildableName="AdaptiveCoachUITests.xctest" BlueprintName="AdaptiveCoachUITests" ReferencedContainer="container:AdaptiveCoach.xcodeproj"/>'
+    ui_scheme = (scheme_dir / "AdaptiveCoach.xcscheme").read_text().replace(test_ref, ui_ref)
+    (scheme_dir / "AdaptiveCoachUI.xcscheme").write_text(ui_scheme)
     icon()
     return len(app_sources)
 

@@ -9,7 +9,7 @@ struct ReviewView: View {
                     Section("Ultima seduta") {
                         Text(review.verdict).font(.headline)
                         if let workout = review.lastWorkout {
-                            Text(workout.name).font(.title2.bold())
+                            Text(workout.name).font(.title2.bold()).accessibilityIdentifier("workout-title")
                             Text("\(workout.date) · \(workout.source)").foregroundStyle(.secondary)
                             LabeledContent("Distanza", value: workout.distanceKnown == false ? "Non indicata" : String(format: "%.2f km", workout.distanceM / 1000))
                             LabeledContent("Durata", value: Metric.duration(workout.durationS))
@@ -77,6 +77,7 @@ struct AdviceView: View {
                     Section("Adattare il programma?") {
                         Label(review.program.eligible ? "Valuta un piccolo adattamento" : "Mantieni il piano", systemImage: review.program.eligible ? "arrow.triangle.branch" : "checkmark.circle")
                             .font(.headline)
+                            .accessibilityIdentifier("program-decision")
                         Text(review.program.reason)
                         ForEach(Array((review.program.contextReasons ?? []).filter { !review.program.reason.contains($0) }.enumerated()), id: \.offset) { _, item in
                             Text(item).font(.footnote).foregroundStyle(.secondary)
@@ -137,6 +138,7 @@ struct AdjustmentSheet: View {
                         .font(.footnote).foregroundStyle(.secondary)
                     Text("L'app aggiorna il programma sul servizio. L'invio dei workout all'orologio non è disponibile.")
                     Toggle("Ho controllato le modifiche e il contesto delle corse", isOn: $confirmed)
+                        .accessibilityIdentifier("adjustment-confirmation")
                     TimelineView(.periodic(from: .now, by: 1)) { _ in
                         let expired = (Wire.date(proposal.expiresAt) ?? .distantPast) <= Date()
                         Button("Conferma e aggiorna il piano") { Task { await store.run { try await store.applyAdjustment(proposal) } } }

@@ -184,7 +184,9 @@ class Coach:
             return snapshot
 
     def integrations(self):
-        return integration_catalog({source.source for source in self.activity_sources})
+        return integration_catalog(
+            {source.source for source in self.activity_sources}, workout_export_sources={"garmin"}
+        )
 
     def workout_review(self, snapshot=None):
         # Read cached data while a slow remote refresh holds the mutation lock.

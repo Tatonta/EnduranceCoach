@@ -1,9 +1,9 @@
 name: iOS build and native contract tests
 on:
   pull_request:
-    paths: ["ios/**", ".github/workflows/ios.yml"]
+    paths: ["ios/**", "app/platform/**", "app/integrations/**", "app/services/workout_review.py", "app/services/adjustment_context.py", "app/services/session_analysis.py", "app/models.py", "app/training_profile.py", "app/session_feedback.py", "scripts/ios_ui_backend.py", "requirements*.txt", "pyproject.toml", ".github/workflows/ios.yml"]
   push:
-    paths: ["ios/**", ".github/workflows/ios.yml"]
+    paths: ["ios/**", "app/platform/**", "app/integrations/**", "app/services/workout_review.py", "app/services/adjustment_context.py", "app/services/session_analysis.py", "app/models.py", "app/training_profile.py", "app/session_feedback.py", "scripts/ios_ui_backend.py", "requirements*.txt", "pyproject.toml", ".github/workflows/ios.yml"]
   workflow_dispatch:
 permissions:
   contents: read
@@ -33,10 +33,53 @@ jobs:
             -destination 'platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}' \
             -derivedDataPath ios/DerivedData -resultBundlePath ios/NativeTests.xcresult \
             CODE_SIGNING_ALLOWED=NO
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.14"}
+      - name: Install the isolated UI backend dependencies
+        run: python -m pip install -e ".[dev,platform]" -c requirements-lock.txt -c requirements-platform-lock.txt
+      - name: Start the disposable UI backend on loopback
+        run: |
+          python -m scripts.ios_ui_backend --directory "$RUNNER_TEMP/coach-ui" --port 8001 > "$RUNNER_TEMP/ui-backend.log" 2>&1 &
+          echo $! > "$RUNNER_TEMP/ui-backend.pid"
+          python - <<'PY'
+          import time, urllib.request
+          for attempt in range(40):
+              try:
+                  urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=1)
+                  break
+              except OSError:
+                  time.sleep(0.5)
+          else:
+              raise SystemExit('UI backend failed to become ready')
+          PY
+      - name: Run onboarding, review and explicit adjustment UI tests
+        run: |
+          python - <<'PY'
+          import json, os, subprocess
+          from pathlib import Path
+          access = json.loads((Path(os.environ['RUNNER_TEMP']) / 'coach-ui/ui-test-access.json').read_text())
+          print('::add-mask::' + access['password'], flush=True)
+          environment = {**os.environ, 'TEST_RUNNER_COACH_UI_TEST_PASSWORD': access['password'],
+                         'TEST_RUNNER_COACH_UI_TEST_ORIGIN': access['origin']}
+          subprocess.run(['xcodebuild', 'test', '-project', 'ios/AdaptiveCoach.xcodeproj',
+                          '-scheme', 'AdaptiveCoachUI', '-destination',
+                          'platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}',
+                          '-parallel-testing-enabled', 'NO', '-derivedDataPath', 'ios/DerivedData',
+                          '-resultBundlePath', 'ios/UIFlowTests.xcresult', 'CODE_SIGNING_ALLOWED=NO'],
+                         env=environment, check=True)
+          PY
+      - name: Stop only the disposable UI backend
+        if: always()
+        run: |
+          if [ -f "$RUNNER_TEMP/ui-backend.pid" ]; then
+            kill "$(cat "$RUNNER_TEMP/ui-backend.pid")" || true
+          fi
       - name: Keep diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: native-test-results
-          path: ios/NativeTests.xcresult
+          path: |
+            ios/NativeTests.xcresult
+            ios/UIFlowTests.xcresult
           if-no-files-found: ignore

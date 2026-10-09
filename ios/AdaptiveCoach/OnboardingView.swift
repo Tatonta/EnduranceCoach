@@ -33,8 +33,8 @@ struct OnboardingView: View {
                 }
                 Section {
                     if step > 0 { Button("Indietro") { step -= 1 } }
-                    if step < 4 { Button("Continua") { validateAndAdvance() } }
-                    else { Button("Salva e apri il coach") { save() }.disabled(!draft.coachingConsent || store.busy) }
+                    if step < 4 { Button("Continua") { validateAndAdvance() }.accessibilityIdentifier("onboarding-continue") }
+                    else { Button("Salva e apri il coach") { save() }.disabled(!draft.coachingConsent || store.busy).accessibilityIdentifier("onboarding-save") }
                     if store.busy { ProgressView("Salvataggio…") }
                 }
             }.navigationTitle(editing ? "Profilo e obiettivi" : "Conosciamoci")
@@ -56,6 +56,7 @@ struct OnboardingView: View {
                 Text("Gara o distanza").tag("event"); Text("Migliorare un tempo").tag("personal_best")
             }
             TextField("Che cosa vuoi ottenere?", text: $draft.goalDescription, axis: .vertical).lineLimit(3...6)
+                .accessibilityIdentifier("profile-goal")
             Toggle("Ho una scadenza", isOn: $hasDeadline)
             if hasDeadline {
                 DatePicker("Entro quando", selection: $deadline, in: Date().addingTimeInterval(86400)..., displayedComponents: .date)
@@ -109,6 +110,7 @@ struct OnboardingView: View {
                         draft.availability.removeAll { $0.weekday == day }
                         if enabled { draft.availability.append(TrainingDay(weekday: day, minutes: 45)) }
                     }))
+                    .accessibilityIdentifier("availability-\(day)")
                     if let index = draft.availability.firstIndex(where: { $0.weekday == day }) {
                         Stepper("Fino a \(draft.availability[index].minutes) minuti", value: $draft.availability[index].minutes, in: 15...240, step: 5)
                     }
@@ -131,6 +133,7 @@ struct OnboardingView: View {
             ForEach(draft.availability.sorted { $0.weekday < $1.weekday }) { day in Text("\(weekdays[day.weekday]): \(day.minutes) min") }
             Text("Palestra: \(draft.gymSessionsWeek) sedute/sett. · \(draft.bestPerformances.count) migliori prestazioni dichiarate")
             Toggle("Confermo l'uso delle risposte per il coaching", isOn: $draft.coachingConsent)
+                .accessibilityIdentifier("profile-consent")
             Text("Il profilo viene inviato al servizio di coaching configurato. Non cambia il piano e non concede permessi HealthKit. L'invio a un assistente AI richiede un flusso e un consenso separati.").font(.footnote).foregroundStyle(.secondary)
         }
     }
