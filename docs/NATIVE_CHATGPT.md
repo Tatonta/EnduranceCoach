@@ -26,7 +26,7 @@ Il consenso all'invio è separato dal questionario e dal permesso di usare il pi
 
 Il selettore conserva fino a 12 registrazioni separate per atleta e origine, con etichette stabili distinte anche quando email e subject coincidono. Il client ID emesso identifica la registrazione; email e subject non vengono usati come identificatori di workspace. Selezionare un account prepara la riautorizzazione; l’account attivo cambia solo dopo la verifica del nuovo ID token. Le credenziali dell’account precedente restano separate. In caso di scambio fallito, il client ID emesso rimane come registrazione da completare, per ritentare senza registrare un altro client.
 
-Il collegamento precedente viene migrato al registro cifrato: si salva prima il nuovo registro e solo poi si rimuovono i vecchi elementi. Scollegare l’account attivo ne rimuove i token e conserva identità, etichetta e client ID. Eliminare l’account EnduranceCoach tenta la revoca di tutte le sessioni ChatGPT salvate e rimuove anche il registro. I test di registro usano esclusivamente credenziali sintetiche; il comportamento reale del Portachiavi e delle sessioni OpenAI resta da provare su hardware.
+Il collegamento precedente viene migrato al registro cifrato: si salva prima il nuovo registro e solo poi si rimuovono i vecchi elementi. Scollegare l’account attivo ne rimuove i token e conserva identità, etichetta e client ID. Eliminare l’account EnduranceCoach tenta la revoca di tutte le sessioni ChatGPT salvate e rimuove anche il registro. I test di registro usano esclusivamente credenziali sintetiche; il Portachiavi su iPhone e le sessioni reali OpenAI restano da provare.
 
 ## Callback iOS e verifiche mancanti
 
@@ -44,3 +44,5 @@ Scollega ChatGPT elimina localmente i token, tenta la revoca remota e conserva i
 - [Limiti del percorso in preview](https://developers.openai.com/siwc/token-sharing-open-source/preview-limitations)
 
 La policy privacy/support e le dichiarazioni App Store devono descrivere l'invio diretto a OpenAI, eventuali limiti del piano, le scelte di conservazione e la rimozione. Non sono sostituite dal manifest di progetto. Hosting, firma Apple, accessi vendor e distribuzione App Store restano incompleti.
+
+La build, 34 test di contratto (incluse tre prove nel Portachiavi del simulatore) e due flussi UI sono passati in [questa verifica](https://github.com/Tatonta/EnduranceCoach/actions/runs/37951751591). Il rinnovo salva i token sostitutivi anche se i permessi sono ridotti, poi blocca l’inferenza priva del consenso del piano; la rotazione non cambia l’account attivo. Questa evidenza riguarda codice e simulatore con dati sintetici, non autorizzazioni o inferenze OpenAI reali.
