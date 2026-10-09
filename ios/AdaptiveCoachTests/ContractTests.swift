@@ -1,4 +1,5 @@
 import XCTest
+import Security
 @testable import AdaptiveCoach
 
 final class ContractTests: XCTestCase {
@@ -238,4 +239,123 @@ private final class FixtureProtocol: URLProtocol {
         client?.urlProtocolDidFinishLoading(self)
     }
     override func stopLoading() {}
+}
+
+final class ChatGPTContractTests: XCTestCase {
+    func testPKCEAndFirstReturningAuthorization() throws {
+        XCTAssertEqual(ChatGPTAuthorization.challenge("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"), "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM")
+        let first = try ChatGPTAuthorization.Attempt(port: 54321)
+        let host = "urn:uuid:" + UUID().uuidString
+        let parts = try XCTUnwrap(URLComponents(url: first.authorizationURL(hostID: host), resolvingAgainstBaseURL: false))
+        let query = Dictionary(uniqueKeysWithValues: (parts.queryItems ?? []).map { ($0.name, $0.value ?? "") })
+        XCTAssertEqual(query["agent_name_hint"], "EnduranceCoach")
+        XCTAssertNil(query["agent_name"])
+        XCTAssertEqual(query["redirect_uri"], "http://127.0.0.1:54321/auth/callback")
+        XCTAssertEqual(query["ext_agent_host_id"], host)
+        let returning = try ChatGPTAuthorization.Attempt(port: 12345, clientID: "oaiapp_synthetic")
+        let again = try XCTUnwrap(URLComponents(url: returning.authorizationURL(hostID: host), resolvingAgainstBaseURL: false))
+        XCTAssertFalse((again.queryItems ?? []).contains { $0.name == "agent_name_hint" })
+        XCTAssertNotEqual(first.state, returning.state)
+        XCTAssertNotEqual(first.nonce, returning.nonce)
+    }
+    func testCallbackRejectsStatePortDuplicatesExpiredAndChangedClient() throws {
+        let now = Date(timeIntervalSince1970: 1_790_000_000)
+        let attempt = try ChatGPTAuthorization.Attempt(port: 54321, now: now)
+        let good = "http://127.0.0.1:54321/auth/callback?state=\(attempt.state)&code=synthetic&client_id=oaiapp_synthetic"
+        XCTAssertEqual(try attempt.callback(XCTUnwrap(URL(string: good)), now: now).clientID, "oaiapp_synthetic")
+        for bad in [good.replacingOccurrences(of: attempt.state, with: "wrong"), good + "&code=duplicate",
+                    good.replacingOccurrences(of: "54321", with: "12345"), good.replacingOccurrences(of: "127.0.0.1", with: "localhost"),
+                    good.replacingOccurrences(of: "http:", with: "https:"), good + "#fragment",
+                    good.replacingOccurrences(of: "oaiapp_synthetic", with: "dynamic_agent_client")] {
+            XCTAssertThrowsError(try attempt.callback(XCTUnwrap(URL(string: bad)), now: now))
+        }
+        XCTAssertThrowsError(try attempt.callback(XCTUnwrap(URL(string: good)), now: now.addingTimeInterval(601)))
+        let returning = try ChatGPTAuthorization.Attempt(port: 54321, clientID: "oaiapp_one", now: now)
+        XCTAssertThrowsError(try returning.callback(XCTUnwrap(URL(string: "http://127.0.0.1:54321/auth/callback?state=\(returning.state)&code=test&client_id=oaiapp_other")), now: now))
+        XCTAssertThrowsError(try attempt.callback(XCTUnwrap(URL(string: "http://127.0.0.1:54321/auth/callback?state=\(attempt.state)&error=access_denied")), now: now)) { error in
+            XCTAssertEqual((error as? ServiceError)?.code, "chatgpt_cancelled")
+        }
+    }
+    func testSignedIdentityAndClaimRejections() throws {
+        // A transient RSA key exists only in test-process memory; no private key or live token is bundled.
+        let attributes: [String: Any] = [kSecAttrKeyType as String: kSecAttrKeyTypeRSA, kSecAttrKeySizeInBits as String: 2048]
+        let key = try XCTUnwrap(SecKeyCreateRandomKey(attributes as CFDictionary, nil))
+        let publicKey = try XCTUnwrap(SecKeyCopyPublicKey(key))
+        let exported = try XCTUnwrap(SecKeyCopyExternalRepresentation(publicKey, nil)) as Data
+        let bytes = Array(exported); var offset = 1
+        func length() -> Int {
+            let value = Int(bytes[offset]); offset += 1
+            if value < 128 { return value }
+            var count = 0
+            for _ in 0..<(value & 127) { count = (count << 8) | Int(bytes[offset]); offset += 1 }
+            return count
+        }
+        _ = length()
+        func integer() -> Data {
+            offset += 1; let count = length()
+            var value = Array(bytes[offset..<(offset + count)]); offset += count
+            while value.count > 1 && value[0] == 0 { value.removeFirst() }
+            return Data(value)
+        }
+        let modulus = integer(), exponent = integer()
+        let jwks = try JSONSerialization.data(withJSONObject: ["keys": [["kid": "synthetic", "kty": "RSA", "alg": "RS256",
+            "n": ChatGPTAuthorization.base64URL(modulus), "e": ChatGPTAuthorization.base64URL(exponent)]]])
+        let now = Date(timeIntervalSince1970: 1_790_000_000)
+        let claims: [String: Any] = ["iss": ChatGPTAuthorization.issuer, "aud": "oaiapp_test", "sub": "synthetic-athlete",
+                                  "nonce": "test-nonce", "iat": now.timeIntervalSince1970, "exp": now.timeIntervalSince1970 + 300]
+        func signed(_ claims: [String: Any], algorithm: String = "RS256") throws -> String {
+            let header = ChatGPTAuthorization.base64URL(try JSONSerialization.data(withJSONObject: ["kid": "synthetic", "alg": algorithm]))
+            let payload = ChatGPTAuthorization.base64URL(try JSONSerialization.data(withJSONObject: claims))
+            let message = header + "." + payload
+            let signature = try XCTUnwrap(SecKeyCreateSignature(key, .rsaSignatureMessagePKCS1v15SHA256, Data(message.utf8) as CFData, nil)) as Data
+            return message + "." + ChatGPTAuthorization.base64URL(signature)
+        }
+        let token = try signed(claims)
+        XCTAssertEqual(try ChatGPTAuthorization.validateIDToken(token, jwks: jwks, clientID: "oaiapp_test", nonce: "test-nonce", now: now).subject, "synthetic-athlete")
+        let changes: [[String: Any]] = [["iss": "https://example.invalid"], ["aud": "oaiapp_other"], ["nonce": "wrong"],
+                                     ["exp": now.timeIntervalSince1970 - 1], ["iat": now.timeIntervalSince1970 + 600]]
+        for change in changes {
+            let invalid = claims.merging(change) { _, new in new }
+            XCTAssertThrowsError(try ChatGPTAuthorization.validateIDToken(signed(invalid), jwks: jwks, clientID: "oaiapp_test", nonce: "test-nonce", now: now))
+        }
+        XCTAssertThrowsError(try ChatGPTAuthorization.validateIDToken(signed(claims, algorithm: "none"), jwks: jwks, clientID: "oaiapp_test", nonce: "test-nonce", now: now))
+        var parts = token.split(separator: ".").map(String.init)
+        parts[1] = ChatGPTAuthorization.base64URL(try JSONSerialization.data(withJSONObject: claims.merging(["sub": "tampered"]) { _, new in new }))
+        XCTAssertThrowsError(try ChatGPTAuthorization.validateIDToken(parts.joined(separator: "."), jwks: jwks, clientID: "oaiapp_test", nonce: "test-nonce", now: now))
+    }
+    func testAccountCatalogPreservesOrderAndHidesUnavailableModels() throws {
+        let body = Data(#"{"models":[{"slug":"second","display_name":"Second","visibility":"list"},{"slug":"hidden","display_name":"Hidden","visibility":"hide"},{"slug":"first","display_name":"First","visibility":"list"},{"slug":"second","display_name":"Duplicate","visibility":"list"}]}"#.utf8)
+        XCTAssertEqual(try ChatGPTHTTP.catalog(body).map(\.id), ["second", "first"])
+        XCTAssertThrowsError(try ChatGPTHTTP.catalog(Data(#"{"data":[{"id":"unrelated-catalog"}]}"#.utf8)))
+    }
+    func testOnlyCompletedAssistantTextIsAccepted() throws {
+        XCTAssertNil(try ChatGPTHTTP.completedText(#"{"type":"response.output_text.delta","delta":"partial"}"#))
+        XCTAssertNil(try ChatGPTHTTP.completedText("[DONE]"))
+        let finished = #"{"type":"response.completed","response":{"status":"completed","output":[{"type":"message","role":"assistant","content":[{"type":"output_text","text":"Seduta riuscita: regola il ritmo."}]},{"type":"message","role":"user","content":[{"type":"output_text","text":"ignored"}]}]}}"#
+        XCTAssertEqual(try ChatGPTHTTP.completedText(finished), "Seduta riuscita: regola il ritmo.")
+        for type in ["response.failed", "response.incomplete", "error"] {
+            XCTAssertThrowsError(try ChatGPTHTTP.completedText("{\"type\":\"\(type)\"}"))
+        }
+        XCTAssertThrowsError(try ChatGPTHTTP.completedText(finished.replacingOccurrences(of: "\"status\":\"completed\"", with: "\"status\":\"incomplete\"")))
+    }
+    func testLoopbackRequestShapeAndAccountBinding() throws {
+        XCTAssertEqual(ChatGPTLoopback.requestURL("GET /auth/callback?state=test HTTP/1.1", port: 54321)?.host, "127.0.0.1")
+        for request in ["POST /auth/callback?code=x HTTP/1.1", "GET https://example.invalid/ HTTP/1.1", "GET /other?x=y HTTP/1.1", "GET /auth/callback?x=y HTTP/2"] {
+            XCTAssertNil(ChatGPTLoopback.requestURL(request, port: 54321))
+        }
+        XCTAssertNotEqual(ChatGPTVault.binding(endpoint: "https://a.invalid", athleteID: "one"), ChatGPTVault.binding(endpoint: "https://a.invalid", athleteID: "two"))
+        XCTAssertNotEqual(ChatGPTVault.binding(endpoint: "https://a.invalid", athleteID: "one"), ChatGPTVault.binding(endpoint: "https://b.invalid", athleteID: "one"))
+    }
+    func testRealLoopbackListenerReturnsStaticPageWithoutEchoingCode() async throws {
+        let listener = ChatGPTLoopback()
+        let port = try await listener.start { url in url.query == "code=synthetic-private-value" }
+        defer { listener.stop() }
+        let session = URLSession(configuration: .ephemeral)
+        defer { session.invalidateAndCancel() }
+        let url = try XCTUnwrap(URL(string: "http://127.0.0.1:\(port)/auth/callback?code=synthetic-private-value"))
+        let (data, response) = try await session.data(from: url)
+        XCTAssertEqual((response as? HTTPURLResponse)?.statusCode, 200)
+        XCTAssertFalse(String(decoding: data, as: UTF8.self).contains("synthetic-private-value"))
+        XCTAssertEqual((response as? HTTPURLResponse)?.value(forHTTPHeaderField: "Cache-Control"), "no-store")
+    }
 }

@@ -27,3 +27,5 @@ Il prodotto richiesto è **gratuito e open source**, con licenza MIT del codice 
 `context_hash` prepara il controllo di contesto al ritorno da una richiesta AI. Una risposta o una bozza AI non può aggirare i controlli di adattamento, l'anteprima e la conferma dell'atleta.
 
 Le prove coprono isolamento tra atleti, autenticazione, funzionamento senza piano, assenza di campi GPS e marker segreti legacy, dettaglio di FC/stride conservato, campioni ridotti con copertura esplicita, attività non concluse, impronte/versioni e invalidazione dei dettagli dopo modifica della fonte.
+
+Il client nativo implementa ora un percorso diretto sperimentale, descritto in [NATIVE_CHATGPT.md](NATIVE_CHATGPT.md). Il backend continua a preparare solo il contesto: non riceve i token OpenAI e non esegue inferenze.

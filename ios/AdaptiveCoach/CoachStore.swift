@@ -24,6 +24,7 @@ final class CoachStore: ObservableObject {
     private var reviewedAt: Date?
     private var bootstrapped = false
     private let health = HealthImporter()
+    let chatgpt = ChatGPTConnection()
     init() {
         // Clean a protected export left behind if the previous process ended during sharing.
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CoachExports", isDirectory: true)
@@ -68,6 +69,7 @@ final class CoachStore: ObservableObject {
             self.endpointText = secret.endpoint
             self.client = api
             self.identity = me
+            try self.chatgpt.load(endpoint: secret.endpoint, athleteID: me.id)
             try await self.refresh()
         }
     }
@@ -85,6 +87,7 @@ final class CoachStore: ObservableObject {
         UserDefaults.standard.set(endpoint.absoluteString, forKey: "serviceOrigin")
         client = api
         identity = me
+        try chatgpt.load(endpoint: endpoint.absoluteString, athleteID: me.id)
         try await refresh()
     }
     private func api() throws -> APIClient {
@@ -119,6 +122,9 @@ final class CoachStore: ObservableObject {
         profile = result
         profileChecked = true
         try await refresh()
+    }
+    func coachingContext() async throws -> CoachingContextReply {
+        try await api().request("v1/coach/context")
     }
     func saveManualSession(_ value: ManualSessionRequest) async throws {
         let _: ImportReply = try await api().request("v1/activities/manual", method: "POST", body: Wire.encoder().encode(value))
@@ -236,6 +242,8 @@ final class CoachStore: ObservableObject {
         if remoteError != nil { notice = "Sessione rimossa da questo dispositivo. La revoca sul server non è stata confermata; la sessione remota scadrà automaticamente." }
     }
     func deleteAccount(password: String) async throws {
+        let owner = identity?.id
+        let origin = try Endpoint.validate(endpointText).absoluteString
         let api = try api()
         do {
             let _: EmptyReply = try await api.request("v1/me", method: "DELETE", body: Wire.encoder().encode(AccountDeletion(password: password, confirmed: true)))
@@ -245,11 +253,18 @@ final class CoachStore: ObservableObject {
             let _: Identity = try await api.request("v1/me")
             throw ServiceError(status: 403, code: "password_verification", message: "Password non corretta. L'account non è stato eliminato.")
         }
-        try SessionVault.clear()
+        var cleanupFailed = false
+        do { try await chatgpt.disconnect() } catch { cleanupFailed = true }
+        let revocationMessage = chatgpt.message
+        if let owner { do { try ChatGPTVault.forget(endpoint: origin, athleteID: owner) } catch { cleanupFailed = true } }
+        do { try SessionVault.clear() } catch { cleanupFailed = true }
         clearMemory()
         notice = "Account e dati sul servizio eliminati. I dati originali in Apple Health rimangono disponibili."
+        if cleanupFailed { notice! += " Pulizia del Portachiavi non confermata: riprova su dispositivo sbloccato." }
+        if revocationMessage?.contains("non confermata") == true { notice! += " Revoca ChatGPT remota non confermata: gestisci il collegamento nelle impostazioni ChatGPT." }
     }
     private func clearMemory() {
+        chatgpt.clearMemory()
         identity = nil; client = nil; review = nil; plan = nil; vendors = []
         profile = nil; profileChecked = false
         manualSessions = []

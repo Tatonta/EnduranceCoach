@@ -343,6 +343,11 @@ struct TrainingProfile: Codable {
 }
 struct ProfileReply: Decodable { let version: Int; let profile: TrainingProfile; let updatedAt: String }
 struct ProfileWrite: Encodable { let expectedVersion: Int; let profile: TrainingProfile }
+struct CoachingContextReply: Decodable {
+    let context: JSONValue
+    let contextHash: String
+    let inferencePerformed: Bool
+}
 
 enum Metric {
     static func pace(_ value: Double?) -> String {
