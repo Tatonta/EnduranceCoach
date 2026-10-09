@@ -44,6 +44,7 @@ function render(value) {
   $("advice-list").replaceChildren(...(value.advice.length ? value.advice : ["Sincronizza le attività: i consigli saranno basati sull'ultima seduta registrata."]).map(text => node("li", text)));
   $("program-title").textContent = p.eligible ? "Valuta un piccolo adattamento." : "Mantieni il piano.";
   $("program-reason").textContent = p.reason;
+  $("program-context").replaceChildren(...(p.context_reasons || []).filter(text => !p.reason.includes(text)).map(text => node("li", text)));
   $("adjust-program").hidden = !p.eligible;
   $("program-detail").textContent = p.eligible ? "Apri la proposta per vedere esattamente cosa cambierebbe. Puoi mantenere il piano." : "Il cambio verrà proposto solo con un trend persistente e dati sufficienti.";
   $("review-limitations").replaceChildren(...value.limitations.map(text => node("p", text)));

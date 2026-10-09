@@ -101,6 +101,119 @@ def records(now):
     return [{k: v for k, v in row.items() if k not in {"activity_id", "date"}} for row in runs(now)]
 
 
+@pytest.mark.parametrize("changed_context", ["high_lap_hr", "stale_details", "detail_version"])
+def test_detail_context_revalidates_adjustment_before_preview_and_apply(platform, changed_context):
+    client, app, (alice, _), settings = platform
+    now = settings.now()
+    plan = {
+        "plan_name": "Synthetic context check",
+        "workouts": [
+            {
+                "id": key,
+                "date": (now + timedelta(days=offset)).date().isoformat(),
+                "name": "Easy run",
+                "sport": "running",
+                "estimated_duration_min": 40,
+                "steps": [
+                    {"type": "run", "duration_min": 40, "target": {"type": "hr_zone", "zone": 2}}
+                ],
+            }
+            for key, offset in [("past-easy", -1), ("future-easy", 1)]
+        ],
+    }
+    assert (
+        client.put(
+            "/v1/plan", headers=alice["headers"], json={"expected_version": 0, "plan": plan}
+        ).status_code
+        == 200
+    )
+    activities = records(now)
+    assert (
+        client.post(
+            "/v1/activities/import", headers=alice["headers"], json={"activities": activities}
+        ).status_code
+        == 200
+    )
+    path = "/v1/activities/garmin/3/details"
+    initial = client.get(path, headers=alice["headers"]).json()
+    details = {
+        "plan_version": 1,
+        "plan_workout_id": "past-easy",
+        "hr_zones": [{"zone": 2, "low_bpm": 125, "high_bpm": 149}],
+        "laps": [
+            {
+                "lap": index + 1,
+                "step_index": 0,
+                "phase_type": "run",
+                "start_elapsed_s": index * 1200,
+                "duration_s": 1200,
+                "elapsed_s": 1200,
+                "distance_m": activities[-1]["distance_m"] / 2,
+                "avg_hr": 140,
+            }
+            for index in range(2)
+        ],
+    }
+    body = {
+        "expected_details_version": 0,
+        "expected_activity_hash": initial["activity_hash"],
+        "details": details,
+    }
+    assert client.put(path, headers=alice["headers"], json=body).status_code == 200
+    before = client.get("/v1/review/workout", headers=alice["headers"]).json()
+    assert before["program"]["eligible"]
+    preview = client.post("/v1/review/adjustments/preview", headers=alice["headers"])
+    assert preview.status_code == 200, preview.text
+    if changed_context == "stale_details":
+        activities[-1]["name"] = "Easy run updated"
+        assert (
+            client.post(
+                "/v1/activities/import",
+                headers=alice["headers"],
+                json={"activities": [activities[-1]]},
+            ).status_code
+            == 200
+        )
+    else:
+        if changed_context == "high_lap_hr":
+            # Whole-workout HR stays 140, hiding an overly intense second half.
+            details["laps"][0]["avg_hr"] = 120
+            details["laps"][1]["avg_hr"] = 160
+        assert (
+            client.put(
+                path, headers=alice["headers"], json={**body, "expected_details_version": 1}
+            ).status_code
+            == 200
+        )
+    after = client.get("/v1/review/workout", headers=alice["headers"]).json()
+    assert after["last_workout"]["avg_hr"] == 140
+    if changed_context == "detail_version":
+        assert after["program"][
+            "eligible"
+        ]  # Same analysis, new version still invalidates a preview.
+    else:
+        assert not after["program"]["eligible"]
+        assert after["program"]["direction"] == "improving"
+        assert after["program"]["context_reasons"]
+        assert (
+            client.post("/v1/review/adjustments/preview", headers=alice["headers"]).status_code
+            == 409
+        )
+    if changed_context == "high_lap_hr":
+        assert any(
+            item["code"] == "EASY_LAP_HR_HIGH"
+            for item in after["detailed_review"]["analysis"]["comparison_blockers"]
+        )
+        assert "ZNone" not in str(after["detailed_review"]["analysis"]["issues"])
+    result = client.post(
+        f"/v1/review/adjustments/{preview.json()['proposal_id']}/apply",
+        headers=alice["headers"],
+        json={"expected_version": 1, "confirmed": True},
+    )
+    assert result.status_code == 409 and result.json()["code"] == "proposal_stale"
+    assert app.state.athletes.plan(alice["id"])["version"] == 1
+
+
 def seed_trend(client, user, settings):
     assert save_plan(client, user).status_code == 200
     result = client.post(

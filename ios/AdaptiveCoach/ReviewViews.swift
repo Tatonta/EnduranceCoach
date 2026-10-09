@@ -78,6 +78,9 @@ struct AdviceView: View {
                         Label(review.program.eligible ? "Valuta un piccolo adattamento" : "Mantieni il piano", systemImage: review.program.eligible ? "arrow.triangle.branch" : "checkmark.circle")
                             .font(.headline)
                         Text(review.program.reason)
+                        ForEach(Array((review.program.contextReasons ?? []).filter { !review.program.reason.contains($0) }.enumerated()), id: \.offset) { _, item in
+                            Text(item).font(.footnote).foregroundStyle(.secondary)
+                        }
                         TimelineView(.periodic(from: .now, by: 1)) { _ in
                             if store.canOfferAdjustment {
                                 Button("Vedi la proposta") { Task { await store.run { try await store.previewAdjustment() } } }

@@ -53,9 +53,43 @@ class WorkoutDetailsService:
             )
         self.db.set(
             "workout_detail:" + activity["activity_id"],
-            {"raw": raw, "fetched_at": self.settings.now().isoformat(), "errors": errors},
+            {
+                "raw": raw,
+                "fetched_at": self.settings.now().isoformat(),
+                "errors": errors,
+                "activity_hash": canonical_hash(activity),
+            },
         )
         return activity["activity_id"]
+
+    def comparison_evidence(self, activity, plan):
+        stored = self.db.get("workout_detail:" + activity["activity_id"])
+        if not stored:
+            return {"status": "not_loaded"}
+        fingerprint = canonical_hash(stored.get("raw"))
+        if not stored.get("activity_hash"):
+            return {"status": "unverified", "fingerprint": fingerprint}
+        if stored["activity_hash"] != canonical_hash(activity):
+            return {"status": "stale", "fingerprint": fingerprint}
+        from app.services.reviewer import review_latest_workouts
+
+        snapshot = review_latest_workouts(plan, [activity], self.settings.now(), self.db.rows())
+        match = next(
+            (
+                row
+                for row in snapshot["matches"]
+                if row.get("activity_id") == activity["activity_id"]
+            ),
+            None,
+        )
+        workout = next(
+            (row for row in plan.workouts if match and row.key == match["plan_workout_id"]), None
+        )
+        return {
+            "status": "ready",
+            "fingerprint": fingerprint,
+            "analysis": analyze_session(activity, stored["raw"], workout),
+        }
 
     def view(self, base, plan, activity_id=None):
         activity = self.activity(activity_id)

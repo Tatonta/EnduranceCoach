@@ -28,6 +28,20 @@ final class ContractTests: XCTestCase {
         XCTAssertFalse(after.program.eligible)
         XCTAssertEqual(after.planVersion, 2)
     }
+    func testDetailContextCanVetoAnImprovingTrend() throws {
+        var payload = try XCTUnwrap(JSONSerialization.jsonObject(with: data("review-improving")) as? [String: Any])
+        var program = try XCTUnwrap(payload["program"] as? [String: Any])
+        program["eligible"] = false
+        program["decision"] = "keep"
+        program["context_reasons"] = ["Lap 2: FC sopra il riferimento Z2 configurato."]
+        payload["program"] = program
+        let review = try Wire.decoder().decode(WorkoutReview.self, from: JSONSerialization.data(withJSONObject: payload))
+        XCTAssertEqual(review.program.direction, "improving")
+        XCTAssertFalse(review.program.eligible)
+        XCTAssertEqual(review.program.contextReasons, ["Lap 2: FC sopra il riferimento Z2 configurato."])
+        let previous = try Wire.decoder().decode(WorkoutReview.self, from: data("review-improving"))
+        XCTAssertNil(previous.program.contextReasons)
+    }
     func testProposalPreservesExactStepsAndExplicitAcceptance() throws {
         let proposal = try Wire.decoder().decode(AdjustmentProposal.self, from: data("proposal"))
         XCTAssertEqual(proposal.baseVersion, 1)

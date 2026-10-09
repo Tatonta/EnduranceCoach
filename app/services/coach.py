@@ -9,6 +9,7 @@ from app.db import Database
 from app.errors import CoachError
 from app.garmin.client import GarminClient
 from app.integrations.activities import GarminActivitySource, integration_catalog
+from app.services.adjustment_context import contextualize_adjustment
 from app.services.chatgpt import ChatGPTService
 from app.services.cleanup import CleanupService
 from app.services.climbs import ClimbService
@@ -190,7 +191,7 @@ class Coach:
         # Preview/application callers hold that lock and revalidate before writing.
         plan, activities, now = self.plan(), self.db.activities(), self.settings.now()
         snapshot = snapshot or review_latest_workouts(plan, activities, now, self.db.rows())
-        return last_workout_review(
+        result = last_workout_review(
             plan,
             activities,
             now,
@@ -198,6 +199,15 @@ class Coach:
             self.db.get("last_refresh"),
             self.db.get("last_adjustment"),
         )
+        context = {}
+        if result["program"]["eligible"]:
+            evidence_ids = {row["activity_id"] for row in result["program"]["evidence"]}
+            context = {
+                row["activity_id"]: self.details.comparison_evidence(row, plan)
+                for row in activities
+                if row["activity_id"] in evidence_ids
+            }
+        return contextualize_adjustment(result, context, activities, now)
 
     def preview_adjustment(self):
         with self.lock:

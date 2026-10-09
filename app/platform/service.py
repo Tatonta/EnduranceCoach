@@ -16,6 +16,7 @@ from app.platform.tables import (
     AuditEvent,
     PlanVersion,
 )
+from app.services.adjustment_context import contextualize_adjustment
 from app.services.planner import canonical_hash
 from app.services.reviewer import review_latest_workouts
 from app.services.workout_review import adjusted_plan, last_workout_review
@@ -378,10 +379,25 @@ class AthleteService:
             plan, activities, now, snapshot, athlete.activities_updated_at, athlete.last_adjustment
         )
         review["plan_version"] = athlete.plan_version
+        detail_context = {}
+        if review["program"]["eligible"]:
+            from app.platform.detailed_review import ActivityDetailService
+
+            details = ActivityDetailService(self.store)
+            detail_context = {
+                row["activity_id"]: details.for_canonical(session, athlete.id, row["activity_id"])
+                or {"status": "not_loaded"}
+                for row in review["program"]["evidence"]
+            }
+        review = contextualize_adjustment(review, detail_context, activities, now)
         if include_details and review["last_workout"]:
             from app.platform.detailed_review import ActivityDetailService
 
-            review["detailed_review"] = ActivityDetailService(self.store).for_canonical(session, athlete.id, review["last_workout"]["activity_id"])
+            review["detailed_review"] = detail_context.get(
+                review["last_workout"]["activity_id"]
+            ) or ActivityDetailService(self.store).for_canonical(
+                session, athlete.id, review["last_workout"]["activity_id"]
+            )
             if review["detailed_review"] and review["detailed_review"]["status"] == "ready":
                 analysis = review["detailed_review"]["analysis"]
                 review["verdict"] = analysis["verdict"]

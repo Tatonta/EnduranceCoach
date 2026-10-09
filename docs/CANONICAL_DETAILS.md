@@ -42,7 +42,19 @@ Il confronto dei target usa la versione storica esplicitamente riferita. Aggiorn
 
 `app/garmin/session_details.py` converte un payload Garmin già disponibile alla boundary canonica, correggendo cm→m, ms→s, cadenza e indici FIT. Questo adapter non apre sessioni né chiama Garmin. Il servizio piattaforma accetta il formato canonico senza importare il modulo Garmin personale nel container. Non è un'integrazione cloud Garmin/COROS/Suunto approvata e non abilita da solo l'API del produttore.
 
-## Client iOS
+## Contesto prima di proporre un adattamento
+
+Il trend delle quattro corse facili resta il primo filtro. Se suggerisce un cambiamento, API personale e piattaforma verificano anche i dettagli già disponibili di quelle quattro attività, senza scaricare dati dal vendor durante il calcolo. Il confronto viene sospeso se una fase ha ritmo fuori target, FC media sopra un riferimento configurato, durata fuori dalla tolleranza del 15%, fasi mancanti oppure ordine incoerente. Per una seduta facile, anche un singolo lap sopra il limite Z2 configurato sospende la proposta, pur quando la FC media dell'intera attività resta simile alle altre corse. Non si inventano limiti cardiaci in assenza di zone configurate.
+
+La review conserva la direzione del trend osservato ma imposta `program.eligible=false`, `decision=keep` e spiega il contesto in `context_reasons`. L'atleta continua a vedere il confronto delle corse; il pulsante di adattamento viene nascosto. È una richiesta di contestualizzare le evidenze, non una diagnosi o una prova che la forma sia peggiorata.
+
+Dettagli obsoleti rispetto al riepilogo sospendono il confronto. Nel prototipo Garmin, una cache precedente priva dell'hash del riepilogo richiede una nuova lettura esplicita. L'assenza completa di dettagli mantiene il filtro euristico delle medie già previsto: non viene presentata come verifica degli step. Fastidi o forte stanchezza dichiarati negli ultimi due giorni sospendono comunque la proposta; la finestra di 48 ore è una scelta prudenziale del prodotto, non un criterio clinico.
+
+Stato/versione/hash dei dettagli e feedback rilevanti entrano nell'impronta delle evidenze. Sia l'anteprima sia l'applicazione ricalcolano questo contesto nella stessa transazione o sotto il lock locale: caricare o aggiornare dettagli dopo l'apertura della proposta la rende non applicabile, anche se la nuova analisi non rileva problemi. Occorre generare un'altra anteprima e confermarla. Nessun piano viene modificato da questa verifica.
+
+I test esercitano il caso FC media 140 bpm, due lap a 120 e 160 bpm, limite Z2 149 bpm: il trend medio migliorerebbe ma la proposta viene sospesa. Verificano anche dettagli obsoleti, aggiornamenti di versione, feedback recente e rifiuto di un'anteprima precedente, preservando la versione del piano.
+
+## Visualizzazione iOS
 
 La review nativa mostra giudizi tecnici, target della versione riferita, fasi, lap, stride length, cadenza, contatto a terra e potenza, quando disponibili. Passo e FC hanno grafici separati con unità esplicite. I tratti con dati assenti non vengono uniti; la mappa conserva la separazione dei segmenti GPS. Le sedute manuali mantengono il loro percorso di feedback dichiarato.
 

@@ -122,12 +122,32 @@ def test_canonical_and_garmin_phases_use_the_same_targets_and_units():
     ]
     assert canonical["phases"][1]["verdict"] == "troppo veloce"
     assert canonical["phases"][3]["verdict"] == "in target"
+    assert any(item["code"] == "PACE_TARGET_MISMATCH" for item in canonical["comparison_blockers"])
+    assert canonical["comparison_blockers"] == garmin["comparison_blockers"]
     assert canonical["dynamics"]["stride_m"] == pytest.approx(garmin["dynamics"]["stride_m"])
     assert canonical["dynamics"]["gct_ms"] == pytest.approx(279)
     normalized = normalize_garmin_details(activity, raw, workout, plan_version=1)
     assert normalized.laps[-1].step_index == 3
     assert normalized.dynamics.ground_contact_s == pytest.approx(0.279)
     assert analyze_canonical(activity, normalized, workout)["missing_phases"] == []
+
+
+@pytest.mark.parametrize("duration", [200, 400])
+def test_phase_duration_changes_require_context_even_with_all_steps_present(duration):
+    body = detail_fixture()
+    last = body["laps"][-1]
+    last["duration_s"] = last["elapsed_s"] = duration
+    analysis = analyze_canonical(
+        {"activity_id": "synthetic", "source": "coros", "sport": "running"},
+        SessionDetails.model_validate(body),
+        fixture_plan().workouts[0],
+    )
+    assert not analysis["missing_phases"]
+    assert any(
+        item["code"] == "PLANNED_DURATION_MISMATCH" and item["phase"] == 6
+        for item in analysis["comparison_blockers"]
+    )
+    assert any("Defaticamento 6" in item for item in analysis["issues"])
 
 
 @pytest.mark.parametrize(

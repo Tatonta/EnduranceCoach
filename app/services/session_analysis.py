@@ -286,7 +286,7 @@ def evaluate_measured_session(
                 }
             )
         phases[-1]["laps"].append(row)
-    positives, issues, actions = [], [], []
+    positives, issues, actions, comparison_blockers = [], [], [], []
     observed = []
     for number, phase in enumerate(phases, 1):
         rows = phase.pop("laps")
@@ -326,7 +326,14 @@ def evaluate_measured_session(
                     positives.append(
                         f"{phase['name']}: {duration / 60:.1f} min, durata coerente con i {step.seconds / 60:.1f} previsti."
                     )
-                if ratio < 0.85:
+                if not 0.85 <= ratio <= 1.15:
+                    comparison_blockers.append(
+                        {
+                            "code": "PLANNED_DURATION_MISMATCH",
+                            "phase": number,
+                            "note": f"{phase['name']} {number}: durata diversa dal piano riferito; il passo medio può dipendere dalla struttura modificata.",
+                        }
+                    )
                     issues.append(
                         f"{phase['name']} {number}: {duration / 60:.1f} min contro {step.seconds / 60:.1f} previsti."
                     )
@@ -349,6 +356,13 @@ def evaluate_measured_session(
                     else "in target"
                 )
                 if phase["verdict"] in {"troppo veloce", "troppo lento"}:
+                    comparison_blockers.append(
+                        {
+                            "code": "PACE_TARGET_MISMATCH",
+                            "phase": number,
+                            "note": f"{phase['name']} {number}: ritmo fuori dal target della seduta riferita.",
+                        }
+                    )
                     issues.append(
                         f"{phase['name']} {number}: {phase['verdict']} di {abs(phase['pace_delta_s']):.0f} s/km rispetto al target {target.fast}–{target.slow}."
                     )
@@ -376,6 +390,13 @@ def evaluate_measured_session(
                     "explicit": bool(target and target.type == "hr_zone"),
                 }
                 if high and phase["avg_hr"] > high:
+                    comparison_blockers.append(
+                        {
+                            "code": "HR_REFERENCE_EXCEEDED",
+                            "phase": number,
+                            "note": f"{phase['name']} {number}: FC media sopra il riferimento configurato; il confronto va contestualizzato.",
+                        }
+                    )
                     issues.append(
                         f"{phase['name']} {number}: FC media {phase['avg_hr']:.0f} bpm sopra Z{reference_zone} {source_label} ({low}–{high})."
                         + (
@@ -401,6 +422,12 @@ def evaluate_measured_session(
         else:
             missing.append(labels.get(mapping[index].type, mapping[index].type))
     if expected and missing and phases:
+        comparison_blockers.append(
+            {
+                "code": "PHASES_NOT_RECORDED",
+                "note": "Mancano fasi del piano riferito nei lap disponibili; non assumere la stessa struttura fra le corse.",
+            }
+        )
         counts = {name: missing.count(name) for name in dict.fromkeys(missing)}
         issues.append(
             "Fasi previste non registrate: "
@@ -408,6 +435,12 @@ def evaluate_measured_session(
             + ". Non considerate completate dal solo nome dell'attività."
         )
     if expected and observed != expected and not missing:
+        comparison_blockers.append(
+            {
+                "code": "PHASE_ORDER_MISMATCH",
+                "note": "Ordine delle fasi diverso dal piano riferito: verifica il contesto del confronto.",
+            }
+        )
         issues.append("Le fasi sono presenti ma l’ordine degli step differisce dal piano riferito.")
     if phases and not missing and (not expected or observed == expected):
         positives.append(
@@ -444,8 +477,16 @@ def evaluate_measured_session(
             and r["avg_hr"] > high
         ]
         for row in high_laps:
+            comparison_blockers.append(
+                {
+                    "code": "EASY_LAP_HR_HIGH",
+                    "lap": row["lap"],
+                    "note": f"Lap {row['lap']} facile con FC media sopra il riferimento Z2 configurato; non attribuire il passo solo alla forma.",
+                }
+            )
+            classification = f" in Z{row['hr_zone']}" if row.get("hr_zone") else ""
             issues.append(
-                f"Lap {row['lap']} nella parte facile: FC media {row['avg_hr']:.0f} bpm in Z{row.get('hr_zone')} {source_label}, sopra il riferimento Z2 ({low}–{high})."
+                f"Lap {row['lap']} nella parte facile: FC media {row['avg_hr']:.0f} bpm{classification} {source_label}, sopra il riferimento Z2 ({low}–{high})."
             )
         if high_laps:
             actions.append(
@@ -461,6 +502,7 @@ def evaluate_measured_session(
         "zones": zones,
         "dynamics": evidence.get("dynamics", {}),
         "positive": positives,
+        "comparison_blockers": comparison_blockers,
         "issues": issues,
         "actions": list(dict.fromkeys(actions)),
         "verdict": "Seduta da correggere"

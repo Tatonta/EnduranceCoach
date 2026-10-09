@@ -124,6 +124,7 @@ async function refreshDetailed(force=false) {
     let value=force ? await api("/api/session-review/refresh","POST",{activity_id}) : await api(`/api/session-review${activity_id ? "?activity_id="+encodeURIComponent(activity_id) : ""}`);
     if(value.status==="not_loaded") value=await api("/api/session-review/refresh","POST",{activity_id});
     renderSession(value);
+    await load();
   } catch(error) { $("detail-status").textContent=error.message; }
   finally { detailBusy(false); }
 }

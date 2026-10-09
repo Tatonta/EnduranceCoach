@@ -107,6 +107,7 @@ struct ProgramAdvice: Decodable {
     let reason: String
     let policy: String
     let evidence: [TrendEvidence]
+    let contextReasons: [String]?
 }
 struct WorkoutReview: Decodable {
     let generatedAt: String
