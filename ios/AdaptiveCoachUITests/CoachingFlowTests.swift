@@ -18,9 +18,18 @@ final class CoachingFlowTests: XCTestCase {
 
     private func fill(_ field: XCUIElement, with value: String) {
         XCTAssertTrue(field.waitForExistence(timeout: 10))
-        field.tap()
-        let old = field.value as? String ?? ""
-        field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: old.count) + value)
+        for _ in 0..<2 {
+            field.tap()
+            let old = field.value as? String ?? ""
+            if !old.isEmpty { field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: old.count)) }
+            field.typeText(value)
+            // A cold simulator keyboard can drop input. Verify public fields before submitting
+            // fixture credentials; do not inspect or print the secure field's contents.
+            if field.elementType == .secureTextField { return }
+            let entered = NSPredicate(format: "value == %@", value)
+            if XCTWaiter.wait(for: [XCTNSPredicateExpectation(predicate: entered, object: field)], timeout: 5) == .completed { return }
+        }
+        XCTFail("The test field did not retain the exact fixture value. No login was submitted.")
     }
 
     private func reveal(_ element: XCUIElement) {
