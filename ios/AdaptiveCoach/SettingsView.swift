@@ -45,7 +45,7 @@ struct SettingsView: View {
                     Text("L'esportazione contiene dati di allenamento. Scegli tu dove condividerla o salvarla.").font(.footnote).foregroundStyle(.secondary)
                 }
                 if store.busy { ProgressView("Operazione in corso…") }
-            }.navigationTitle("Account")
+            }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Account")
                 .sheet(isPresented: $editingProfile) { OnboardingView(editing: true).environmentObject(store) }
                 .sheet(isPresented: healthPresented) { HealthPreviewView().environmentObject(store) }
                 .sheet(isPresented: sharing, onDismiss: { store.removeExport() }) {
@@ -63,7 +63,7 @@ struct SettingsView: View {
                                     deletionPassword = ""
                                 }
                             }.disabled(store.busy || !deletionConfirmed || deletionPassword.count < 12)
-                        }.navigationTitle("Elimina account")
+                        }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Elimina account")
                             .toolbar { Button("Annulla") { deleting = false }.disabled(store.busy) }
                             .interactiveDismissDisabled(store.busy)
                     }
@@ -112,7 +112,7 @@ struct HealthPreviewView: View {
                     Button("Importa nel mio account") { Task { await store.run { try await store.uploadHealth() } } }
                         .disabled(store.busy || !consent || store.healthPreview.contains { $0.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty })
                 }
-            }.navigationTitle("Anteprima Apple Health").navigationBarTitleDisplayMode(.inline)
+            }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Anteprima Apple Health").navigationBarTitleDisplayMode(.inline)
                 .toolbar { Button("Annulla") { dismiss() }.disabled(store.busy) }
                 .interactiveDismissDisabled(store.busy)
                 .sheet(item: $store.healthDetailCandidate) { candidate in HealthDetailPreviewView(candidate: candidate).environmentObject(store) }
@@ -152,7 +152,7 @@ struct HealthDetailPreviewView: View {
                     if candidate.evidence.laps.isEmpty && candidate.evidence.samples.isEmpty { Text("È disponibile solo il percorso: puoi includerlo esplicitamente oppure annullare e importare il riepilogo.").font(.footnote) }
                     Text("Questa scelta prepara l'anteprima. I dati saranno inviati solo premendo Importa nel mio account nella schermata precedente.").font(.footnote).foregroundStyle(.secondary)
                 }
-            }.navigationTitle("Anteprima dei dettagli")
+            }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Anteprima dei dettagli")
                 .toolbar { Button("Annulla") { store.healthDetailCandidate = nil; dismiss() } }
         }
     }

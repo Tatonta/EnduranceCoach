@@ -59,7 +59,7 @@ struct ManualSessionView: View {
                     Button("Salva il feedback") { save() }.disabled(store.busy || name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                     if store.busy { ProgressView("Salvataggio…") }
                 }
-            }.navigationTitle("Com'è andata?")
+            }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Com'è andata?")
                 .toolbar { Button("Annulla") { dismiss() }.disabled(store.busy) }
                 .interactiveDismissDisabled(store.busy)
         }

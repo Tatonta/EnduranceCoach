@@ -33,7 +33,7 @@ struct OnboardingView: View {
                 case 3: availabilitySection
                 default: summarySection
                 }
-            }.navigationTitle(editing ? "Profilo e obiettivi" : "Conosciamoci")
+            }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle(editing ? "Profilo e obiettivi" : "Conosciamoci")
                 .scrollDismissesKeyboard(.interactively)
                 .safeAreaInset(edge: .bottom) {
                     HStack {
@@ -42,10 +42,10 @@ struct OnboardingView: View {
                         if store.busy { ProgressView("Salvataggio…") }
                         if step < 4 {
                             Button("Continua") { dismissKeyboard(); validateAndAdvance() }
-                                .buttonStyle(.borderedProminent).accessibilityIdentifier("onboarding-continue")
+                                .buttonStyle(.borderedProminent).foregroundStyle(CoachTheme.onAccent).accessibilityIdentifier("onboarding-continue")
                         } else {
                             Button("Salva e apri il coach") { dismissKeyboard(); save() }
-                                .buttonStyle(.borderedProminent).disabled(!draft.coachingConsent || store.busy)
+                                .buttonStyle(.borderedProminent).foregroundStyle(CoachTheme.onAccent).disabled(!draft.coachingConsent || store.busy)
                                 .accessibilityIdentifier("onboarding-save")
                         }
                     }.padding().background(.regularMaterial)
@@ -232,7 +232,7 @@ struct CoachHomeView: View {
                         }
                     }
                 }
-            }.navigationTitle("Il tuo coach")
+            }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Il tuo coach")
                 .sheet(isPresented: $editing) { OnboardingView(editing: true).environmentObject(store) }
                 .sheet(isPresented: $recording) { ManualSessionView().environmentObject(store) }
                 .refreshable { await store.run { try await store.refresh() } }

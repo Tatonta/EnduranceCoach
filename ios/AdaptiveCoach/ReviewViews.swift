@@ -49,7 +49,7 @@ struct ReviewView: View {
                 }
                 if store.busy { ProgressView("Aggiornamento…") }
             }
-            .navigationTitle("Review")
+            .scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Review")
             .refreshable { await store.run { try await store.refresh() } }
             .toolbar { Button("Aggiorna", systemImage: "arrow.clockwise") { Task { await store.run { try await store.refresh() } } }.disabled(store.busy) }
         }
@@ -109,7 +109,7 @@ struct AdviceView: View {
                         ForEach(Array(review.limitations.enumerated()), id: \.offset) { _, item in Text(item).font(.footnote).foregroundStyle(.secondary) }
                     }
                 } else { ContentUnavailableView("Consigli dopo la prima review", systemImage: "lightbulb", description: Text("Aggiungi il piano e importa i workout.")) }
-            }.navigationTitle("Consigli")
+            }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Consigli")
                 .refreshable { await store.run { try await store.refresh() } }
         }
     }
@@ -150,7 +150,7 @@ struct AdjustmentSheet: View {
                         if expired { Text("Anteprima scaduta. Chiudi e aggiorna la review.").foregroundStyle(.orange) }
                     }
                 }
-            }.navigationTitle("Proposta di adattamento").navigationBarTitleDisplayMode(.inline)
+            }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Proposta di adattamento").navigationBarTitleDisplayMode(.inline)
                 .toolbar { Button("Chiudi") { dismiss() }.disabled(store.busy) }
                 .interactiveDismissDisabled(store.busy)
         }

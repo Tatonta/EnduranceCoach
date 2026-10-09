@@ -39,7 +39,7 @@ function profile(points) {
   const low = Math.min(...points.map(p => p[1])), high = Math.max(...points.map(p => p[1])), xMax = Math.max(...points.map(p => p[0]), 1);
   const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
   line.setAttribute("points", points.map(p => `${10 + p[0] / xMax * 480},${100 - (p[1] - low) / Math.max(high - low, 1) * 90}`).join(" "));
-  line.setAttribute("fill", "none"); line.setAttribute("stroke", "#79e4c2"); line.setAttribute("stroke-width", "2"); svg.append(line); return svg;
+  line.setAttribute("fill", "none"); line.setAttribute("stroke", "#ff5a1f"); line.setAttribute("stroke-width", "2"); svg.append(line); return svg;
 }
 function gpsQuality(attempt) {
   return attempt.gps_tolerance_used ? `GPS parziale · ${Math.round(attempt.gps_coverage_pct)}% di corrispondenza · tempo stimato` : "";
@@ -114,7 +114,7 @@ function renderMap(rows) {
   mapSignature = signature; visibleRows = rows; map.closePopup(); routeLayers.forEach(line => line.closeTooltip()); layers.clearLayers(); routeLayers.clear();
   $("map-empty").hidden = rows.length > 0; $("fit-map").disabled = rows.length === 0;
   rows.forEach(row => {
-    const color = row.attempt_count >= 4 ? "#ff7199" : row.attempt_count >= 2 ? "#ffbe68" : "#79e4c2";
+    const color = row.attempt_count >= 4 ? "#ff7199" : row.attempt_count >= 2 ? "#ffbe68" : "#ff5a1f";
     L.polyline(row.path, {color, weight: 19, opacity: 0.2, interactive: false}).addTo(layers);
     const line = L.polyline(row.path, {color, weight: 5, opacity: 1, className: "heat-route"}).addTo(layers);
     line.bindTooltip(mapDetails(row), {sticky: true, className: "climb-tooltip", direction: "auto"});

@@ -84,7 +84,7 @@ function drawSessionMap() {
   if (routeLayer) sessionMap.removeLayer(routeLayer);
   if (hoverMarker) {sessionMap.removeLayer(hoverMarker);hoverMarker=null;}
   const points = sessionDetail.analysis.route;
-  if (points.length > 1) { routeLayer = L.featureGroup([L.polyline(points,{color:"#163b43",weight:8}),L.polyline(points,{color:"#79e4c2",weight:4})]).addTo(sessionMap); sessionMap.fitBounds(routeLayer.getBounds(), {padding:[28,28],animate:false}); }
+  if (points.length > 1) { routeLayer = L.featureGroup([L.polyline(points,{color:"#382015",weight:8}),L.polyline(points,{color:"#ff5a1f",weight:4})]).addTo(sessionMap); sessionMap.fitBounds(routeLayer.getBounds(), {padding:[28,28],animate:false}); }
   else { sessionMap.setView([45,10], 4); $("session-coverage").textContent += " Percorso GPS non disponibile per questa seduta."; }
   setTimeout(() => {sessionMap.invalidateSize({pan:false});if(routeLayer){const bounds=routeLayer.getBounds();sessionMap.setView(bounds.getCenter(),Math.min(17,sessionMap.getBoundsZoom(bounds,false,L.point(48,48))),{animate:false,reset:true});}}, 120);
 }
@@ -100,12 +100,12 @@ function drawSessionChart() {
   const pmin = Math.min(...paces, 240), pmax = Math.max(...paces, 600), hmin = Math.min(...hrs, 100), hmax = Math.max(...hrs, 180);
   const ns = "http://www.w3.org/2000/svg";
   function svg(tag, attrs) { const el = document.createElementNS(ns, tag); Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,String(v))); chart.append(el); return el; }
-  function label(x,y,text,anchor="start",color="#94a4b7") { const el=svg("text",{x,y,"text-anchor":anchor,fill:color,"font-size":12}); el.textContent=text; }
+  function label(x,y,text,anchor="start",color="#b0b0b0") { const el=svg("text",{x,y,"text-anchor":anchor,fill:color,"font-size":12}); el.textContent=text; }
   const x = t => left + t / xmax * (right-left), yp = p => top+(p-pmin)/(pmax-pmin)*(bottom-top), yh = h => bottom-(h-hmin)/(hmax-hmin)*(bottom-top);
-  for(let i=0;i<5;i++) { const y=top+i/4*(bottom-top); svg("line",{x1:left,y1:y,x2:right,y2:y,stroke:"#253140"}); label(left-7,y+4,pace(pmin+i/4*(pmax-pmin)).replace("/km",""),"end","#79e4c2"); label(right+7,y+4,Math.round(hmax-i/4*(hmax-hmin))+"", "start", "#efc17a"); }
+  for(let i=0;i<5;i++) { const y=top+i/4*(bottom-top); svg("line",{x1:left,y1:y,x2:right,y2:y,stroke:"#333333"}); label(left-7,y+4,pace(pmin+i/4*(pmax-pmin)).replace("/km",""),"end","#ff5a1f"); label(right+7,y+4,Math.round(hmax-i/4*(hmax-hmin))+"", "start", "#91bced"); }
   for(let i=0;i<5;i++) label(x(i/4*xmax),310,Math.round(i/4*xmax/60)+"′","middle");
-  label(left,14,"Passo/km","start","#79e4c2"); label(right,14,"FC bpm","end","#efc17a");
-  for(const [key,scale,color] of [["pace_s_km",yp,"#79e4c2"],["hr",yh,"#efc17a"]]) {
+  label(left,14,"Passo/km","start","#ff5a1f"); label(right,14,"FC bpm","end","#91bced");
+  for(const [key,scale,color] of [["pace_s_km",yp,"#ff5a1f"],["hr",yh,"#91bced"]]) {
     let path="", open=false;
     samples.forEach(point => { const value=point[key]; if(value==null || (key==="pace_s_km"&&value>1000)) {open=false;return;} path+=`${open?"L":"M"}${x(point.elapsed_s).toFixed(1)},${scale(value).toFixed(1)} `;open=true; });
     svg("path",{d:path,fill:"none",stroke:color,"stroke-width":1.7});
@@ -114,7 +114,7 @@ function drawSessionChart() {
     const bounds=chart.getBoundingClientRect(), elapsed=Math.max(0,Math.min(xmax,((event.clientX-bounds.left)/bounds.width*width-left)/(right-left)*xmax));
     const point=samples.reduce((best,p)=>Math.abs(p.elapsed_s-elapsed)<Math.abs(best.elapsed_s-elapsed)?p:best,samples[0]);
     $("chart-hover").textContent = `${duration(point.elapsed_s)} · km ${number(point.distance_m/1000)} · ${pace(point.pace_s_km)} · FC ${number(point.hr)} bpm · cadenza ${number(point.cadence_spm)} spm · stride ${number(point.stride_m)} m`;
-    if(point.lat!=null&&sessionMap) {if(hoverMarker)sessionMap.removeLayer(hoverMarker);hoverMarker=L.circleMarker([point.lat,point.lon],{radius:7,color:"#efc17a"}).addTo(sessionMap);sessionMap.panTo([point.lat,point.lon]);}
+    if(point.lat!=null&&sessionMap) {if(hoverMarker)sessionMap.removeLayer(hoverMarker);hoverMarker=L.circleMarker([point.lat,point.lon],{radius:7,color:"#91bced"}).addTo(sessionMap);sessionMap.panTo([point.lat,point.lon]);}
   };
 }
 async function refreshDetailed(force=false) {

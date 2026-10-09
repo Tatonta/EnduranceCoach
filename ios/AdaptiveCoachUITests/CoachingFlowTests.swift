@@ -23,17 +23,22 @@ final class CoachingFlowTests: XCTestCase {
         field.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: old.count) + value)
     }
 
-    private func tap(_ element: XCUIElement) {
+    private func reveal(_ element: XCUIElement) {
         _ = element.waitForExistence(timeout: 3)
         for _ in 0..<6 {
-            if element.exists && element.isHittable { element.tap(); return }
+            if element.exists && element.isHittable { return }
             app.swipeUp()
         }
         for _ in 0..<10 {
-            if element.exists && element.isHittable { element.tap(); return }
+            if element.exists && element.isHittable { return }
             app.swipeDown()
         }
         XCTFail("Expected control was not found or could not be reached.")
+    }
+
+    private func tap(_ element: XCUIElement) {
+        reveal(element)
+        element.tap()
     }
 
     private func login(_ account: String) {
@@ -126,9 +131,13 @@ final class CoachingFlowTests: XCTestCase {
         enableToggle("adjustment-confirmation")
         XCTAssertTrue(accept.isEnabled)
         tap(accept)
-        if app.alerts.firstMatch.waitForExistence(timeout: 15) { app.alerts.buttons["OK"].tap() }
+        XCTAssertTrue(app.alerts.firstMatch.waitForExistence(timeout: 15))
+        let result = app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map { $0.label }.joined(separator: " · ")
+        XCTAssertTrue(result.contains("versione 2"), result)
+        app.alerts.buttons["OK"].tap()
         XCTAssertTrue(app.navigationBars["Consigli"].waitForExistence(timeout: 15))
         tap(app.tabBars.buttons["Review"])
+        reveal(app.staticTexts["Versione piano 2"])
         XCTAssertTrue(app.staticTexts["Versione piano 2"].waitForExistence(timeout: 15))
         tap(app.tabBars.buttons["Consigli"])
         XCTAssertFalse(app.buttons["preview-adjustment"].exists)

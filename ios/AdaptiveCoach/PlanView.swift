@@ -33,7 +33,7 @@ struct PlanView: View {
                     Button(store.plan == nil ? "Importa piano JSON" : "Sostituisci piano da JSON") { pickingFile = true }.disabled(store.busy)
                     Text("Le modifiche si applicano solo al programma del tuo account. Il piano precedente resta nella cronologia del servizio.").font(.footnote).foregroundStyle(.secondary)
                 }
-            }.navigationTitle("Piano")
+            }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Piano")
                 .refreshable { await store.run { try await store.refresh() } }
                 .fileImporter(isPresented: $pickingFile, allowedContentTypes: [.json]) { result in
                     Task {
@@ -55,7 +55,7 @@ struct PlanView: View {
                                     await store.run { try await store.savePendingPlan(); confirming = false }
                                 }
                             }.disabled(store.busy || store.pendingPlan == nil)
-                        }.navigationTitle("Controlla il piano")
+                        }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Controlla il piano")
                             .toolbar { Button("Annulla") { confirming = false }.disabled(store.busy) }
                             .interactiveDismissDisabled(store.busy)
                     }

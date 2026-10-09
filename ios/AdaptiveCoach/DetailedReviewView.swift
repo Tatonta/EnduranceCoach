@@ -10,7 +10,7 @@ struct DetailedReviewSections: View {
             Section("Analisi della seduta · \(detail.source)") {
                 Text(analysis.verdict).font(.headline)
                 if let version = detail.planReference?.version { Text("Target dal piano riferito, versione \(version). Collegamento dichiarato dal client.").font(.footnote).foregroundStyle(.secondary) }
-                ForEach(Array(analysis.positive.enumerated()), id: \.offset) { _, item in Label(item, systemImage: "checkmark.circle").foregroundStyle(.green) }
+                ForEach(Array(analysis.positive.enumerated()), id: \.offset) { _, item in Label(item, systemImage: "checkmark.circle").foregroundStyle(CoachTheme.positive) }
                 ForEach(Array(analysis.issues.enumerated()), id: \.offset) { _, item in Label(item, systemImage: "exclamationmark.circle").foregroundStyle(.orange) }
                 ForEach(Array(analysis.actions.enumerated()), id: \.offset) { _, item in Text(item) }
             }
@@ -36,7 +36,7 @@ struct DetailedReviewSections: View {
                             MapPolyline(coordinates: analysis.routeSegments[index].compactMap { point in
                                 guard point.count == 2 else { return nil }
                                 return CLLocationCoordinate2D(latitude: point[0], longitude: point[1])
-                            }).stroke(.mint, lineWidth: 4)
+                            }).stroke(CoachTheme.accent, lineWidth: 4)
                         }
                     }.frame(height: 260).accessibilityLabel("Percorso della seduta; segmenti GPS separati")
                     Text("I segmenti separati non vengono uniti attraverso i buchi GPS.").font(.footnote).foregroundStyle(.secondary)
@@ -91,13 +91,13 @@ private struct SessionCharts: View {
             if !heartPoints.isEmpty {
                 Text("Frequenza cardiaca, bpm").font(.caption)
                 Chart(heartPoints) { point in
-                    LineMark(x: .value("Minuti", point.elapsedS / 60), y: .value("FC", point.value), series: .value("Segmento", point.segment)).foregroundStyle(.orange)
+                    LineMark(x: .value("Minuti", point.elapsedS / 60), y: .value("FC", point.value), series: .value("Segmento", point.segment)).foregroundStyle(CoachTheme.signalSecondary)
                 }.frame(height: 170)
             }
             if running && !pacePoints.isEmpty {
                 Text("Passo dei campioni, min/km").font(.caption)
                 Chart(pacePoints) { point in
-                    LineMark(x: .value("Minuti", point.elapsedS / 60), y: .value("Passo min/km", point.value / 60), series: .value("Segmento", point.segment)).foregroundStyle(.mint)
+                    LineMark(x: .value("Minuti", point.elapsedS / 60), y: .value("Passo min/km", point.value / 60), series: .value("Segmento", point.segment)).foregroundStyle(CoachTheme.accent)
                 }.frame(height: 170)
             }
         }

@@ -4,6 +4,7 @@ import SwiftUI
 struct AdaptiveCoachApp: App {
     @StateObject private var store = CoachStore()
     @Environment(\.scenePhase) private var scenePhase
+    init() { CoachTheme.configureAppearance() }
     var body: some Scene {
         WindowGroup {
             RootView().environmentObject(store)
@@ -48,7 +49,9 @@ struct RootView: View {
                 } }
             } else { LoginView() }
         }
-        .tint(.indigo)
+        .tint(CoachTheme.accent)
+        .preferredColorScheme(.dark)
+        .background(CoachTheme.background.ignoresSafeArea())
         .alert(store.errorMessage != nil ? "Operazione non completata" : "Adaptive Coach", isPresented: messagePresented) {
             Button("OK", role: .cancel) { store.errorMessage = nil; store.notice = nil }
         } message: { Text(store.errorMessage ?? store.notice ?? "") }
@@ -93,7 +96,7 @@ struct LoginView: View {
                         .accessibilityIdentifier("auth-submit")
                 }
                 if store.busy { ProgressView("Connessione…") }
-            }.navigationTitle("Il tuo coach")
+            }.scrollContentBackground(.hidden).background(CoachTheme.background).navigationTitle("Il tuo coach")
         }
     }
 }
