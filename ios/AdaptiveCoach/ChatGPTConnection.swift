@@ -13,9 +13,20 @@ private final class CallbackGate {
     }
 }
 
+struct ChatGPTAccountOption: Identifiable {
+    let id: String
+    let label: String
+    let email: String?
+    let verified: Bool
+    var displayName: String { label + " · " + (email ?? (verified ? "Account verificato" : "Da completare")) }
+}
+
 @MainActor
 final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPresentationContextProviding {
     @Published private(set) var credential: ChatGPTCredential?
+    @Published private(set) var registrations: [ChatGPTAccountOption] = []
+    @Published var selectedRegistrationID: String?
+    private var book = ChatGPTAccountBook()
     @Published private(set) var connecting = false
     @Published var message: String?
     @Published var needsWelcome = false
@@ -32,16 +43,36 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
     func load(endpoint: String, athleteID: String) throws {
         clearMemory()
         let key = ChatGPTVault.binding(endpoint: endpoint, athleteID: athleteID)
-        binding = key; credential = try ChatGPTVault.credential(key)
+        let saved = try ChatGPTVault.book(key)
+        binding = key; book = saved; credential = saved.activeCredential
+        selectedRegistrationID = saved.activeClientID ?? saved.registrations.first?.clientID
+        syncOptions()
         needsWelcome = credential?.permitsInference == true && credential?.welcomed == false
     }
-    func clearMemory() {
+    private func stopTasks() {
         generation = UUID(); timeout?.cancel(); timeout = nil; renewal?.cancel(); renewal = nil; renewalID = nil
         listener?.stop(); listener = nil; browser?.cancel(); browser = nil
-        connecting = false; waitingForCallback = false; binding = nil; credential = nil; message = nil; needsWelcome = false
+        connecting = false; waitingForCallback = false
     }
+    func clearMemory() {
+        stopTasks(); binding = nil; credential = nil; message = nil; needsWelcome = false
+        book = ChatGPTAccountBook(); registrations = []; selectedRegistrationID = nil
+    }
+    private func syncOptions() {
+        registrations = book.registrations.map { .init(id: $0.clientID, label: $0.label, email: $0.identity?.email, verified: $0.identity != nil) }
+    }
+    private func save(_ value: ChatGPTCredential, binding: String, activate: Bool = true) throws {
+        var updated = book; try updated.accept(value, activate: activate)
+        try ChatGPTVault.saveBook(updated, binding: binding)
+        book = updated; credential = book.activeCredential; syncOptions()
+    }
+    var canConnect: Bool { binding != nil }
+    var activeLabel: String? { registrations.first { $0.id == credential?.clientID }?.label }
     func connect() async {
         guard !connecting, let binding else { return }
+        let selected = book.registrations.first { $0.clientID == selectedRegistrationID }
+        guard selectedRegistrationID != nil || book.registrations.count < 12 else { message = "Puoi conservare al massimo 12 registrazioni ChatGPT."; return }
+        guard selectedRegistrationID == nil || selected != nil else { message = "Seleziona una registrazione salvata."; return }
         connecting = true; waitingForCallback = true; message = "Apri il tuo account ChatGPT e controlla i permessi richiesti."
         let attemptID = UUID(); generation = attemptID
         do {
@@ -49,8 +80,7 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
             let loopback = ChatGPTLoopback(); listener = loopback
             let port = try await loopback.start { _ in false }
             guard generation == attemptID, self.binding == binding else { loopback.stop(); return }
-            let savedClient = try ChatGPTVault.retryClient(binding)
-            let attempt = try ChatGPTAuthorization.Attempt(port: port, clientID: credential?.clientID ?? savedClient ?? "dynamic_agent_client")
+            let attempt = try ChatGPTAuthorization.Attempt(port: port, clientID: selected?.clientID ?? "dynamic_agent_client")
             let gate = CallbackGate()
             loopback.setCallback { [weak self] url in
                 gate.consume {
@@ -65,7 +95,7 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
                     }
                 }
             }
-            let url = try attempt.authorizationURL(hostID: host, idTokenHint: credential?.idToken)
+            let url = try attempt.authorizationURL(hostID: host, idTokenHint: selected?.credential?.idToken)
             // HTTP loopback is received by our listener; no custom scheme or HTTPS callback is substituted.
             let session = ASWebAuthenticationSession(url: url, callbackURLScheme: nil) { [weak self] _, error in
                 Task { @MainActor [weak self] in
@@ -89,19 +119,20 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
         waitingForCallback = false; timeout?.cancel(); listener?.stop(); browser?.cancel(); browser = nil
         message = "Verifica del collegamento ChatGPT…"
         do {
-            try ChatGPTVault.saveRetryClient(result.clientID, binding: binding)
+            var retained = book; try retained.retainIssued(result.clientID)
+            try ChatGPTVault.saveBook(retained, binding: binding)
+            book = retained; selectedRegistrationID = result.clientID; syncOptions()
             let token = try await http.token(["grant_type": "authorization_code", "client_id": result.clientID,
                                              "code": result.code, "code_verifier": attempt.verifier,
                                              "redirect_uri": attempt.redirectURI.absoluteString, "resource": ChatGPTAuthorization.resource])
             guard let idToken = token.idToken else { throw ChatGPTAuthorization.failure() }
             let identity = try await http.identity(idToken, clientID: result.clientID, nonce: attempt.nonce)
-            guard generation == attemptID, self.binding == binding,
-                  credential == nil || credential?.identity.subject == identity.subject else { throw ChatGPTAuthorization.failure() }
+            guard generation == attemptID, self.binding == binding else { throw ChatGPTAuthorization.failure() }
             let value = ChatGPTCredential(clientID: result.clientID, identity: identity, accessToken: token.accessToken,
                                           refreshToken: token.refreshToken, idToken: idToken,
                                           scopes: (token.scope ?? "").split(separator: " ").map(String.init),
-                                          expiresAt: Date().addingTimeInterval(token.expiresIn), welcomed: credential?.welcomed ?? false, nonce: attempt.nonce)
-            try ChatGPTVault.save(value, binding: binding); credential = value
+                                          expiresAt: Date().addingTimeInterval(token.expiresIn), welcomed: book.registrations.first { $0.clientID == result.clientID }?.welcomed ?? false, nonce: attempt.nonce)
+            try save(value, binding: binding)
             needsWelcome = value.permitsInference && !value.welcomed
             message = value.permitsInference ? "Account collegato con permesso di usare il piano ChatGPT." : "Identità collegata. Il permesso di usare il piano ChatGPT non è attivo."
         } catch { if generation == attemptID { message = error.localizedDescription } }
@@ -109,25 +140,41 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
     }
     func acknowledgeWelcome() throws {
         guard let binding, var value = credential else { return }
-        value.welcomed = true; try ChatGPTVault.save(value, binding: binding)
-        credential = value; needsWelcome = false
+        value.welcomed = true; try save(value, binding: binding)
+        needsWelcome = false
     }
     func disconnect() async throws {
+        guard let binding, let value = credential else { return }
+        stopTasks(); credential = nil; needsWelcome = false
+        var updated = book; updated.signOut(value.clientID)
+        try ChatGPTVault.saveBook(updated, binding: binding)
+        book = updated; syncOptions()
+        await revoke([value], generation: generation)
+    }
+    func disconnectAll() async throws {
         guard let binding else { return }
-        let value = credential
-        clearMemory()
-        try ChatGPTVault.clear(binding)
-        if let value { try ChatGPTVault.saveRetryClient(value.clientID, binding: binding) }
-        self.binding = binding
-        let current = generation
-        if let value {
-            do {
-                let endpoint = try await http.revocationEndpoint()
-                _ = try await http.request(url: endpoint, method: "POST",
-                                           form: ["client_id": value.clientID, "token": value.refreshToken ?? value.accessToken,
-                                                  "token_type_hint": value.refreshToken == nil ? "access_token" : "refresh_token"])
-                if generation == current { message = "Account ChatGPT scollegato." }
-            } catch { if generation == current { message = "Sessione locale rimossa; revoca remota non confermata. Gestisci il collegamento nelle impostazioni ChatGPT." } }
+        let values = book.registrations.compactMap(\.credential)
+        stopTasks(); credential = nil; needsWelcome = false
+        var updated = book; updated.signOutAll()
+        try ChatGPTVault.saveBook(updated, binding: binding)
+        book = updated; syncOptions()
+        await revoke(values, generation: generation)
+    }
+    private func revoke(_ values: [ChatGPTCredential], generation current: UUID) async {
+        guard !values.isEmpty else { return }
+        do {
+            let endpoint = try await http.revocationEndpoint()
+            var failed = false
+            for value in values {
+                do {
+                    _ = try await http.request(url: endpoint, method: "POST",
+                                               form: ["client_id": value.clientID, "token": value.refreshToken ?? value.accessToken,
+                                                      "token_type_hint": value.refreshToken == nil ? "access_token" : "refresh_token"])
+                } catch { failed = true }
+            }
+            if generation == current { message = failed ? "Sessioni locali rimosse; revoca remota non confermata per tutti gli account. Gestisci i collegamenti nelle impostazioni ChatGPT." : "Sessione ChatGPT scollegata; registrazione conservata per un prossimo accesso." }
+        } catch {
+            if generation == current { message = "Sessioni locali rimosse; revoca remota non confermata. Gestisci i collegamenti nelle impostazioni ChatGPT." }
         }
     }
     private func cancel(message: String) {
@@ -135,6 +182,7 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
         listener?.stop(); listener = nil; browser?.cancel(); browser = nil; self.message = message
     }
     func accessToken() async throws -> String {
+        guard !connecting, selectedRegistrationID == credential?.clientID else { throw ChatGPTAuthorization.failure() }
         if let renewal { return try await renewal.value }
         let task = Task { @MainActor [weak self] in
             guard let self else { throw ChatGPTAuthorization.failure() }
@@ -160,7 +208,7 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
             value.expiresAt = Date().addingTimeInterval(renewed.expiresIn)
             if let scope = renewed.scope { value.scopes = scope.split(separator: " ").map(String.init) }
             guard generation == current, self.binding == binding, value.permitsInference else { throw ChatGPTAuthorization.failure() }
-            try ChatGPTVault.save(value, binding: binding); credential = value
+            try save(value, binding: binding, activate: false)
         }
         return value.accessToken
     }

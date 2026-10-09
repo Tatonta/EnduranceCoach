@@ -24,7 +24,9 @@ Il catalogo legge `models[].slug`, `display_name` e `visibility`, nell'ordine re
 
 Il consenso all'invio è separato dal questionario e dal permesso di usare il piano ChatGPT. Include obiettivi, risposte testuali del profilo, piano, storico recente e metriche della seduta; esclude le coordinate GPS e le credenziali tramite il contesto comune. Le risposte restano in memoria, senza archivio conversazionale remoto dell'app o accesso alla memoria ChatGPT. La generazione nativa di un piano strutturato e la conversazione persistente non sono ancora implementate.
 
-L’interfaccia attuale conserva una sola registrazione ChatGPT per atleta e origine. Il selettore di più account/workspace e la conservazione separata di più registrazioni descritti dalle linee guida OpenAI restano da completare prima di una distribuzione pubblica del collegamento.
+Il selettore conserva fino a 12 registrazioni separate per atleta e origine, con etichette stabili distinte anche quando email e subject coincidono. Il client ID emesso identifica la registrazione; email e subject non vengono usati come identificatori di workspace. Selezionare un account prepara la riautorizzazione; l’account attivo cambia solo dopo la verifica del nuovo ID token. Le credenziali dell’account precedente restano separate. In caso di scambio fallito, il client ID emesso rimane come registrazione da completare, per ritentare senza registrare un altro client.
+
+Il collegamento precedente viene migrato al registro cifrato: si salva prima il nuovo registro e solo poi si rimuovono i vecchi elementi. Scollegare l’account attivo ne rimuove i token e conserva identità, etichetta e client ID. Eliminare l’account EnduranceCoach tenta la revoca di tutte le sessioni ChatGPT salvate e rimuove anche il registro. I test di registro usano esclusivamente credenziali sintetiche; il comportamento reale del Portachiavi e delle sessioni OpenAI resta da provare su hardware.
 
 ## Callback iOS e verifiche mancanti
 

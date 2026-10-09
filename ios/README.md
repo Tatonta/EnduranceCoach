@@ -38,7 +38,7 @@ CLI testing after selecting a currently installed simulator:
 xcrun simctl list devices available
 xcodebuild test -project ios/AdaptiveCoach.xcodeproj -scheme AdaptiveCoach \
   -destination 'platform=iOS Simulator,name=<installed iPhone simulator name>' \
-  -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=NO
+  -derivedDataPath ios/DerivedData CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES CODE_SIGN_IDENTITY=-
 ```
 
 The included `.github/workflows/ios.yml` runs this on a macOS runner for relevant pushes/pull requests and manual dispatches. It builds/tests without publishing or signing a release. Its presence is not a passing CI result.
@@ -83,3 +83,9 @@ Both UI flows passed on commit `9718efdeb90c3979998896cbd981e39a4f675d8a` in the
 The Coach tab exposes Continue with ChatGPT, a first-use plan notice, an account-specific model picker and per-request sharing consent. OAuth tokens stay in the device Keychain, bound to the backend origin and athlete. Profile, bounded history and measured detail evidence come from `/v1/coach/context`; GPS routes and credentials are excluded. The response cannot change the training plan. Sign-out from EnduranceCoach stops local requests and retains the encrypted, owner-bound ChatGPT registration for that same athlete; Scollega ChatGPT clears the tokens and attempts remote revocation. Account deletion also removes that registration.
 
 The app is free/open source; an eligible ChatGPT plan and OpenAI availability still apply. No API-key fallback or backend token proxy is included. The loopback callback inside the system authentication browser is an implementation that must be tested on an actual iPhone against OpenAI. Synthetic XCTest and UI checks do not prove real OAuth/inference, App Store acceptance or coaching quality. The privacy manifest covers health/fitness and user content, but direct transmission to OpenAI must also appear in the eventual consent/privacy policy and reviewed App Store disclosures.
+
+## Account registry and Keychain checks
+
+The ChatGPT picker keeps separate issued-client registrations, including accounts/workspaces with the same email. Switching requires a newly verified OAuth result. Pending registration IDs survive failed code exchange; signed-out registrations retain their stable label and identity. The old single-account record migrates only after a protected replacement is saved. Account deletion attempts revocation of all saved renewable sessions.
+
+The contract suite now includes actual simulator Keychain round trips, owner isolation, legacy migration and removal of all credential formats. These tests use random test-owned binding keys and synthetic credentials, and clear only those keys. Run the unit scheme with local ad hoc simulator signing, as in the command above; unsigned tests cannot access the Keychain. This needs no developer certificate and supplies no real-device or live-OpenAI verification.

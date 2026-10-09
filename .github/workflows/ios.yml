@@ -32,7 +32,7 @@ jobs:
           xcodebuild test -project ios/AdaptiveCoach.xcodeproj -scheme AdaptiveCoach \
             -destination 'platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}' \
             -derivedDataPath ios/DerivedData -resultBundlePath ios/NativeTests.xcresult \
-            CODE_SIGNING_ALLOWED=NO
+            CODE_SIGNING_ALLOWED=YES CODE_SIGNING_REQUIRED=YES CODE_SIGN_IDENTITY=-
       - uses: actions/setup-python@v5
         with: {python-version: "3.14"}
       - name: Install the isolated UI backend dependencies

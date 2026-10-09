@@ -254,7 +254,7 @@ final class CoachStore: ObservableObject {
             throw ServiceError(status: 403, code: "password_verification", message: "Password non corretta. L'account non è stato eliminato.")
         }
         var cleanupFailed = false
-        do { try await chatgpt.disconnect() } catch { cleanupFailed = true }
+        do { try await chatgpt.disconnectAll() } catch { cleanupFailed = true }
         let revocationMessage = chatgpt.message
         if let owner { do { try ChatGPTVault.forget(endpoint: origin, athleteID: owner) } catch { cleanupFailed = true } }
         do { try SessionVault.clear() } catch { cleanupFailed = true }

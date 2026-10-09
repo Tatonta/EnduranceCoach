@@ -242,6 +242,137 @@ private final class FixtureProtocol: URLProtocol {
 }
 
 final class ChatGPTContractTests: XCTestCase {
+    private func account(_ clientID: String, subject: String = "same-person", token: String = "synthetic", welcomed: Bool = false) -> ChatGPTCredential {
+        ChatGPTCredential(clientID: clientID, identity: .init(subject: subject, email: "same@example.test"),
+                          accessToken: token, refreshToken: "synthetic-refresh-" + token, idToken: "synthetic-id-" + token,
+                          scopes: ["openid", "resource.invoke", "chatgpt.tokens.use.direct"], expiresAt: Date(), welcomed: welcomed, nonce: "synthetic")
+    }
+    private func vaultQuery(_ account: String) -> [String: Any] {
+        [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: "EnduranceCoach.ChatGPT", kSecAttrAccount as String: account]
+    }
+    private func insertLegacy<T: Encodable>(_ value: T, account: String) throws {
+        var query = vaultQuery(account)
+        query[kSecValueData as String] = try JSONEncoder().encode(value)
+        query[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
+        XCTAssertEqual(SecItemAdd(query as CFDictionary, nil), errSecSuccess)
+    }
+    func testKeychainRoundTripAndOwnerIsolation() throws {
+        let origin = "https://registry-test.example.invalid"
+        let first = ChatGPTVault.binding(endpoint: origin, athleteID: UUID().uuidString)
+        let second = ChatGPTVault.binding(endpoint: origin, athleteID: UUID().uuidString)
+        defer { try? ChatGPTVault.clear(first); try? ChatGPTVault.clear(second) }
+        var book = ChatGPTAccountBook()
+        try book.accept(account("oaiapp_first", token: "first"))
+        try book.accept(account("oaiapp_second", token: "second"))
+        try ChatGPTVault.saveBook(book, binding: first)
+        XCTAssertEqual(try ChatGPTVault.book(first).activeCredential?.accessToken, "second")
+        XCTAssertTrue(try ChatGPTVault.book(second).registrations.isEmpty)
+        book.signOut("oaiapp_second")
+        try ChatGPTVault.saveBook(book, binding: first)
+        let restored = try ChatGPTVault.book(first)
+        XCTAssertNil(restored.activeClientID)
+        XCTAssertEqual(restored.registrations[0].credential?.accessToken, "first")
+        XCTAssertNil(restored.registrations[1].credential)
+    }
+    func testKeychainMigratesLegacyCredentialAndPendingClient() throws {
+        let binding = ChatGPTVault.binding(endpoint: "https://registry-test.example.invalid", athleteID: UUID().uuidString)
+        defer { try? ChatGPTVault.clear(binding) }
+        try insertLegacy(account("oaiapp_legacy", token: "legacy"), account: "account-" + binding)
+        try insertLegacy("oaiapp_pending", account: "retry-" + binding)
+        let migrated = try ChatGPTVault.book(binding)
+        XCTAssertEqual(migrated.activeCredential?.accessToken, "legacy")
+        XCTAssertEqual(migrated.registrations.count, 2)
+        XCTAssertNil(migrated.registrations[1].credential)
+        XCTAssertEqual(SecItemCopyMatching(vaultQuery("account-" + binding) as CFDictionary, nil), errSecItemNotFound)
+        XCTAssertEqual(SecItemCopyMatching(vaultQuery("retry-" + binding) as CFDictionary, nil), errSecItemNotFound)
+        XCTAssertEqual(try ChatGPTVault.book(binding).registrations.count, 2)
+    }
+    func testKeychainClearRemovesAllFormatsAndPreservesHost() throws {
+        let binding = ChatGPTVault.binding(endpoint: "https://registry-test.example.invalid", athleteID: UUID().uuidString)
+        defer { try? ChatGPTVault.clear(binding) }
+        let host = try ChatGPTVault.hostID()
+        var book = ChatGPTAccountBook(); try book.accept(account("oaiapp_first"))
+        try ChatGPTVault.saveBook(book, binding: binding)
+        try insertLegacy(account("oaiapp_legacy"), account: "account-" + binding)
+        try insertLegacy("oaiapp_pending", account: "retry-" + binding)
+        try ChatGPTVault.clear(binding)
+        for prefix in ["registry-", "account-", "retry-"] {
+            XCTAssertEqual(SecItemCopyMatching(vaultQuery(prefix + binding) as CFDictionary, nil), errSecItemNotFound)
+        }
+        XCTAssertEqual(try ChatGPTVault.hostID(), host)
+        XCTAssertTrue(try ChatGPTVault.book(binding).registrations.isEmpty)
+    }
+    func testSeparateRegistrationsMayShareEmailAndSubject() throws {
+        var book = ChatGPTAccountBook()
+        try book.accept(account("oaiapp_first", token: "first", welcomed: true))
+        try book.accept(account("oaiapp_second", token: "second"))
+        XCTAssertEqual(book.registrations.count, 2)
+        XCTAssertNotEqual(book.registrations[0].label, book.registrations[1].label)
+        XCTAssertEqual(book.registrations[0].credential?.accessToken, "first")
+        XCTAssertEqual(book.activeCredential?.accessToken, "second")
+        XCTAssertTrue(book.registrations[0].welcomed)
+        XCTAssertFalse(book.registrations[1].welcomed)
+        try book.validate()
+    }
+    func testPendingAndFailedReauthorizationCannotReplaceActiveIdentity() throws {
+        var book = ChatGPTAccountBook()
+        try book.accept(account("oaiapp_first", token: "first"))
+        try book.retainIssued("oaiapp_pending")
+        XCTAssertNil(book.registrations[1].credential)
+        XCTAssertEqual(book.activeClientID, "oaiapp_first")
+        XCTAssertThrowsError(try book.accept(account("oaiapp_first", subject: "another-person", token: "wrong")))
+        XCTAssertEqual(book.activeCredential?.identity.subject, "same-person")
+        XCTAssertEqual(book.activeCredential?.accessToken, "first")
+    }
+    func testSigningOutOneAccountKeepsOtherCredentialsAndStableMapping() throws {
+        var book = ChatGPTAccountBook()
+        try book.accept(account("oaiapp_first", token: "first", welcomed: true))
+        let label = book.registrations[0].label
+        try book.accept(account("oaiapp_second", token: "second"))
+        book.signOut("oaiapp_second")
+        XCTAssertNil(book.activeClientID)
+        XCTAssertEqual(book.registrations[0].credential?.accessToken, "first")
+        XCTAssertNotNil(book.registrations[1].identity)
+        XCTAssertNil(book.registrations[1].credential)
+        try book.accept(account("oaiapp_first", token: "renewed", welcomed: true))
+        XCTAssertEqual(book.registrations[0].label, label)
+        XCTAssertEqual(book.registrations.count, 2)
+        book.signOutAll()
+        XCTAssertNil(book.activeCredential)
+        XCTAssertTrue(book.registrations.allSatisfy { $0.credential == nil })
+        XCTAssertEqual(book.registrations[0].identity?.subject, "same-person")
+        XCTAssertTrue(book.registrations[0].welcomed)
+    }
+    func testMigrationAndRoundTripPreserveIssuedClientAndPendingRetry() throws {
+        let original = account("oaiapp_first", token: "legacy", welcomed: true)
+        let book = try ChatGPTAccountBook.migrated(credential: original, retryClient: "oaiapp_retry")
+        let restored = try JSONDecoder().decode(ChatGPTAccountBook.self, from: JSONEncoder().encode(book))
+        try restored.validate()
+        XCTAssertEqual(restored.activeClientID, original.clientID)
+        XCTAssertEqual(restored.activeCredential?.refreshToken, original.refreshToken)
+        XCTAssertEqual(restored.registrations[1].clientID, "oaiapp_retry")
+        XCTAssertNil(restored.registrations[1].identity)
+        XCTAssertThrowsError(try ChatGPTAccountBook.migrated(credential: nil, retryClient: "dynamic_agent_client"))
+    }
+    func testRegistryRejectsTokenClientMixingDuplicateAndUnknownVersion() throws {
+        var book = ChatGPTAccountBook()
+        try book.accept(account("oaiapp_first"))
+        let data = try JSONEncoder().encode(book)
+        var value = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        let rows = try XCTUnwrap(value["registrations"] as? [[String: Any]])
+        var mixed = try XCTUnwrap(rows[0]["credential"] as? [String: Any])
+        mixed["clientID"] = "oaiapp_other"
+        var row = rows[0]; row["credential"] = mixed
+        value["registrations"] = [row]
+        let invalid = try JSONDecoder().decode(ChatGPTAccountBook.self, from: JSONSerialization.data(withJSONObject: value))
+        XCTAssertThrowsError(try invalid.validate())
+        value["registrations"] = rows + rows
+        let duplicate = try JSONDecoder().decode(ChatGPTAccountBook.self, from: JSONSerialization.data(withJSONObject: value))
+        XCTAssertThrowsError(try duplicate.validate())
+        value["registrations"] = rows; value["schemaVersion"] = 2
+        let newer = try JSONDecoder().decode(ChatGPTAccountBook.self, from: JSONSerialization.data(withJSONObject: value))
+        XCTAssertThrowsError(try newer.validate())
+    }
     func testPKCEAndFirstReturningAuthorization() throws {
         XCTAssertEqual(ChatGPTAuthorization.challenge("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"), "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM")
         let first = try ChatGPTAuthorization.Attempt(port: 54321)
