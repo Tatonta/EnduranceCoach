@@ -20,7 +20,7 @@ final class ChatGPTLoopback {
                 guard let self else { return }
                 switch state {
                 case .ready:
-                    guard let value = server.port?.rawValue, value > 0 else { self.failStart(); return }
+                    guard let value = self.listener?.port?.rawValue, value > 0 else { self.failStart(); return }
                     self.port = value; self.starting?.resume(returning: value); self.starting = nil
                 case .failed: self.failStart()
                 default: break

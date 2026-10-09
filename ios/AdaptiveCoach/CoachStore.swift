@@ -243,8 +243,8 @@ final class CoachStore: ObservableObject {
     }
     func deleteAccount(password: String) async throws {
         let owner = identity?.id
-        let origin = try Endpoint.validate(endpointText).absoluteString
         let api = try api()
+        let origin = api.endpoint.absoluteString
         do {
             let _: EmptyReply = try await api.request("v1/me", method: "DELETE", body: Wire.encoder().encode(AccountDeletion(password: password, confirmed: true)))
         } catch let failure as ServiceError where failure.status == 401 {

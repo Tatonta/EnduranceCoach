@@ -6,7 +6,7 @@ struct ChatGPTTokenReply: Decodable {
     let idToken: String?
     let tokenType: String
     let expiresIn: Double
-    let scope: String
+    let scope: String?
 }
 struct ChatGPTModel: Identifiable {
     let id: String
@@ -26,6 +26,15 @@ final class ChatGPTHTTP {
         config.timeoutIntervalForRequest = 30; config.timeoutIntervalForResource = 180
         return URLSession(configuration: config, delegate: ChatGPTNoRedirect(), delegateQueue: nil)
     }()
+    func revocationEndpoint() async throws -> URL {
+        let data = try await request(url: URL(string: ChatGPTAuthorization.issuer + "/.well-known/openid-configuration")!)
+        guard let value = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              value["issuer"] as? String == ChatGPTAuthorization.issuer,
+              let text = value["revocation_endpoint"] as? String, let url = URL(string: text),
+              url.scheme == "https", url.host == "auth.openai.com", url.user == nil, url.password == nil,
+              url.fragment == nil else { throw ChatGPTAuthorization.failure() }
+        return url
+    }
     func token(_ values: [String: String]) async throws -> ChatGPTTokenReply {
         let data = try await request(url: URL(string: ChatGPTAuthorization.issuer + "/api/accounts/oauth/token")!, method: "POST", form: values)
         let result = try Wire.decoder().decode(ChatGPTTokenReply.self, from: data)
@@ -48,7 +57,7 @@ final class ChatGPTHTTP {
         return models.compactMap { item in
             guard item["visibility"] as? String == "list", let slug = item["slug"] as? String,
                   !slug.isEmpty, slug.count <= 100, seen.insert(slug).inserted,
-                  let name = item["display_name"] as? String else { return nil }
+                  let name = item["display_name"] as? String, !name.isEmpty, name.count <= 200 else { return nil }
             return ChatGPTModel(id: slug, name: name)
         }
     }

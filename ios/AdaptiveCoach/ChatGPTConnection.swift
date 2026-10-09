@@ -26,6 +26,7 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
     private var generation = UUID()
     private var waitingForCallback = false
     private var renewal: Task<String, Error>?
+    private var renewalID: UUID?
     private let http = ChatGPTHTTP()
 
     func load(endpoint: String, athleteID: String) throws {
@@ -35,7 +36,7 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
         needsWelcome = credential?.permitsInference == true && credential?.welcomed == false
     }
     func clearMemory() {
-        generation = UUID(); timeout?.cancel(); timeout = nil; renewal?.cancel(); renewal = nil
+        generation = UUID(); timeout?.cancel(); timeout = nil; renewal?.cancel(); renewal = nil; renewalID = nil
         listener?.stop(); listener = nil; browser?.cancel(); browser = nil
         connecting = false; waitingForCallback = false; binding = nil; credential = nil; message = nil; needsWelcome = false
     }
@@ -57,7 +58,10 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
                         let result = try attempt.callback(url)
                         Task { @MainActor [weak self] in await self?.finish(result, attempt: attempt, binding: binding, attemptID: attemptID) }
                     } catch let error as ServiceError where error.code == "chatgpt_cancelled" {
-                        Task { @MainActor [weak self] in self?.cancel(message: error.localizedDescription) }
+                        Task { @MainActor [weak self] in
+                            guard let self, self.generation == attemptID, self.binding == binding else { return }
+                            self.cancel(message: error.localizedDescription)
+                        }
                     }
                 }
             }
@@ -95,7 +99,7 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
                   credential == nil || credential?.identity.subject == identity.subject else { throw ChatGPTAuthorization.failure() }
             let value = ChatGPTCredential(clientID: result.clientID, identity: identity, accessToken: token.accessToken,
                                           refreshToken: token.refreshToken, idToken: idToken,
-                                          scopes: token.scope.split(separator: " ").map(String.init),
+                                          scopes: (token.scope ?? "").split(separator: " ").map(String.init),
                                           expiresAt: Date().addingTimeInterval(token.expiresIn), welcomed: credential?.welcomed ?? false, nonce: attempt.nonce)
             try ChatGPTVault.save(value, binding: binding); credential = value
             needsWelcome = value.permitsInference && !value.welcomed
@@ -118,7 +122,8 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
         let current = generation
         if let value {
             do {
-                _ = try await http.request(url: URL(string: ChatGPTAuthorization.issuer + "/api/accounts/oauth/revoke")!, method: "POST",
+                let endpoint = try await http.revocationEndpoint()
+                _ = try await http.request(url: endpoint, method: "POST",
                                            form: ["client_id": value.clientID, "token": value.refreshToken ?? value.accessToken,
                                                   "token_type_hint": value.refreshToken == nil ? "access_token" : "refresh_token"])
                 if generation == current { message = "Account ChatGPT scollegato." }
@@ -135,8 +140,8 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
             guard let self else { throw ChatGPTAuthorization.failure() }
             return try await self.renewAccessToken()
         }
-        renewal = task
-        defer { renewal = nil }
+        let identifier = UUID(); renewalID = identifier; renewal = task
+        defer { if renewalID == identifier { renewal = nil; renewalID = nil } }
         return try await task.value
     }
     private func renewAccessToken() async throws -> String {
@@ -152,7 +157,8 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
                 value.idToken = idToken
             }
             value.accessToken = renewed.accessToken; value.refreshToken = renewed.refreshToken ?? value.refreshToken
-            value.expiresAt = Date().addingTimeInterval(renewed.expiresIn); value.scopes = renewed.scope.split(separator: " ").map(String.init)
+            value.expiresAt = Date().addingTimeInterval(renewed.expiresIn)
+            if let scope = renewed.scope { value.scopes = scope.split(separator: " ").map(String.init) }
             guard generation == current, self.binding == binding, value.permitsInference else { throw ChatGPTAuthorization.failure() }
             try ChatGPTVault.save(value, binding: binding); credential = value
         }

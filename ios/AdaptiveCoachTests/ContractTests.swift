@@ -346,6 +346,17 @@ final class ChatGPTContractTests: XCTestCase {
         XCTAssertNotEqual(ChatGPTVault.binding(endpoint: "https://a.invalid", athleteID: "one"), ChatGPTVault.binding(endpoint: "https://a.invalid", athleteID: "two"))
         XCTAssertNotEqual(ChatGPTVault.binding(endpoint: "https://a.invalid", athleteID: "one"), ChatGPTVault.binding(endpoint: "https://b.invalid", athleteID: "one"))
     }
+    func testIdentityOnlyCannotEnableInferenceAndRefreshCanOmitScope() throws {
+        let reply = try Wire.decoder().decode(ChatGPTTokenReply.self, from: Data(#"{"access_token":"synthetic","token_type":"Bearer","expires_in":300}"#.utf8))
+        XCTAssertNil(reply.scope)
+        var credential = ChatGPTCredential(clientID: "oaiapp_test", identity: .init(subject: "test", email: nil),
+                                          accessToken: "synthetic", refreshToken: nil, idToken: "synthetic",
+                                          scopes: ["openid", "profile", "email", "resource.invoke"],
+                                          expiresAt: Date(), welcomed: false, nonce: "synthetic")
+        XCTAssertFalse(credential.permitsInference)
+        credential.scopes.append("chatgpt.tokens.use.direct")
+        XCTAssertTrue(credential.permitsInference)
+    }
     func testRealLoopbackListenerReturnsStaticPageWithoutEchoingCode() async throws {
         let listener = ChatGPTLoopback()
         let port = try await listener.start { url in url.query == "code=synthetic-private-value" }
