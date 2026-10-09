@@ -42,3 +42,5 @@ Il database rimane alla revisione 3; non sono aggiunte tabelle o migrazioni. Il 
 I test sintetici coprono conferma, assenza di scritture durante la preview, scadenza, modifiche a profilo/storico/bozza, owner binding, incompatibilità di sport, target non ammessi, durata/fasi, disponibilità con palestra, frequenza della forza e due worker concorrenti. I test Swift verificano formato della risposta, chiarimenti e guardie di account/scadenza. Nessun test usa un account OpenAI, un atleta reale o invia allenamenti agli orologi.
 
 La generazione reale, il percorso UI completo della nuova anteprima su iPhone e la validazione professionale del carico restano da provare. Hosting, vendor ufficiali e App Store rimangono incompleti.
+
+La verifica del codice `78b27ef` è passata: [241 test Python, 69 PostgreSQL e container](https://github.com/Tatonta/EnduranceCoach/actions/runs/37958250398), [build iOS, 37 test di contratto e due flussi UI esistenti](https://github.com/Tatonta/EnduranceCoach/actions/runs/37958250323). I flussi UI non provano una generazione reale né l’intera nuova anteprima; i limiti indicati sopra rimangono aperti.
