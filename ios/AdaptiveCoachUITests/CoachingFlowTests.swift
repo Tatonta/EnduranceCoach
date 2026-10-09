@@ -50,6 +50,21 @@ final class CoachingFlowTests: XCTestCase {
         add(attachment)
     }
 
+    private func enableToggle(_ identifier: String) {
+        let toggle = app.switches[identifier]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+        if toggle.value as? String != "1" {
+            let control = toggle.switches.firstMatch
+            if control.exists { tap(control) }
+            else {
+                // SwiftUI can expose the whole form row as a Switch; its knob is on the trailing edge.
+                toggle.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+            }
+        }
+        let enabled = expectation(for: NSPredicate(format: "value == '1'"), evaluatedWith: toggle)
+        wait(for: [enabled], timeout: 5)
+    }
+
     private func assertScreen(_ element: XCUIElement, timeout: TimeInterval = 20) {
         let arrived = element.waitForExistence(timeout: timeout)
         let message = app.alerts.firstMatch.exists
@@ -88,10 +103,13 @@ final class CoachingFlowTests: XCTestCase {
             let transition = expectation(for: NSPredicate(format: "label CONTAINS %@", "Passaggio \(nextStep) di 5"), evaluatedWith: step)
             wait(for: [transition], timeout: 5)
         }
-        tap(app.descendants(matching: .any).matching(identifier: "availability-0").firstMatch)
+        enableToggle("availability-0")
         tap(app.buttons["onboarding-continue"])
+        let summary = expectation(for: NSPredicate(format: "label CONTAINS 'Passaggio 5 di 5'"), evaluatedWith: app.staticTexts["onboarding-step"])
+        wait(for: [summary], timeout: 5)
+        XCTAssertTrue(app.buttons["onboarding-save"].waitForExistence(timeout: 10))
         XCTAssertFalse(app.buttons["onboarding-save"].isEnabled)
-        tap(app.descendants(matching: .any).matching(identifier: "profile-consent").firstMatch)
+        enableToggle("profile-consent")
         capture("Questionario-prima-della-conferma")
         tap(app.buttons["onboarding-save"])
         assertScreen(app.tabBars.buttons["Coach"])
@@ -105,7 +123,7 @@ final class CoachingFlowTests: XCTestCase {
         XCTAssertTrue(accept.waitForExistence(timeout: 15))
         XCTAssertFalse(accept.isEnabled)
         capture("Proposta-richiede-conferma")
-        tap(app.descendants(matching: .any).matching(identifier: "adjustment-confirmation").firstMatch)
+        enableToggle("adjustment-confirmation")
         XCTAssertTrue(accept.isEnabled)
         tap(accept)
         if app.alerts.firstMatch.waitForExistence(timeout: 15) { app.alerts.buttons["OK"].tap() }
