@@ -1,3 +1,4 @@
+import json
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime, timedelta
 
@@ -99,6 +100,31 @@ def save_plan(client, user, expected=0, name=None):
 
 def records(now):
     return [{k: v for k, v in row.items() if k not in {"activity_id", "date"}} for row in runs(now)]
+
+
+def test_coach_context_is_owner_bound_and_available_before_plan_creation(platform):
+    client, app, (alice, bob), settings = platform
+    path = "/v1/coach/context"
+    assert client.get(path).status_code == 401
+    assert client.get(path, headers=alice["headers"]).json()["code"] == "profile_required"
+    for user in [alice, bob]:
+        profile = {**profile_fixture(), "goal_description": "Synthetic goal for " + user["email"]}
+        assert client.put("/v1/profile", headers=user["headers"],
+                          json={"expected_version": 0, "profile": profile}).status_code == 200
+    seed_trend(client, alice, settings)
+    original = client.get(path, headers=alice["headers"])
+    assert original.status_code == 200 and original.headers["cache-control"] == "no-store"
+    before = original.json()
+    assert before["context"]["plan_version"] == 1
+    assert len(before["context"]["recent_activity_summaries"]) == 4
+    assert before["inference_performed"] is False and before["ai_status"] == "not_connected"
+    other = client.get(path, params={"athlete_id": alice["id"]}, headers=bob["headers"]).json()
+    assert other["context"]["current_plan"] is None
+    assert other["context"]["recent_activity_summaries"] == []
+    assert alice["email"] not in json.dumps(other)
+    assert bob["email"] in other["context"]["training_profile"]["goal_description"]
+    assert before["context_hash"] == client.get(path, headers=alice["headers"]).json()["context_hash"]
+    assert app.state.athletes.plan(alice["id"])["version"] == 1
 
 
 def test_platform_catalog_does_not_advertise_personal_garmin_export(platform):
@@ -823,6 +849,32 @@ def seed_detailed(platform):
         == 200
     )
     return activity, plan
+
+
+def test_coach_context_has_measured_phases_and_invalidates_when_source_changes(platform):
+    client, _, (alice, _), _ = platform
+    activity, _ = seed_detailed(platform)
+    assert client.put("/v1/profile", headers=alice["headers"],
+                      json={"expected_version": 0, "profile": profile_fixture()}).status_code == 200
+    before = client.get("/v1/coach/context", headers=alice["headers"]).json()
+    path = "/v1/activities/coros/synthetic-quality/details"
+    state = client.get(path, headers=alice["headers"]).json()
+    assert client.put(path, headers=alice["headers"],
+                      json={"expected_activity_hash": state["activity_hash"], "expected_details_version": 0,
+                            "details": detail_fixture()}).status_code == 200
+    after = client.get("/v1/coach/context", headers=alice["headers"]).json()
+    evidence = after["context"]["recent_session_evidence"][0]
+    assert evidence["status"] == "ready"
+    assert evidence["analysis"]["phases"][1]["verdict"] == "troppo veloce"
+    assert evidence["analysis"]["dynamics"]["stride_m"] == 1.23
+    assert "route_segments" not in json.dumps(after) and '"lat"' not in json.dumps(after)
+    assert after["context_hash"] != before["context_hash"]
+    activity["name"] = "Synthetic revised source"
+    assert client.post("/v1/activities/import", headers=alice["headers"], json={"activities": [activity]}).status_code == 200
+    stale = client.get("/v1/coach/context", headers=alice["headers"]).json()
+    evidence = stale["context"]["recent_session_evidence"][0]
+    assert evidence["status"] == "stale" and "analysis" not in evidence
+    assert stale["context_hash"] != after["context_hash"]
 
 
 def test_detailed_evidence_is_owned_versioned_and_uses_its_referenced_plan(platform):

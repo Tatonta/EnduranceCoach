@@ -11,6 +11,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from app.errors import CoachError
 from app.integrations.activities import integration_catalog
 from app.integrations.session_details import DetailWrite
+from app.platform.coaching import CoachingContextService
 from app.platform.config import PlatformSettings
 from app.platform.detailed_review import ActivityDetailService
 from app.platform.schemas import (
@@ -205,6 +206,10 @@ def create_platform_app(settings=None, store=None):
     @app.get("/v1/review/workout")
     def workout_review(user: authenticated):
         return athletes.review(user["id"])
+
+    @app.get("/v1/coach/context")
+    def coach_context(user: authenticated):
+        return CoachingContextService(store, athletes).context(user["id"])
 
     @app.get("/v1/activities/{provider}/{provider_id}/details")
     def get_details(provider: str, provider_id: str, user: authenticated):

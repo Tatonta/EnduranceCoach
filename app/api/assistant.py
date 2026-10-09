@@ -8,6 +8,7 @@ from typing import Literal
 from fastapi import APIRouter, Request
 from pydantic import Field, ValidationError
 
+from app.coaching_context import build_coaching_context, completed_history
 from app.errors import CoachError
 from app.models import Plan, StrictModel
 from app.services.planner import canonical_hash
@@ -71,38 +72,12 @@ def context(coach):
         raise CoachError("Completa prima il questionario.", "profile_required", 409)
     plan = coach.plan() if coach.settings.plan_path.exists() else None
     now = coach.settings.now()
-    rows = sorted(coach.db.activities(), key=lambda a: a.get("start_time", ""), reverse=True)
-    evidence = [
-        {
-            k: row.get(k)
-            for k in (
-                "date",
-                "sport",
-                "duration_s",
-                "distance_m",
-                "avg_hr",
-                "max_hr",
-                "avg_pace_s_km",
-                "elevation_gain_m",
-                "feedback",
-                "evidence_kind",
-                "distance_known",
-            )
-        }
-        for row in rows
-        if (now - timedelta(days=42)).date().isoformat()
-        <= row.get("date", "")
-        <= now.date().isoformat()
-    ][:20]
-    value = {
-        "today": now.date().isoformat(),
-        "training_profile": saved["profile"],
-        "profile_version": saved["version"],
-        "recent_activity_summaries": evidence,
-        # Flexible legacy athlete metadata is not part of the consented intake.
-        "current_plan": plan.model_dump(mode="json", exclude={"athlete"}) if plan else None,
-    }
-    return value, canonical_hash(value), canonical_hash(plan) if plan else None
+    rows = coach.db.activities()
+    evidence = {row["activity_id"]: coach.details.comparison_evidence(row, plan)
+                for row in completed_history(rows, now)[:2]}
+    prepared = build_coaching_context(saved["profile"], saved["version"], plan, None,
+                                      rows, evidence, now)
+    return prepared["context"], prepared["context_hash"], canonical_hash(plan) if plan else None
 
 
 @router.get("/api/assistant")

@@ -3,7 +3,9 @@ A ChatGPT live-coach with integration with many different Fitness Watches/Cicloc
 
 ## Garmin Adaptive Coach
 
-Coach Garmin personale locale: FastAPI, HTML/Jinja2, SQLite e APScheduler. Il piano è in `data/workouts.json`; l'app legge attività reali, costruisce workout con step Garmin, verifica la rilettura dopo upload e mantiene un calendario coerente con il piano confermato.
+EnduranceCoach è un progetto per un'app di coaching **gratuita e open source**, con codice sotto licenza MIT. Include una versione personale locale, un backend autenticato separato e un client iOS. Le API cloud dei vendor e la pubblicazione App Store restano da completare; lo [stato della release](docs/RELEASE_STATUS.md) distingue codice verificato e requisiti aperti.
+
+La versione Garmin personale usa FastAPI, HTML/Jinja2, SQLite e APScheduler. Il piano è in `data/workouts.json`; legge attività reali, costruisce workout con step Garmin, verifica la rilettura dopo upload e mantiene un calendario coerente con il piano confermato. Il [contesto comune del coach](docs/COACH_CONTEXT.md) prepara profilo, programma, storico e fasi senza trasferire campi GPS o credenziali all'assistente.
 
 ## Avvio su questo computer
 

@@ -73,7 +73,11 @@ class WorkoutDetailsService:
             return {"status": "stale", "fingerprint": fingerprint}
         from app.services.reviewer import review_latest_workouts
 
-        snapshot = review_latest_workouts(plan, [activity], self.settings.now(), self.db.rows())
+        snapshot = (
+            review_latest_workouts(plan, [activity], self.settings.now(), self.db.rows())
+            if plan
+            else {"matches": []}
+        )
         match = next(
             (
                 row
@@ -83,7 +87,12 @@ class WorkoutDetailsService:
             None,
         )
         workout = next(
-            (row for row in plan.workouts if match and row.key == match["plan_workout_id"]), None
+            (
+                row
+                for row in (plan.workouts if plan else [])
+                if match and row.key == match["plan_workout_id"]
+            ),
+            None,
         )
         return {
             "status": "ready",
