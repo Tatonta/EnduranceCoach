@@ -1,23 +1,24 @@
 # Adaptive Coach: multi-vendor product and iOS release
 
-Decision record, 5 October 2026. The current product is a local, single-athlete FastAPI application. It is not a hosted multi-user service or a submitted iOS app. Vendor access and platform requirements below were checked against official sources on this date.
+Implementation status updated 9 October 2026. The project contains a personal local dashboard, a separate authenticated multi-athlete API and a native iOS client. The hosted service, real vendor integrations and App Store release are not yet delivered. Vendor routes were initially researched on 5 October; Garmin, Suunto and Google Health access dependencies were rechecked on 9 October. See the requirement-by-requirement [release status](RELEASE_STATUS.md).
 
-Implementation update: a separate authenticated multi-athlete API now exists in `app/platform`, with database-backed plan versions, source-aware activity ingestion, owner-bound review/proposals, transactional acceptance, export and account deletion. See [PLATFORM_API.md](PLATFORM_API.md) for setup, the verified boundaries and remaining hosting gates. Native SwiftUI client source now exists in `ios`, including read-only HealthKit preview and explicit upload consent; see [iOS setup and verification](../ios/README.md). The personal dashboard remains local; the new API has not been publicly deployed and has no direct vendor connections. The native client compiled on the macOS CI runner and its eight contract/transport tests passed; device signing and real HealthKit/UI verification remain open. Developer enrollment and approved vendor API access are not configured.
+Implementation update: a separate authenticated multi-athlete API now exists in `app/platform`, with database-backed plan versions, source-aware activity ingestion, owner-bound review/proposals, transactional acceptance, export and account deletion. See [PLATFORM_API.md](PLATFORM_API.md) for setup, the verified boundaries and remaining hosting gates. Native SwiftUI client source now exists in `ios`, including read-only HealthKit preview and explicit upload consent; see [iOS setup and verification](../ios/README.md). The personal dashboard remains local; the new API has not been publicly deployed and has no direct vendor connections. The native client compiled on the macOS CI runner and 17 contract/transport tests and two native UI flows passed in [this verification](https://github.com/Tatonta/EnduranceCoach/actions/runs/37902116734); device signing and real HealthKit/UI verification remain open. Developer enrollment and approved vendor API access are not configured.
 
 ## Delivered in this iteration
 
-- `/review` contains Last workout and Practical advice tabs. Review is deterministic and explains available evidence and missing data.
+- `/review` contains Last workout and Practical advice tabs. The measured review includes phases, target comparisons, laps, dynamics, charts and a route where the source provides it. Optional local ChatGPT review and conversation use the athlete profile and history with explicit consent; a real account connection and inference remain unverified. See [coach intake](COACH_ONBOARDING.md) and [canonical detail contract](CANONICAL_DETAILS.md).
 - `/api/review/workout` gives mobile clients the same review as the web UI. Stored review snapshots include `workout_review`.
 - Adjustment is offered only after four consecutive comparable easy runs over at least seven days, with a recent last run and recent synchronization. Each pace change must be at least 1%; total improvement must reach 6%, or slowing 8%. Heart rate, duration, source, activity type, hills and pauses must be comparable. These are transparent product heuristics, not scientifically validated fitness estimates.
 - An improvement proposal adds 5% to explicitly easy timed running blocks. A deterioration proposal removes 15% from timed running/interval work blocks. Proposals cover tomorrow through the next seven days; distance-only blocks, rest, strength, warmup, cooldown, dates and pace targets are retained. Mixed timed/distance sessions can be only partially adjusted, as shown in the preview.
 - The popup shows the proposed sessions and estimated durations. Accepting saves a backed-up local plan, clears existing test/cleanup proofs, and records the evidence. The same workouts cannot justify another increase or reduction. Garmin synchronization remains an explicit test-and-sync operation.
+- Available detailed evidence now gates proposals: target/structure discrepancies, high easy-lap HR, stale details and recent declared discomfort/severe fatigue require context first. Detail versions/fingerprints invalidate earlier previews. See [context gates](CANONICAL_DETAILS.md#contesto-prima-di-proporre-un-adattamento).
 - Previews expire after ten minutes and are invalidated by plan, data, refresh, date or eligibility changes. GET review endpoints never refresh remote data or mutate a plan.
 - `ActivityRecord` and `ActivitySource` define validated vendor-independent ingestion. Garmin now uses this boundary. Activities preserve source identity, aware timestamps and SI units. Non-Garmin activity IDs are namespaced. Service errors have a vendor-independent home in `app/errors.py`.
 - `/api/integrations` distinguishes the implemented local adapter from planned integrations. No COROS, Suunto, Fitbit/Google Health, Amazfit, Xiaomi or HealthKit connection is advertised as working.
 
 ## Recommended product architecture
 
-Keep this Python review engine and the new SwiftUI/HealthKit client source. Native review, advice, proposal acceptance, plan import, session handling, HealthKit import consent, export and deletion have been authored but have passed SDK compilation/contract tests and still need UI/real-device verification. The initial client keeps health responses only in memory and offers no offline adjustments or notifications. Preserve the web UI for diagnostics and desktop use.
+Keep this Python review engine and the new SwiftUI/HealthKit client source. Native review, advice, proposal acceptance, plan import, session handling, HealthKit import consent, export and deletion have been authored but have passed SDK compilation/contract tests and two focused UI flows; broader accessibility, interrupted-operation and real-device verification remain open. The client keeps health responses only in memory and offers no offline adjustments or notifications. Onboarding, manual feedback and selected HealthKit detail consent are implemented; the dedicated real-API simulator UI workflow passed onboarding, review, explicit acceptance and a lap-HR veto, as described in the iOS README. Preserve the web UI for diagnostics and desktop use.
 
 Use a modular backend first, not premature microservices. Authentication, athlete plans, normalized ingestion and review/adaptation are now separated in the platform API. Every athlete request derives its owner from the server session. Provider connections and durable sync jobs are still missing. The personal dashboard's global `app.state.coach`, `user_id="local"`, JSON plan file, filesystem lock and shared token directory remain personal-only and must not be deployed as the public API.
 
@@ -29,7 +30,7 @@ The platform persists unique `(athlete_id, provider, provider_activity_id)` reco
 
 Use OAuth authorization code flows, PKCE where supported, state validation, approved redirect URIs and least-privilege scopes. Encrypt provider tokens at rest under a managed key; handle refresh rotation, revocation and unlinking. Never ship vendor secrets inside the iOS binary. The current private Garmin session belongs to the local prototype.
 
-Represent provider capabilities independently: activity read, detailed laps, physiology, webhook notifications, structured workout export and schedule export. Do not assume importing a workout implies the ability to send a training program back to that watch. Garmin sync, performances and climb analysis still depend on Garmin-specific detail/export APIs; the delivered boundary currently covers activity ingestion and review only.
+Represent provider capabilities independently: activity read, detailed laps, physiology, webhook notifications, structured workout export and schedule export. Do not assume importing a workout implies the ability to send a training program back to that watch. Garmin sync, performances and climb analysis still depend on Garmin-specific detail/export APIs. Summary and detailed activity contracts are now vendor-neutral; watch workout export remains confined to the personal Garmin adapter. The public API advertises neither vendor connections nor watch export.
 
 ## Integration sequence and dependencies
 
@@ -47,7 +48,7 @@ Start with Garmin and Apple Health, then one approved additional vendor. Build c
 
 ## Coaching quality before a public release
 
-Collect explicit session exertion and next-day recovery reports with consent. Add lap-level compliance and sport-specific evidence, especially power for cycling. Keep a rule engine and evidence trail even if language-model wording is introduced. Insufficient data must continue to mean no adjustment proposal. Validate calibration, false-positive rates and user comprehension with a qualified coaching reviewer and a consenting pilot group. Thresholds need validation; similar heart rate is not proof that weather, route or recovery were comparable.
+Manual session exertion/sensations and lap-level compliance are implemented. Add next-day recovery reports and sport-specific coaching evidence, especially a validated cycling-power trend. Keep a rule engine and evidence trail even if language-model wording is introduced. Insufficient data must continue to mean no adjustment proposal. Validate calibration, false-positive rates and user comprehension with a qualified coaching reviewer and a consenting pilot group. Thresholds need validation; similar heart rate is not proof that weather, route or recovery were comparable.
 
 ## iOS / App Store delivery gates
 
@@ -65,7 +66,15 @@ Collect explicit session exertion and next-day recovery reports with consent. Ad
 | Milestone | Evidence required |
 | --- | --- |
 | Local review feature | Automated conservative-trend and preview tests; browser review/advice checks with real cached data and isolated test proposals |
-| Hosted pilot | Account/API isolation, transactional plans/proposals and export/deletion are implemented and tested locally. Still needs encrypted per-user vendor connections, durable jobs, PostgreSQL runtime/load verification, public account lifecycle, restore exercises and deployment observability. |
+| Hosted pilot | Account/API isolation, transactional plans/proposals and export/deletion are implemented and tested locally. Still needs encrypted per-user vendor connections, durable jobs, production load verification, public account lifecycle, restore exercises and deployment observability. |
 | Multi-vendor pilot | At least two real approved vendor integrations; canonical contract fixtures; deduplication and failure/revocation tests |
 | iOS beta | Signed build; working permission/onboarding/review flows on real hardware; TestFlight pilot |
 | App Store release | Privacy/data-rights gates, review materials and Apple approval |
+
+## ChatGPT account usage and remote release
+
+The requested AI route is the athlete's ChatGPT account, without an API-key fallback. The local implementation uses official Sign in with ChatGPT plan usage, stores app-side coaching context and does not retrieve ChatGPT conversations or memory. Paid or remotely hosted use has a separate availability process; it cannot be assumed enabled by adding the local OAuth code to a public backend. The native remote coach remains unavailable until that route is approved and integrated. See [official OpenAI plan-usage documentation](https://developers.openai.com/siwc/token-sharing-open-source).
+
+Redis remains a proposed broker/cache for vendor workers, with PostgreSQL retaining recoverable job state; see [Redis decision](REDIS_DECISION.md). No Redis service, vendor worker or outbox has been installed.
+
+The requested orange/black theme is implemented in the web dashboard/onboarding/coach/review and native client. The latest simulator UI verification uses that theme; positive findings and the two chart signals retain distinguishable semantic colours.

@@ -1,0 +1,41 @@
+# EnduranceCoach: requirements and verified release status
+
+Audit dated 9 October 2026. The goal remains the full coaching application with watch integrations and an App Store release. Passing local or simulator tests does not establish those final outcomes.
+
+| Requirement | Current authoritative evidence | Remaining work / verification |
+| --- | --- | --- |
+| Review of the last completed workout | Personal `/review`; platform `/v1/review/workout`; native Review; shared measured-session analysis; canonical detail contract | Real-device and provider coverage; cloud imports are not live |
+| Professional phases, splits, pace and HR feedback | Garmin parser and vendor-neutral evaluator; target/version-bound phases, positive findings, issues and actions; measured dynamics, charts and GPS where present | Qualified coaching/pilot validation; no guarantee that every watch exports every metric |
+| AI coaching based on goals and history | Personal onboarding and Coach conversation/draft; official local ChatGPT OAuth implementation; app-provided context | Real user consent and successful inference are unverified; remotely hosted/native AI remains unavailable pending the official access route |
+| First-access questionnaire | Shared validated profile, owner-bound API and five native steps; optional physical measurements, device/no-device, experience, PBs and availability | The first-access UI flow passed on the simulator; real-device accessibility and interruptions remain open |
+| Useful advice and justified adjustment only | Four comparable easy runs; bounded trends; available phase/lap context gates; recent subjective feedback; explicit preview and acceptance | Heuristic thresholds and false-positive rate need coaching validation; cycling does not have an automatic power-based adjustment policy |
+| Popup only when warranted, with explicit acceptance | Web/native guarded proposal; expiry, evidence fingerprint and plan version checks; transaction rollback and competing-worker tests | Simulator UI proves disabled acceptance before confirmation and resulting plan version 2; hardware/pilot validation remains open |
+| Scalable service | Separate authenticated platform; PostgreSQL transactions/snapshots, bounded pools, owner isolation and source-aware ingestion; private container pilot | Public deployment, operational load target, durable sync jobs/outbox/workers, provider token management, recovery/verification and restore-tested backups |
+| Garmin | Personal session-based adapter and explicit workout test/sync; cached detail normalization | Approved official Connect Developer Program adapter and production credentials; personal sessions are excluded from the platform image |
+| COROS and Suunto | Canonical upload/detail contracts accept their source identities; no connected adapter | Developer/partner approval, real OAuth integration, approved samples and failure/revocation testing |
+| Fitbit / Google Health | Catalog marks unavailable; Google migration/access notice checked on 9 October | Google Health project access; new-project onboarding is currently closed; legacy Fitbit API shutdown is scheduled for 30 October 2026 |
+| Amazfit / Zepp and Xiaomi | Catalog marks unavailable; optional HealthKit bridge source exists | Verify authorized API route, device/app/region and actual coverage, then implement and test adapters |
+| Apple Health bridge | Native read-only summary and selected detail preview; separate upload/GPS consent; pure normalization tests | HealthKit permissions and data coverage on real hardware; this is not proof of a direct vendor connection |
+| Visual architecture and isolated layers | Eight-page draw.io/SVG diagrams; API catalog; platform container excludes personal modules/data | Implement dashed future worker/Redis connections only with the corresponding production work |
+| GitHub develop transfer and privacy | Reviewed source in Tatonta/EnduranceCoach; ordinary pushes; personal data, generated dependencies and credentials excluded | Keep those exclusions for subsequent releases; no force push |
+| App Store release | SwiftUI client source, contract tests and simulator UI flows with local ad hoc signing; privacy manifest and export/deletion source | Apple Developer enrollment, real-device QA, reviewed identity/branding, reachable service, privacy/support URLs, TestFlight, review access/materials, signed submission and Apple approval |
+
+## Verified code and limits of the evidence
+
+Commit `9718efdeb90c3979998896cbd981e39a4f675d8a` passed **217 Python tests**, **48 PostgreSQL API/configuration tests**, the container pilot, **17 native contract/transport tests** and **two native UI flows**. Evidence: [backend verification](https://github.com/Tatonta/EnduranceCoach/actions/runs/37902116760), [macOS simulator verification](https://github.com/Tatonta/EnduranceCoach/actions/runs/37902116734).
+
+The first UI case logs in to a new synthetic athlete profile, completes all five questionnaire steps, verifies consent is required, reads the last workout and advice, checks that proposal acceptance is disabled without confirmation, accepts it and observes plan version 2. Consumed evidence cannot offer a second proposal. The second uses two laps at 120/160 bpm despite a whole-workout mean of 140 and verifies the keep-plan judgment with no proposal button. These cases use the real authenticated platform API and a temporary database; no vendor, HealthKit or OpenAI connection is exercised. Screenshots are retained in `UIFlowTests.xcresult`.
+
+The web orange/black palette was inspected in the local browser, including actual computed background/accent colours and readable text contrast. The iOS theme compiled and was used by the passing UI cases. Navigation controls remain reachable above the keyboard and during scrolling. The UI build uses local ad hoc signing for simulator Keychain access; it is not signed for TestFlight/App Store and supplies no physical-device permission evidence.
+
+This proves those source and simulator behaviours, not public hosting, a user-load target, provider approval, real data coverage, a live AI review or an App Store release.
+
+## External prerequisites and next release sequence
+
+The deployment has no configured hosting/domain, Apple signing team or approved vendor connections. The requested ChatGPT-account route must remain separate from an API-key fallback. Official plan usage for open-source/local tools is documented; paid or remotely hosted use has a separate interest/access process. [OpenAI documentation](https://developers.openai.com/siwc/token-sharing-open-source).
+
+Obtain one approved vendor route and authorize a hosting environment first. Implement that connection's token lifecycle and durable jobs, verify its canonical data and pilot failure/revocation behavior, then add a second approved vendor. Test native consent and review on real hardware and produce a signed TestFlight build before preparing the store submission. Review access requires a working demo account and disclosure of necessary services/hardware. [Apple review preparation](https://developer.apple.com/help/app-review/before-submitting-for-review/complete-review/).
+
+Google's current access restriction and Fitbit timeline are confirmed by its [migration overview](https://developers.google.com/health/migration). Garmin and Suunto require their respective [developer program](https://developer.garmin.com/gc-developer-program/program-faq/) and [partner process](https://apizone.suunto.com/faq).
+
+Redis is a proposed broker/cache, documented in [REDIS_DECISION.md](REDIS_DECISION.md). It has not been installed; PostgreSQL remains the definitive store. Adding Redis alone would not deliver the missing vendor connections, operational service or App Store release.
