@@ -1,12 +1,12 @@
 # EnduranceCoach: requirements and verified release status
 
-Audit dated 9 October 2026. The goal remains the full coaching application with watch integrations and an App Store release. Passing local or simulator tests does not establish those final outcomes.
+Audit dated 9 October 2026. The chosen distribution model is a free open-source application; the MIT repository is publicly accessible at [Tatonta/EnduranceCoach](https://github.com/Tatonta/EnduranceCoach). The goal remains the full coaching application with watch integrations and an App Store release. Passing local or simulator tests does not establish those final outcomes.
 
 | Requirement | Current authoritative evidence | Remaining work / verification |
 | --- | --- | --- |
 | Review of the last completed workout | Personal `/review`; platform `/v1/review/workout`; native Review; shared measured-session analysis; canonical detail contract | Real-device and provider coverage; cloud imports are not live |
 | Professional phases, splits, pace and HR feedback | Garmin parser and vendor-neutral evaluator; target/version-bound phases, positive findings, issues and actions; measured dynamics, charts and GPS where present | Qualified coaching/pilot validation; no guarantee that every watch exports every metric |
-| AI coaching based on goals and history | Personal onboarding and Coach conversation/draft; official local ChatGPT OAuth implementation; app-provided context | Real user consent and successful inference are unverified; remotely hosted/native AI remains unavailable pending the official access route |
+| AI coaching based on goals and history | Personal onboarding and Coach conversation/draft; official local ChatGPT OAuth implementation; common bounded context, with owner-bound `/v1/coach/context` | Real user consent and successful inference are unverified; remotely hosted/native AI remains unavailable pending the official access route |
 | First-access questionnaire | Shared validated profile, owner-bound API and five native steps; optional physical measurements, device/no-device, experience, PBs and availability | The first-access UI flow passed on the simulator; real-device accessibility and interruptions remain open |
 | Useful advice and justified adjustment only | Four comparable easy runs; bounded trends; available phase/lap context gates; recent subjective feedback; explicit preview and acceptance | Heuristic thresholds and false-positive rate need coaching validation; cycling does not have an automatic power-based adjustment policy |
 | Popup only when warranted, with explicit acceptance | Web/native guarded proposal; expiry, evidence fingerprint and plan version checks; transaction rollback and competing-worker tests | Simulator UI proves disabled acceptance before confirmation and resulting plan version 2; hardware/pilot validation remains open |
@@ -17,7 +17,7 @@ Audit dated 9 October 2026. The goal remains the full coaching application with 
 | Amazfit / Zepp and Xiaomi | Catalog marks unavailable; optional HealthKit bridge source exists | Verify authorized API route, device/app/region and actual coverage, then implement and test adapters |
 | Apple Health bridge | Native read-only summary and selected detail preview; separate upload/GPS consent; pure normalization tests | HealthKit permissions and data coverage on real hardware; this is not proof of a direct vendor connection |
 | Visual architecture and isolated layers | Eight-page draw.io/SVG diagrams; API catalog; platform container excludes personal modules/data | Implement dashed future worker/Redis connections only with the corresponding production work |
-| GitHub develop transfer and privacy | Reviewed source in Tatonta/EnduranceCoach; ordinary pushes; personal data, generated dependencies and credentials excluded | Keep those exclusions for subsequent releases; no force push |
+| GitHub develop transfer and privacy | Public MIT source in Tatonta/EnduranceCoach; ordinary pushes; history checked for private-file paths and recognised key patterns; personal data/generated dependencies excluded | Keep those exclusions for subsequent releases; no force push |
 | App Store release | SwiftUI client source, contract tests and simulator UI flows with local ad hoc signing; privacy manifest and export/deletion source | Apple Developer enrollment, real-device QA, reviewed identity/branding, reachable service, privacy/support URLs, TestFlight, review access/materials, signed submission and Apple approval |
 
 ## Verified code and limits of the evidence
@@ -39,3 +39,9 @@ Obtain one approved vendor route and authorize a hosting environment first. Impl
 Google's current access restriction and Fitbit timeline are confirmed by its [migration overview](https://developers.google.com/health/migration). Garmin and Suunto require their respective [developer program](https://developer.garmin.com/gc-developer-program/program-faq/) and [partner process](https://apizone.suunto.com/faq).
 
 Redis is a proposed broker/cache, documented in [REDIS_DECISION.md](REDIS_DECISION.md). It has not been installed; PostgreSQL remains the definitive store. Adding Redis alone would not deliver the missing vendor connections, operational service or App Store release.
+
+## Shared coaching context verification
+
+Commit `e47a48acf1614407a1a8d86b0687ac0268a0437e` passed **222 Python tests**, **50 PostgreSQL tests**, the container and **17 native contract tests plus two UI flows**. Evidence: [backend run](https://github.com/Tatonta/EnduranceCoach/actions/runs/37937252897), [native run](https://github.com/Tatonta/EnduranceCoach/actions/runs/37937252888). The [common context](COACH_CONTEXT.md) provides a privacy-filtered, versioned evidence boundary, including measured phases and explicit coverage. It performs no inference and does not claim a connected OpenAI account.
+
+The source visibility is now public under the existing MIT license, following the user's free/open-source choice. No private runtime files were found in tracked history, and the recognised OpenAI/GitHub/private-key patterns were absent in 359 historical text blobs. This scoped scan is not a guarantee that every possible secret pattern is detected. The Natural Earth archive is public-domain data; bundled Leaflet retains its license. Personal climb catalogs remain ignored. Runtime credentials, health data, screenshots and generated dependencies stay outside source control.

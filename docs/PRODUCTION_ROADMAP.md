@@ -78,3 +78,5 @@ The requested AI route is the athlete's ChatGPT account, without an API-key fall
 Redis remains a proposed broker/cache for vendor workers, with PostgreSQL retaining recoverable job state; see [Redis decision](REDIS_DECISION.md). No Redis service, vendor worker or outbox has been installed.
 
 The requested orange/black theme is implemented in the web dashboard/onboarding/coach/review and native client. The latest simulator UI verification uses that theme; positive findings and the two chart signals retain distinguishable semantic colours.
+
+Distribution decision: the user chose a free open-source application. The existing MIT repository is now public. The app continues to require real OAuth consent and successful inference; the published source and shared context do not establish native callback support, vendor approval or an App Store release.
