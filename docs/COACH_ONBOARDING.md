@@ -35,7 +35,7 @@ flowchart LR
   R --> C
 ```
 
-Il collegamento ChatGPT e la conversazione sono implementati nella versione personale locale. Nel client iOS la home Coach mostra obiettivo e disponibilità; il collegamento AI remoto non è ancora abilitato. La distribuzione remota/commerciale resta soggetta all'accesso OpenAI previsto per [Sign in with ChatGPT](https://developers.openai.com/siwc/quickstart). La prima inferenza con un vero account dell'atleta richiede il suo accesso e consenso; i test sintetici non la sostituiscono.
+Il collegamento ChatGPT e la conversazione sono implementati nella versione personale locale. Nel client iOS la home Coach mostra obiettivo e disponibilità e implementa il collegamento ChatGPT diretto sperimentale. Un atleta senza programma può richiedere una bozza strutturata, esaminarla e confermarla tramite la piattaforma. Vedi [prime sedute e API](INITIAL_COACH_PLAN.md). La distribuzione remota/commerciale resta soggetta all'accesso OpenAI previsto per [Sign in with ChatGPT](https://developers.openai.com/siwc/quickstart). La prima inferenza con un vero account dell'atleta richiede il suo accesso e consenso; i test sintetici non la sostituiscono.
 
 ## Contratti e archiviazione
 

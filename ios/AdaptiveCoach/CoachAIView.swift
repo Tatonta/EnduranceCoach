@@ -10,6 +10,7 @@ struct CoachAIView: View {
     @State private var consent = false
     @State private var working = false
     @State private var error: String?
+    @State private var initialDraft: InitialPlanDraft?
     private let http = ChatGPTHTTP()
 
     var body: some View {
@@ -49,6 +50,11 @@ struct CoachAIView: View {
                     Text("Il contesto esclude il percorso GPS e le credenziali. Le risposte testuali del profilo sono incluse. La risposta usa i limiti del tuo piano ChatGPT.").font(.footnote).foregroundStyle(.secondary)
                     Button("Chiedi una review al coach") { Task { await ask() } }
                         .disabled(working || store.busy || connection.connecting || !consent || question.count < 5 || question.count > 2000 || model.isEmpty)
+                    if store.plan == nil {
+                        Button("Prepara le prime due settimane") { Task { await prepareInitialPlan() } }
+                            .disabled(working || store.busy || connection.connecting || !consent || model.isEmpty)
+                        Text("Il coach può chiedere chiarimenti. Le sedute verranno validate e mostrate in anteprima prima della tua conferma.").font(.footnote).foregroundStyle(.secondary)
+                    }
                 }
             }
             if working { ProgressView("Preparazione o analisi…") }
@@ -60,8 +66,9 @@ struct CoachAIView: View {
         } message: {
             Text("Le richieste AI idonee useranno i limiti del tuo piano ChatGPT o i crediti disponibili. Puoi gestire accesso e utilizzo nelle impostazioni ChatGPT. Non riceviamo le tue conversazioni o memoria.")
         }
-        .onChange(of: connection.accountGeneration) { _, _ in models = []; model = ""; answer = ""; consent = false }
-        .onChange(of: connection.selectedRegistrationID) { _, _ in models = []; model = ""; answer = ""; consent = false }
+        .onChange(of: connection.accountGeneration) { _, _ in models = []; model = ""; answer = ""; consent = false; initialDraft = nil }
+        .onChange(of: connection.selectedRegistrationID) { _, _ in models = []; model = ""; answer = ""; consent = false; initialDraft = nil }
+        .sheet(item: $initialDraft) { draft in InitialPlanPreviewView(connection: connection, draft: draft) }
     }
     private func loadModels() async {
         guard !working, connection.selectedRegistrationID == connection.credential?.clientID else { return }; working = true; error = nil
@@ -95,6 +102,36 @@ struct CoachAIView: View {
                 throw ServiceError(status: 409, code: "chatgpt_context_changed", message: "Profilo o evidenze sono cambiati durante la risposta. Aggiorna e ripeti la review.")
             }
             answer = response
+        } catch { self.error = error.localizedDescription }
+    }
+    private func prepareInitialPlan() async {
+        guard !working, consent, store.plan == nil, connection.selectedRegistrationID == connection.credential?.clientID,
+              models.contains(where: { $0.id == model }), let owner = store.identity?.id,
+              let clientID = connection.credential?.clientID else { return }
+        working = true; error = nil; answer = ""; initialDraft = nil
+        defer { working = false; consent = false }
+        let generation = connection.accountGeneration, selectedModel = model
+        do {
+            let evidence = try await store.coachingContext()
+            let token = try await connection.accessToken()
+            let available = try await http.models(token: token)
+            guard generation == connection.accountGeneration, store.identity?.id == owner,
+                  connection.selectedRegistrationID == clientID, available.contains(where: { $0.id == selectedModel }) else { throw ChatGPTAuthorization.failure() }
+            let text = try await http.review(context: evidence.context, question: "Prepara la prima bozza di sedute considerando il questionario e lo storico. Chiedi chiarimenti se necessari.",
+                                            model: selectedModel, token: token, initialPlan: true)
+            let response = try InitialPlanDraft.parseAI(text)
+            guard generation == connection.accountGeneration, store.identity?.id == owner,
+                  connection.selectedRegistrationID == clientID else { throw ChatGPTAuthorization.failure() }
+            guard let plan = response.plan else {
+                let latest = try await store.coachingContext()
+                guard generation == connection.accountGeneration, store.identity?.id == owner,
+                      connection.selectedRegistrationID == clientID, latest.contextHash == evidence.contextHash else { throw ChatGPTAuthorization.failure() }
+                answer = response.explanation; return
+            }
+            let preview = try await store.previewInitialPlan(.init(expectedContextHash: evidence.contextHash, plan: plan, explanation: response.explanation))
+            guard generation == connection.accountGeneration, store.identity?.id == owner,
+                  connection.selectedRegistrationID == clientID else { throw ChatGPTAuthorization.failure() }
+            initialDraft = .init(preview: preview, ownerID: owner, accountGeneration: generation, clientID: clientID)
         } catch { self.error = error.localizedDescription }
     }
 }

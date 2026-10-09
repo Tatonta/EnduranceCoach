@@ -39,6 +39,143 @@ from scripts.create_initial_plan import initial_plan
 PASSWORD = "test-only password with enough entropy"
 
 
+def initial_draft_body(client, user, settings):
+    day = settings.now().date() + timedelta(days=1)
+    profile = {**profile_fixture(), "primary_sport": "running", "target_date": None,
+               "deadline_flexible": True, "gym_sessions_week": 1,
+               "availability": [{"weekday": day.weekday(), "minutes": 45}]}
+    assert client.put("/v1/profile", headers=user["headers"],
+                      json={"expected_version": 0, "profile": profile}).status_code == 200
+    context = client.get("/v1/coach/context", headers=user["headers"]).json()
+    return {"expected_context_hash": context["context_hash"], "explanation": "Synthetic initial draft",
+            "plan": {"plan_name": "Synthetic first fortnight", "workouts": [
+                {"id": "first-easy", "date": day.isoformat(), "name": "Facile", "sport": "running",
+                 "estimated_duration_min": 30, "steps": [{"type": "warmup", "duration_min": 5},
+                  {"type": "run", "duration_min": 20}, {"type": "cooldown", "duration_min": 5}]}]}}
+
+
+def initial_acceptance(body, preview, confirmed=True):
+    return {**body, "plan": preview["plan"], "explanation": preview["explanation"],
+            "draft_hash": preview["draft_hash"], "expires_at": preview["expires_at"], "confirmed": confirmed}
+
+
+def test_initial_plan_dry_run_and_explicit_first_creation(platform):
+    client, app, (alice, bob), settings = platform
+    body = initial_draft_body(client, alice, settings)
+    path = "/v1/coach/initial-plan/preview"
+    assert client.post(path, json=body).status_code == 401
+    preview = client.post(path, headers=alice["headers"], json=body)
+    assert preview.status_code == 200, preview.text
+    preview = preview.json()
+    assert not preview["inference_performed"] and preview["vendor_sync"] == "not_sent"
+    assert client.get("/v1/plan", headers=alice["headers"]).status_code == 404
+    accept = initial_acceptance(body, preview, confirmed=False)
+    path = "/v1/coach/initial-plan/apply"
+    assert client.post(path, headers=alice["headers"], json=accept).json()["code"] == "confirmation_required"
+    result = client.post(path, headers=alice["headers"], json={**accept, "confirmed": True})
+    assert result.status_code == 200, result.text
+    assert result.json()["version"] == 1 and result.json()["vendor_sync"] == "not_sent"
+    assert client.get("/v1/plan", headers=bob["headers"]).status_code == 404
+    assert client.post(path, headers=alice["headers"], json={**accept, "confirmed": True}).json()["code"] == "plan_exists"
+    assert len(client.get("/v1/plan/history", headers=alice["headers"]).json()["versions"]) == 1
+
+
+@pytest.mark.parametrize("problem", ["profile", "activity", "expired", "too_far", "changed_plan", "changed_explanation"])
+def test_initial_plan_rejects_changed_evidence_or_preview(platform, problem):
+    client, app, (alice, _), settings = platform
+    body = initial_draft_body(client, alice, settings)
+    preview = client.post("/v1/coach/initial-plan/preview", headers=alice["headers"], json=body).json()
+    accept = initial_acceptance(body, preview)
+    if problem == "profile":
+        current = client.get("/v1/profile", headers=alice["headers"]).json()
+        assert client.put("/v1/profile", headers=alice["headers"],
+                          json={"expected_version": 1, "profile": current["profile"]}).status_code == 200
+    elif problem == "activity":
+        assert client.post("/v1/activities/import", headers=alice["headers"], json={"activities": records(settings.now())}).status_code == 200
+    elif problem == "expired":
+        settings.now = lambda: datetime(2026, 10, 5, 20, 16, tzinfo=UTC)
+    elif problem == "too_far":
+        accept["expires_at"] = (settings.now() + timedelta(hours=1)).isoformat()
+    elif problem == "changed_plan":
+        accept["plan"]["workouts"][0]["name"] = "Changed after preview"
+    else:
+        accept["explanation"] = "Changed after preview"
+    result = client.post("/v1/coach/initial-plan/apply", headers=alice["headers"], json=accept)
+    assert result.status_code == 409, result.text
+    assert client.get("/v1/plan", headers=alice["headers"]).status_code == 404
+
+
+@pytest.mark.parametrize("problem", ["target", "quality", "duration", "day", "sport", "metadata", "interval", "rest_only", "gym_budget", "gym_week"])
+def test_initial_plan_policy_refuses_invalid_drafts(platform, problem):
+    client, app, (alice, _), settings = platform
+    body = initial_draft_body(client, alice, settings)
+    workout = body["plan"]["workouts"][0]
+    if problem == "target":
+        workout["steps"][1]["target"] = {"type": "hr_zone", "zone": 2}
+    elif problem == "quality":
+        workout["quality"] = True
+    elif problem == "duration":
+        workout["estimated_duration_min"] = 5
+    elif problem == "day":
+        workout["date"] = (settings.now().date() + timedelta(days=2)).isoformat()
+    elif problem == "sport":
+        workout["sport"] = "cycling"
+    elif problem == "metadata":
+        body["plan"]["athlete"] = {"synthetic-private-marker": "never-echo-this"}
+    elif problem == "interval":
+        workout["steps"][1]["type"] = "interval"
+    elif problem == "rest_only":
+        workout.update(sport="rest", steps=[], estimated_duration_min=None)
+    elif problem == "gym_week":
+        current = client.get("/v1/profile", headers=alice["headers"]).json()
+        next_gym = settings.now().date() + timedelta(days=7)
+        current["profile"]["availability"].append({"weekday": next_gym.weekday(), "minutes": 45})
+        assert client.put("/v1/profile", headers=alice["headers"], json={"expected_version": 1, "profile": current["profile"]}).status_code == 200
+        body["expected_context_hash"] = client.get("/v1/coach/context", headers=alice["headers"]).json()["context_hash"]
+        body["plan"]["workouts"] += [{"id": "gym-one", "date": workout["date"], "name": "Forza 1", "sport": "manual", "estimated_duration_min": 10},
+                                     {"id": "gym-two", "date": next_gym.isoformat(), "name": "Forza 2", "sport": "manual", "estimated_duration_min": 10}]
+    else:
+        body["plan"]["workouts"].append({"id": "gym", "date": workout["date"], "name": "Palestra",
+                                          "sport": "manual", "estimated_duration_min": 30, "steps": []})
+    result = client.post("/v1/coach/initial-plan/preview", headers=alice["headers"], json=body)
+    assert result.status_code == 422, result.text
+    assert "never-echo-this" not in result.text
+    assert client.get("/v1/plan", headers=alice["headers"]).status_code == 404
+
+
+def test_initial_draft_hash_is_owner_bound_even_with_identical_profiles(platform):
+    client, app, (alice, bob), settings = platform
+    first = initial_draft_body(client, alice, settings)
+    second = initial_draft_body(client, bob, settings)
+    assert first["expected_context_hash"] == second["expected_context_hash"]
+    preview = client.post("/v1/coach/initial-plan/preview", headers=alice["headers"], json=first).json()
+    wrong = client.post("/v1/coach/initial-plan/apply", headers=bob["headers"], json=initial_acceptance(second, preview))
+    assert wrong.status_code == 409
+    assert client.get("/v1/plan", headers=alice["headers"]).status_code == 404
+    assert client.get("/v1/plan", headers=bob["headers"]).status_code == 404
+
+
+def test_competing_workers_cannot_overwrite_the_first_initial_plan(platform):
+    from app.platform.initial_plan import InitialPlanAcceptance, InitialPlanService
+    client, app, (alice, _), settings = platform
+    body = initial_draft_body(client, alice, settings)
+    preview = client.post("/v1/coach/initial-plan/preview", headers=alice["headers"], json=body).json()
+    accepted = InitialPlanAcceptance.model_validate(initial_acceptance(body, preview))
+    other = PlatformStore(settings)
+    def apply(store):
+        try:
+            return InitialPlanService(store, AthleteService(store)).apply(alice["id"], accepted)["version"]
+        except CoachError as error:
+            return error.code
+    try:
+        with ThreadPoolExecutor(max_workers=2) as workers:
+            results = list(workers.map(apply, [app.state.store, other]))
+        assert sorted(results, key=str) == [1, "plan_exists"]
+        assert len(client.get("/v1/plan/history", headers=alice["headers"]).json()["versions"]) == 1
+    finally:
+        other.close()
+
+
 @pytest.fixture
 def platform(tmp_path):
     with isolated_database(tmp_path) as database_url:

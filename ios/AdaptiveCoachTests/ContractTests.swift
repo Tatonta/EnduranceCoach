@@ -3,6 +3,38 @@ import Security
 @testable import AdaptiveCoach
 
 final class ContractTests: XCTestCase {
+    func testInitialDraftClarificationAndStructuredOutputParsing() throws {
+        let clarification = try InitialPlanDraft.parseAI(#"{"explanation":"Quante sedute hai svolto di recente?","plan":null}"#)
+        XCTAssertNil(clarification.plan)
+        let parsed = try InitialPlanDraft.parseAI("```json\n{\"explanation\":\"Una bozza semplice\",\"plan\":{\"plan_name\":\"Avvio\",\"workouts\":[]}}\n```")
+        XCTAssertNotNil(parsed.plan)
+        for bad in ["plain text", #"{"explanation":" ","plan":null}"#, #"{"explanation":"test","plan":[]}"#] {
+            XCTAssertThrowsError(try InitialPlanDraft.parseAI(bad))
+        }
+    }
+    func testInitialPreviewIsBoundToAthleteAccountAndExpiry() throws {
+        let time = Date(timeIntervalSince1970: 1_790_000_000), generation = UUID()
+        let preview = InitialPlanPreview(plan: .object([:]), explanation: "Synthetic", contextHash: "context", draftHash: "draft",
+                                         expiresAt: Wire.iso(time.addingTimeInterval(60)))
+        let draft = InitialPlanDraft(preview: preview, ownerID: "first", accountGeneration: generation, clientID: "oaiapp_first")
+        XCTAssertTrue(draft.isCurrent(owner: "first", generation: generation, selectedClient: "oaiapp_first", now: time))
+        XCTAssertFalse(draft.isCurrent(owner: "second", generation: generation, selectedClient: "oaiapp_first", now: time))
+        XCTAssertFalse(draft.isCurrent(owner: "first", generation: UUID(), selectedClient: "oaiapp_first", now: time))
+        XCTAssertFalse(draft.isCurrent(owner: "first", generation: generation, selectedClient: "oaiapp_second", now: time))
+        XCTAssertFalse(draft.isCurrent(owner: "first", generation: generation, selectedClient: "oaiapp_first", now: time.addingTimeInterval(61)))
+    }
+    func testInitialPlanConfirmationUsesWireNamesWithoutRewritingPlanKeys() throws {
+        let plan: JSONValue = .object(["plan_name": .string("Synthetic"), "workouts": .array([])])
+        let value = InitialPlanAcceptance(expectedContextHash: "hash", plan: plan, explanation: "Synthetic",
+                                          draftHash: "fingerprint", expiresAt: "2026-10-10T10:00:00Z", confirmed: false)
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with: Wire.encoder().encode(value)) as? [String: Any])
+        XCTAssertEqual(body["expected_context_hash"] as? String, "hash")
+        XCTAssertEqual(body["draft_hash"] as? String, "fingerprint")
+        XCTAssertEqual(body["confirmed"] as? Bool, false)
+        XCTAssertEqual((body["plan"] as? [String: Any])?["plan_name"] as? String, "Synthetic")
+        XCTAssertNil(body["athlete_id"])
+        XCTAssertNil(body["client_id"])
+    }
     private func data(_ name: String) throws -> Data {
         let url = try XCTUnwrap(Bundle(for: Self.self).url(forResource: name, withExtension: "json", subdirectory: "Fixtures"))
         return try Data(contentsOf: url)

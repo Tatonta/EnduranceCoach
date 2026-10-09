@@ -214,7 +214,7 @@ struct CoachHomeView: View {
                     Section("Feedback e assistente") {
                         Button("Registra una seduta senza orologio") { recording = true }.disabled(store.busy)
                         Text(profile.deviceVendor == "none" ? "Il coach può usare obiettivi, durata e sensazioni anche senza orologio. Le metriche non misurate resteranno assenti." : "Il dispositivo selezionato è \(profile.deviceVendor). Scelta del produttore e collegamento dell'account sono passaggi distinti.")
-                        Text(store.plan == nil ? "Il profilo è pronto. Puoi chiedere indicazioni al coach e importare un programma dalla scheda Piano; la bozza AI iniziale è disponibile nella versione personale." : "Apri Review per valutare la seduta e Consigli per la prossima scelta.")
+                        Text(store.plan == nil ? "Il profilo è pronto. Dopo aver collegato ChatGPT puoi preparare le prime due settimane, esaminare le sedute e confermarle. Puoi anche importare un programma dalla scheda Piano." : "Apri Review per valutare la seduta e Consigli per la prossima scelta.")
                     }
                     CoachAIView(connection: store.chatgpt)
                     if !store.manualSessions.isEmpty {

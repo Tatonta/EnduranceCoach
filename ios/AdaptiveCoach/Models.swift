@@ -227,6 +227,53 @@ struct PlanReply: Decodable {
     }
 }
 struct PlanWrite: Encodable { let expectedVersion: Int; let plan: JSONValue }
+struct InitialPlanRequest: Encodable {
+    let expectedContextHash: String
+    let plan: JSONValue
+    let explanation: String
+}
+struct InitialPlanPreview: Decodable {
+    let plan: JSONValue
+    let explanation: String
+    let contextHash: String
+    let draftHash: String
+    let expiresAt: String
+}
+struct InitialPlanAcceptance: Encodable {
+    let expectedContextHash: String
+    let plan: JSONValue
+    let explanation: String
+    let draftHash: String
+    let expiresAt: String
+    let confirmed: Bool
+}
+struct InitialPlanDraft: Identifiable {
+    let id = UUID()
+    let preview: InitialPlanPreview
+    let ownerID: String
+    let accountGeneration: UUID
+    let clientID: String
+    func isCurrent(owner: String?, generation: UUID, selectedClient: String?, now: Date = Date()) -> Bool {
+        owner == ownerID && generation == accountGeneration && selectedClient == clientID &&
+            (Wire.date(preview.expiresAt).map { $0 > now } ?? false)
+    }
+    static func parseAI(_ text: String) throws -> (explanation: String, plan: JSONValue?) {
+        struct Reply: Decodable { let explanation: String; let plan: JSONValue? }
+        var content = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        if content.hasPrefix("```json\n") && content.hasSuffix("```") { content = String(content.dropFirst(8).dropLast(3)) }
+        guard let data = content.data(using: .utf8), data.count <= 100_000 else { throw invalid() }
+        let value: Reply
+        do { value = try JSONDecoder().decode(Reply.self, from: data) } catch { throw invalid() }
+        let explanation = value.explanation.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !explanation.isEmpty, explanation.count <= 8000 else { throw invalid() }
+        if let plan = value.plan, case .object = plan { return (explanation, plan) }
+        if value.plan == nil || value.plan == .null { return (explanation, nil) }
+        throw invalid()
+    }
+    private static func invalid() -> ServiceError {
+        ServiceError(status: 422, code: "initial_draft_format", message: "La risposta non contiene una bozza strutturata valida. Chiedi al coach di riprepararla.")
+    }
+}
 struct TrainingPlan: Decodable {
     let planName: String
     let goal: String

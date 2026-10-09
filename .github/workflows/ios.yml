@@ -1,9 +1,9 @@
 name: iOS build and native contract tests
 on:
   pull_request:
-    paths: ["ios/**", "app/platform/**", "app/integrations/**", "app/services/workout_review.py", "app/services/adjustment_context.py", "app/services/session_analysis.py", "app/models.py", "app/training_profile.py", "app/session_feedback.py", "scripts/ios_ui_backend.py", "requirements*.txt", "pyproject.toml", ".github/workflows/ios.yml"]
+    paths: ["ios/**", "app/platform/**", "app/integrations/**", "app/services/workout_review.py", "app/services/adjustment_context.py", "app/services/session_analysis.py", "app/models.py", "app/training_profile.py", "app/initial_plan.py", "app/session_feedback.py", "scripts/ios_ui_backend.py", "requirements*.txt", "pyproject.toml", ".github/workflows/ios.yml"]
   push:
-    paths: ["ios/**", "app/platform/**", "app/integrations/**", "app/services/workout_review.py", "app/services/adjustment_context.py", "app/services/session_analysis.py", "app/models.py", "app/training_profile.py", "app/session_feedback.py", "scripts/ios_ui_backend.py", "requirements*.txt", "pyproject.toml", ".github/workflows/ios.yml"]
+    paths: ["ios/**", "app/platform/**", "app/integrations/**", "app/services/workout_review.py", "app/services/adjustment_context.py", "app/services/session_analysis.py", "app/models.py", "app/training_profile.py", "app/initial_plan.py", "app/session_feedback.py", "scripts/ios_ui_backend.py", "requirements*.txt", "pyproject.toml", ".github/workflows/ios.yml"]
   workflow_dispatch:
 permissions:
   contents: read

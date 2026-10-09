@@ -10,6 +10,7 @@ from pydantic import Field, ValidationError
 
 from app.coaching_context import build_coaching_context, completed_history
 from app.errors import CoachError
+from app.initial_plan import validate_draft
 from app.models import Plan, StrictModel
 from app.services.planner import canonical_hash
 from app.training_profile import ProfileWrite, TrainingProfile, profile_brief
@@ -203,44 +204,6 @@ def message(body: Message, request: Request):
         },
     )
     return answer
-
-
-def validate_draft(plan, profile, today):
-    days = {day.weekday: day.minutes for day in profile.availability}
-    totals = {}
-    gym_counts = {}
-    if len(plan.workouts) > 28:
-        raise ValueError("Too many sessions")
-    for workout in plan.workouts:
-        if not today < workout.date <= today + timedelta(days=14):
-            raise ValueError("Draft dates outside the initial horizon")
-        if workout.sport == "rest":
-            continue
-        if (
-            workout.sport == "running"
-            and profile.primary_sport == "cycling"
-            or workout.sport == "cycling"
-            and profile.primary_sport == "running"
-        ):
-            raise ValueError("Sport outside athlete preference")
-        if workout.quality:
-            raise ValueError("Initial draft requires an established baseline before quality")
-        if workout.sport == "manual" and not profile.gym_sessions_week:
-            raise ValueError("No gym requested")
-        if workout.sport == "manual":
-            week = workout.date.isocalendar()[:2]
-            gym_counts[week] = gym_counts.get(week, 0) + 1
-            if gym_counts[week] > profile.gym_sessions_week:
-                raise ValueError("Too many gym sessions")
-        if not workout.estimated_duration_min:
-            raise ValueError("Training duration required")
-        actual = sum(step.seconds or 0 for step in workout.steps) / 60
-        if any(step.type == "repeat" or step.distance_m or step.target for step in workout.steps):
-            raise ValueError("Initial draft requires simple time-based sessions")
-        minutes = max(actual, workout.estimated_duration_min)
-        totals[workout.date] = totals.get(workout.date, 0) + minutes
-        if totals[workout.date] > days.get(workout.date.weekday(), 0):
-            raise ValueError("Duration exceeds availability")
 
 
 @router.post("/api/assistant/plan/apply")

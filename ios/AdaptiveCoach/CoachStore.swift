@@ -126,6 +126,17 @@ final class CoachStore: ObservableObject {
     func coachingContext() async throws -> CoachingContextReply {
         try await api().request("v1/coach/context")
     }
+    func previewInitialPlan(_ request: InitialPlanRequest) async throws -> InitialPlanPreview {
+        try await api().request("v1/coach/initial-plan/preview", method: "POST", body: Wire.encoder().encode(request))
+    }
+    func applyInitialPlan(_ preview: InitialPlanPreview) async throws {
+        let body = InitialPlanAcceptance(expectedContextHash: preview.contextHash, plan: preview.plan,
+                                         explanation: preview.explanation, draftHash: preview.draftHash,
+                                         expiresAt: preview.expiresAt, confirmed: true)
+        let _: PlanReply = try await api().request("v1/coach/initial-plan/apply", method: "POST", body: Wire.encoder().encode(body))
+        try await refresh()
+        notice = "Programma iniziale salvato. Le sedute sono disponibili nella scheda Piano."
+    }
     func saveManualSession(_ value: ManualSessionRequest) async throws {
         let _: ImportReply = try await api().request("v1/activities/manual", method: "POST", body: Wire.encoder().encode(value))
         try await refresh()

@@ -14,6 +14,7 @@ from app.integrations.session_details import DetailWrite
 from app.platform.coaching import CoachingContextService
 from app.platform.config import PlatformSettings
 from app.platform.detailed_review import ActivityDetailService
+from app.platform.initial_plan import InitialPlanAcceptance, InitialPlanPreview, InitialPlanService
 from app.platform.schemas import (
     AccountDeletion,
     ActivityImport,
@@ -210,6 +211,14 @@ def create_platform_app(settings=None, store=None):
     @app.get("/v1/coach/context")
     def coach_context(user: authenticated):
         return CoachingContextService(store, athletes).context(user["id"])
+
+    @app.post("/v1/coach/initial-plan/preview")
+    def initial_plan_preview(body: InitialPlanPreview, user: authenticated):
+        return InitialPlanService(store, athletes).preview(user["id"], body)
+
+    @app.post("/v1/coach/initial-plan/apply")
+    def initial_plan_apply(body: InitialPlanAcceptance, user: authenticated):
+        return InitialPlanService(store, athletes).apply(user["id"], body)
 
     @app.get("/v1/activities/{provider}/{provider_id}/details")
     def get_details(provider: str, provider_id: str, user: authenticated):
