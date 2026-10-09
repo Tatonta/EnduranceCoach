@@ -314,6 +314,21 @@ final class ChatGPTContractTests: XCTestCase {
         XCTAssertFalse(book.registrations[1].welcomed)
         try book.validate()
     }
+    func testRotationAndReducedPermissionsKeepAccountAndLatestCredentials() throws {
+        var book = ChatGPTAccountBook()
+        try book.accept(account("oaiapp_first", token: "first"))
+        try book.accept(account("oaiapp_second", token: "second"))
+        try book.accept(account("oaiapp_first", token: "rotated"), activate: false)
+        XCTAssertEqual(book.activeClientID, "oaiapp_second")
+        XCTAssertEqual(book.activeCredential?.accessToken, "second")
+        var reduced = account("oaiapp_second", token: "latest")
+        reduced.scopes = ["openid", "profile", "email"]
+        try book.accept(reduced, activate: false)
+        XCTAssertEqual(book.activeClientID, "oaiapp_second")
+        XCTAssertEqual(book.activeCredential?.refreshToken, "synthetic-refresh-latest")
+        XCTAssertFalse(try XCTUnwrap(book.activeCredential).permitsInference)
+        XCTAssertEqual(book.registrations[0].credential?.accessToken, "rotated")
+    }
     func testPendingAndFailedReauthorizationCannotReplaceActiveIdentity() throws {
         var book = ChatGPTAccountBook()
         try book.accept(account("oaiapp_first", token: "first"))

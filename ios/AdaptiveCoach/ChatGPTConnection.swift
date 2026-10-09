@@ -207,8 +207,12 @@ final class ChatGPTConnection: NSObject, ObservableObject, ASWebAuthenticationPr
             value.accessToken = renewed.accessToken; value.refreshToken = renewed.refreshToken ?? value.refreshToken
             value.expiresAt = Date().addingTimeInterval(renewed.expiresIn)
             if let scope = renewed.scope { value.scopes = scope.split(separator: " ").map(String.init) }
-            guard generation == current, self.binding == binding, value.permitsInference else { throw ChatGPTAuthorization.failure() }
+            guard generation == current, self.binding == binding else { throw ChatGPTAuthorization.failure() }
             try save(value, binding: binding, activate: false)
+            if !value.permitsInference {
+                needsWelcome = false
+                throw ServiceError(status: 403, code: "chatgpt_plan_permission", message: "Account ChatGPT collegato, ma il permesso di usare il piano non è più attivo. Gestisci l'accesso nelle impostazioni ChatGPT.")
+            }
         }
         return value.accessToken
     }
