@@ -85,8 +85,8 @@ final class CoachingFlowTests: XCTestCase {
         for nextStep in 2...4 {
             tap(app.buttons["onboarding-continue"])
             let step = app.staticTexts["onboarding-step"]
-            XCTAssertTrue(step.waitForExistence(timeout: 5))
-            XCTAssertTrue(step.label.contains("Passaggio \(nextStep) di 5"), step.label)
+            let transition = expectation(for: NSPredicate(format: "label CONTAINS %@", "Passaggio \(nextStep) di 5"), evaluatedWith: step)
+            wait(for: [transition], timeout: 5)
         }
         tap(app.descendants(matching: .any).matching(identifier: "availability-0").firstMatch)
         tap(app.buttons["onboarding-continue"])
@@ -124,7 +124,7 @@ final class CoachingFlowTests: XCTestCase {
         tap(app.tabBars.buttons["Review"])
         XCTAssertTrue(app.staticTexts["workout-title"].waitForExistence(timeout: 15))
         tap(app.tabBars.buttons["Consigli"])
-        let decision = app.descendants(matching: .any).matching(identifier: "program-decision").firstMatch
+        let decision = app.staticTexts["program-decision"]
         XCTAssertTrue(decision.waitForExistence(timeout: 15))
         XCTAssertTrue(decision.label.contains("Mantieni il piano"))
         XCTAssertFalse(app.buttons["preview-adjustment"].exists)

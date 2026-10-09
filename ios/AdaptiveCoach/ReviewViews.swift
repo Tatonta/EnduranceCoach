@@ -75,9 +75,12 @@ struct AdviceView: View {
                         if review.advice.isEmpty { Text("Importa la prima attività per ricevere consigli sul recupero e sulla prossima seduta.") }
                     }
                     Section("Adattare il programma?") {
-                        Label(review.program.eligible ? "Valuta un piccolo adattamento" : "Mantieni il piano", systemImage: review.program.eligible ? "arrow.triangle.branch" : "checkmark.circle")
-                            .font(.headline)
-                            .accessibilityIdentifier("program-decision")
+                        Label {
+                            Text(review.program.eligible ? "Valuta un piccolo adattamento" : "Mantieni il piano")
+                                .accessibilityIdentifier("program-decision")
+                        } icon: {
+                            Image(systemName: review.program.eligible ? "arrow.triangle.branch" : "checkmark.circle")
+                        }.font(.headline)
                         Text(review.program.reason)
                         ForEach(Array((review.program.contextReasons ?? []).filter { !review.program.reason.contains($0) }.enumerated()), id: \.offset) { _, item in
                             Text(item).font(.footnote).foregroundStyle(.secondary)

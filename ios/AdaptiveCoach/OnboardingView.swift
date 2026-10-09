@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct OnboardingView: View {
     @EnvironmentObject private var store: CoachStore
@@ -32,13 +33,23 @@ struct OnboardingView: View {
                 case 3: availabilitySection
                 default: summarySection
                 }
-                Section {
-                    if step > 0 { Button("Indietro") { step -= 1 } }
-                    if step < 4 { Button("Continua") { validateAndAdvance() }.accessibilityIdentifier("onboarding-continue") }
-                    else { Button("Salva e apri il coach") { save() }.disabled(!draft.coachingConsent || store.busy).accessibilityIdentifier("onboarding-save") }
-                    if store.busy { ProgressView("Salvataggio…") }
-                }
             }.navigationTitle(editing ? "Profilo e obiettivi" : "Conosciamoci")
+                .scrollDismissesKeyboard(.interactively)
+                .safeAreaInset(edge: .bottom) {
+                    HStack {
+                        if step > 0 { Button("Indietro") { dismissKeyboard(); step -= 1 }.disabled(store.busy) }
+                        Spacer()
+                        if store.busy { ProgressView("Salvataggio…") }
+                        if step < 4 {
+                            Button("Continua") { dismissKeyboard(); validateAndAdvance() }
+                                .buttonStyle(.borderedProminent).accessibilityIdentifier("onboarding-continue")
+                        } else {
+                            Button("Salva e apri il coach") { dismissKeyboard(); save() }
+                                .buttonStyle(.borderedProminent).disabled(!draft.coachingConsent || store.busy)
+                                .accessibilityIdentifier("onboarding-save")
+                        }
+                    }.padding().background(.regularMaterial)
+                }
                 .toolbar {
                     if editing { Button("Chiudi") { dismiss() }.disabled(store.busy) }
                     else { Button("Esci") { Task { await store.run { try await store.logout() } } }.disabled(store.busy) }
@@ -142,6 +153,9 @@ struct OnboardingView: View {
         let formatter = DateFormatter(); formatter.calendar = Calendar(identifier: .gregorian)
         formatter.locale = Locale(identifier: "en_US_POSIX"); formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: value)
+    }
+    private func dismissKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
     private func loadDraft() {
         guard !initialized else { return }; initialized = true
