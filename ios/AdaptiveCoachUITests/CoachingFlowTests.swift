@@ -4,6 +4,7 @@ final class CoachingFlowTests: XCTestCase {
     private let app = XCUIApplication()
     private var password = ""
     private var origin = ""
+    private var fixtureLoginSucceeded = false
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -32,7 +33,7 @@ final class CoachingFlowTests: XCTestCase {
             if element.exists && element.isHittable { element.tap(); return }
             app.swipeDown()
         }
-        XCTFail("Control exists but could not be reached: \(element.identifier)")
+        XCTFail("Expected control was not found or could not be reached.")
     }
 
     private func login(_ account: String) {
@@ -55,6 +56,19 @@ final class CoachingFlowTests: XCTestCase {
             ? app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map { $0.label }.joined(separator: " · ")
             : "Expected screen did not appear."
         XCTAssertTrue(arrived, message)
+        if arrived { fixtureLoginSucceeded = true }
+    }
+
+    override func tearDownWithError() throws {
+        // Only revoke the generated fixture session after a successful fixture login.
+        // An existing session detected during setup is left untouched.
+        if fixtureLoginSucceeded {
+            if app.alerts.firstMatch.exists { app.alerts.buttons["OK"].tap() }
+            if app.buttons["Chiudi"].exists && app.buttons["Chiudi"].isHittable { app.buttons["Chiudi"].tap() }
+            if app.tabBars.buttons["Account"].exists { app.tabBars.buttons["Account"].tap() }
+            if app.buttons["Esci"].exists && app.buttons["Esci"].isHittable { app.buttons["Esci"].tap() }
+        }
+        app.terminate()
     }
 
     private func logout() {
@@ -68,11 +82,16 @@ final class CoachingFlowTests: XCTestCase {
         assertScreen(app.navigationBars["Conosciamoci"])
         XCTAssertFalse(app.tabBars.buttons["Coach"].exists)
         fill(app.descendants(matching: .any).matching(identifier: "profile-goal").firstMatch, with: "Allenarmi con continuita per migliorare la resistenza")
-        for _ in 0..<3 { tap(app.buttons["onboarding-continue"]) }
-        tap(app.switches["availability-0"])
+        for nextStep in 2...4 {
+            tap(app.buttons["onboarding-continue"])
+            let step = app.staticTexts["onboarding-step"]
+            XCTAssertTrue(step.waitForExistence(timeout: 5))
+            XCTAssertTrue(step.label.contains("Passaggio \(nextStep) di 5"), step.label)
+        }
+        tap(app.descendants(matching: .any).matching(identifier: "availability-0").firstMatch)
         tap(app.buttons["onboarding-continue"])
         XCTAssertFalse(app.buttons["onboarding-save"].isEnabled)
-        tap(app.switches["profile-consent"])
+        tap(app.descendants(matching: .any).matching(identifier: "profile-consent").firstMatch)
         capture("Questionario-prima-della-conferma")
         tap(app.buttons["onboarding-save"])
         assertScreen(app.tabBars.buttons["Coach"])
@@ -86,7 +105,7 @@ final class CoachingFlowTests: XCTestCase {
         XCTAssertTrue(accept.waitForExistence(timeout: 15))
         XCTAssertFalse(accept.isEnabled)
         capture("Proposta-richiede-conferma")
-        tap(app.switches["adjustment-confirmation"])
+        tap(app.descendants(matching: .any).matching(identifier: "adjustment-confirmation").firstMatch)
         XCTAssertTrue(accept.isEnabled)
         tap(accept)
         if app.alerts.firstMatch.waitForExistence(timeout: 15) { app.alerts.buttons["OK"].tap() }

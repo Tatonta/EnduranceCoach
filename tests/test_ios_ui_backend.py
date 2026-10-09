@@ -3,6 +3,9 @@ import json
 import pytest
 from fastapi.testclient import TestClient
 
+pytest.importorskip("sqlalchemy", reason="Install .[platform] for the UI fixture backend")
+pytest.importorskip("argon2", reason="Install .[platform] for account security")
+
 from scripts.ios_ui_backend import prepare
 
 

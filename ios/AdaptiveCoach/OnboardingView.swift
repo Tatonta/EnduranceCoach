@@ -23,6 +23,7 @@ struct OnboardingView: View {
                     Text("Il programma deve trovare posto nella tua vita. Puoi ricevere coaching anche senza un orologio.")
                     ProgressView(value: Double(step + 1), total: 5)
                     Text("Passaggio \(step + 1) di 5 · \(titles[step])").font(.caption).foregroundStyle(.secondary)
+                        .accessibilityIdentifier("onboarding-step")
                 }
                 switch step {
                 case 0: goalSection
