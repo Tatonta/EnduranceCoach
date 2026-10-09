@@ -1,6 +1,6 @@
 # Native Adaptive Coach client
 
-SwiftUI iPhone app, iOS 17+, no third-party SDKs. Open **AdaptiveCoach.xcodeproj** on a Mac with Xcode 16 or newer. The app compiled, 17 native contract/transport tests and two UI flows passed on 9 October 2026 in [this macOS CI run](https://github.com/Tatonta/EnduranceCoach/actions/runs/37902116734). Unit tests use an unsigned build; UI tests use local ad hoc simulator signing. Neither is a signed or verified App Store release: the development host is Windows and has neither Swift nor Xcode. The source is hosted on [Tatonta/EnduranceCoach, develop](https://github.com/Tatonta/EnduranceCoach/tree/develop). Check [GitHub Actions](https://github.com/Tatonta/EnduranceCoach/actions) for the current macOS build status; local SDK compilation is unavailable on Windows.
+SwiftUI iPhone app, iOS 17+, no third-party SDKs. Open **AdaptiveCoach.xcodeproj** on a Mac with Xcode 16 or newer. The latest application code (`3270a38`) compiled and passed **25 native contract tests and two UI flows** on 9 October 2026 in [this macOS run](https://github.com/Tatonta/EnduranceCoach/actions/runs/37943861538). Unit tests use an unsigned simulator build; UI tests use local ad hoc simulator signing. The experimental ChatGPT flow still needs real account/iPhone verification. This is not a signed or verified App Store release. Source is public under MIT on [develop](https://github.com/Tatonta/EnduranceCoach/tree/develop). Local SDK compilation is unavailable on the Windows development host.
 
 ## Implemented flows
 
