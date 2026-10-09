@@ -35,6 +35,9 @@ enum SessionVault {
         guard status == errSecSuccess || status == errSecItemNotFound else { throw vaultError(status) }
     }
     private static func vaultError(_ status: OSStatus) -> ServiceError {
-        ServiceError(status: 0, code: "keychain", message: "Sessione nel Portachiavi non disponibile (\(status)). Sblocca il dispositivo e riprova.")
+        if status == errSecMissingEntitlement {
+            return ServiceError(status: 0, code: "keychain_configuration", message: "L'app non riesce a proteggere la sessione. Aggiorna l'app o contatta l'assistenza.")
+        }
+        return ServiceError(status: 0, code: "keychain", message: "Sessione nel Portachiavi non disponibile (\(status)). Sblocca il dispositivo e riprova.")
     }
 }

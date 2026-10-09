@@ -49,6 +49,14 @@ final class CoachingFlowTests: XCTestCase {
         add(attachment)
     }
 
+    private func assertScreen(_ element: XCUIElement, timeout: TimeInterval = 20) {
+        let arrived = element.waitForExistence(timeout: timeout)
+        let message = app.alerts.firstMatch.exists
+            ? app.alerts.firstMatch.staticTexts.allElementsBoundByIndex.map { $0.label }.joined(separator: " · ")
+            : "Expected screen did not appear."
+        XCTAssertTrue(arrived, message)
+    }
+
     private func logout() {
         tap(app.tabBars.buttons["Account"])
         tap(app.buttons["Esci"])
@@ -57,7 +65,7 @@ final class CoachingFlowTests: XCTestCase {
 
     func testFirstAccessQuestionnaireReviewAndExplicitAdjustment() {
         login("first")
-        XCTAssertTrue(app.navigationBars["Conosciamoci"].waitForExistence(timeout: 20))
+        assertScreen(app.navigationBars["Conosciamoci"])
         XCTAssertFalse(app.tabBars.buttons["Coach"].exists)
         fill(app.descendants(matching: .any).matching(identifier: "profile-goal").firstMatch, with: "Allenarmi con continuita per migliorare la resistenza")
         for _ in 0..<3 { tap(app.buttons["onboarding-continue"]) }
@@ -67,7 +75,7 @@ final class CoachingFlowTests: XCTestCase {
         tap(app.switches["profile-consent"])
         capture("Questionario-prima-della-conferma")
         tap(app.buttons["onboarding-save"])
-        XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 20))
+        assertScreen(app.tabBars.buttons["Coach"])
         tap(app.tabBars.buttons["Review"])
         XCTAssertTrue(app.staticTexts["workout-title"].waitForExistence(timeout: 15))
         XCTAssertEqual(app.staticTexts["workout-title"].label, "Corsa facile sintetica")
@@ -93,7 +101,7 @@ final class CoachingFlowTests: XCTestCase {
 
     func testHighHeartRateLapKeepsPlanAndHidesProposal() {
         login("context")
-        XCTAssertTrue(app.tabBars.buttons["Coach"].waitForExistence(timeout: 20))
+        assertScreen(app.tabBars.buttons["Coach"])
         tap(app.tabBars.buttons["Review"])
         XCTAssertTrue(app.staticTexts["workout-title"].waitForExistence(timeout: 15))
         tap(app.tabBars.buttons["Consigli"])

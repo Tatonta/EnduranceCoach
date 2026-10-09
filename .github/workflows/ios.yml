@@ -65,7 +65,8 @@ jobs:
                           '-scheme', 'AdaptiveCoachUI', '-destination',
                           'platform=iOS Simulator,id=${{ steps.simulator.outputs.udid }}',
                           '-parallel-testing-enabled', 'NO', '-derivedDataPath', 'ios/DerivedData',
-                          '-resultBundlePath', 'ios/UIFlowTests.xcresult', 'CODE_SIGNING_ALLOWED=NO'],
+                          '-resultBundlePath', 'ios/UIFlowTests.xcresult', 'CODE_SIGNING_ALLOWED=YES',
+                          'CODE_SIGNING_REQUIRED=YES', 'CODE_SIGN_IDENTITY=-'],
                          env=environment, check=True)
           PY
       - name: Stop only the disposable UI backend
